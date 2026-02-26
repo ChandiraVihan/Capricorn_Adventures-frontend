@@ -1,1 +1,9 @@
-
+.App {
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    background-image: url('./assets/bg.jpg');
+    background-size: cover; /* Cover the entire area */
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    display: flex; /* Use flexbox to easily position children */
+    flex-direction: column; /* Stack children vertically */
+}
