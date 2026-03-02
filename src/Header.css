@@ -1,16 +1,287 @@
-.header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background-color: transparent;
-    color: white;
-    z-index: 4;
+/* Header.css */
+
+.header-container {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* --- Top Banner --- */
+.top-banner {
+  background-color: #000000;
+  color: #ffffff;
+  padding: 13px 16px;
+  /* Added ~10px total height */
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
 
-.logo {
-    width: 80px;
-    height: 80px;
-    margin-right: 10px;
+.banner-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weavy-symbol {
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.banner-separator {
+  color: #888;
+}
+
+/* --- Main Navigation --- */
+.main-header {
+  background-color: transparent;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 80px;
+}
+
+/* --- Logo Area --- */
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+}
+
+.logo-mark {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  background-color: #000000;
+  height: 100%;
+  padding: 0 16px 16px 16px;
+  /* Pad sides and push stripes to bottom */
+}
+
+.logo-stripe {
+  width: 10px;
+  height: 40px;
+  background-color: #ffffff;
+}
+
+.logo-stripe.short {
+  height: 24px;
+}
+
+.logo-text-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 8px;
+}
+
+.brand-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111111;
+  letter-spacing: 0.05em;
+}
+
+.tagline {
+  font-size: 0.65rem;
+  color: #555555;
+  line-height: 1.2;
+  border-left: 1px solid #cccccc;
+  padding-left: 16px;
+}
+
+/* --- Desktop Nav --- */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  /* Evenly spaced ~2rem */
+  flex: 1;
+  justify-content: flex-end;
+  padding-right: 2rem;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333333;
+  /* Dark gray */
+  font-size: 0.8rem;
+  font-weight: 500;
+  /* Medium weight */
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #000000;
+}
+
+/* --- CTA Button --- */
+.cta-wrapper {
+  display: flex;
+  align-items: stretch;
+}
+
+.cta-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7ff9e;
+  /* Bright yellow/lime */
+  color: #000000;
+  /* Black bold text */
+  font-size: 2rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0 3rem;
+  /* Substantial padding */
+  border-radius: 0;
+  /* Rounded corners removed to fit right edge */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin: 0;
+  /* Margin removed to fit right edge */
+}
+
+.cta-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+  /* Slightly darker on hover */
+}
+
+.cta-button:active {
+  transform: scale(0.98);
+}
+
+/* --- Mobile Components --- */
+.mobile-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0 1.5rem;
+  cursor: pointer;
+}
+
+.hamburger {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #000;
+  position: relative;
+  transition: background-color 0.3s;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: #000;
+  left: 0;
+  transition: transform 0.3s;
+}
+
+.hamburger::before {
+  top: -8px;
+}
+
+.hamburger::after {
+  bottom: -8px;
+}
+
+.hamburger.open {
+  background-color: transparent;
+}
+
+.hamburger.open::before {
+  transform: rotate(45deg);
+  top: 0;
+}
+
+.hamburger.open::after {
+  transform: rotate(-45deg);
+  top: 0;
+}
+
+.mobile-nav {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav .nav-link {
+  padding: 1rem 0;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.mobile-cta {
+  display: inline-block;
+  background-color: #e8ff4d;
+  color: #000;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 1rem;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* --- Media Queries --- */
+@media (max-width: 1024px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .cta-wrapper {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-text-block {
+    display: none;
+    /* Hide text on small screens to maintain layout */
+  }
+
+  .header-content {
+    height: 64px;
+  }
+
+  .logo-mark {
+    padding-bottom: 8px;
+  }
+
+  .logo-stripe {
+    height: 32px;
+  }
+
+  .logo-stripe.short {
+    height: 20px;
+  }
 }

@@ -1,9 +1,16 @@
-.App {
-    min-height: 100vh; /* Ensure it takes full viewport height */
-    background-image: url('./assets/bg.jpg');
-    background-size: cover; /* Cover the entire area */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Do not repeat the image */
-    display: flex; /* Use flexbox to easily position children */
-    flex-direction: column; /* Stack children vertically */
+.hero {
+  z-index: 2;
+  background-color: #fff;
+  background-image:
+    linear-gradient(0deg, #ffffff4d 34%, #c1cdd559 71%),
+    url("./assets/bg.avif");
+  background-position: 0 0, 50%;
+  background-size: auto, cover;
+  background-attachment: scroll, scroll;
+  width: 100vw;
+  height: auto;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
