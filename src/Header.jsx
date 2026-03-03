@@ -1,10 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import "./Header.css";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import "./Header.css";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/home");
+  };
 
   return (
     <div className="header-container">
@@ -35,11 +42,15 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
-            <Link to="/collective" className="nav-link">COLLECTIVE</Link>
-            <Link to="/enterprise" className="nav-link">ENTERPRISE</Link>
-            <Link to="/pricing" className="nav-link">PRICING</Link>
-            <Link to="/request-demo" className="nav-link">REQUEST A DEMO</Link>
-            <Link to="/signin" className="nav-link">SIGN IN</Link>
+            <Link to="/home" className="nav-link">HOME</Link>
+            <Link to="/packages" className="nav-link">PACKAGES</Link>
+            <Link to="/about us" className="nav-link">ABOUT US</Link>
+            <Link to="/contact" className="nav-link">CONTACT</Link>
+            {user ? (
+              <button onClick={handleLogout} className="nav-link logout-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit' }}>SIGN OUT</button>
+            ) : (
+              <Link to="/signin" className="nav-link">SIGN IN</Link>
+            )}
           </nav>
 
           {/* CTA Button */}
@@ -60,11 +71,21 @@ export default function Header() {
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
           <nav className="mobile-nav">
-            <Link to="/collective" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>COLLECTIVE</Link>
-            <Link to="/enterprise" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>ENTERPRISE</Link>
-            <Link to="/pricing" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>PRICING</Link>
-            <Link to="/request-demo" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>REQUEST A DEMO</Link>
-            <Link to="/signin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>SIGN IN</Link>
+            <Link to="/HOME" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>COLLECTIVE</Link>
+            <Link to="/PACKAGES" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>ENTERPRISE</Link>
+            <Link to="/ABOUT US" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>PRICING</Link>
+            <Link to="/Contact" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>REQUEST A DEMO</Link>
+            {user ? (
+              <button
+                onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                className="nav-link"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', textAlign: 'left', padding: '0.5rem 1rem' }}
+              >
+                SIGN OUT
+              </button>
+            ) : (
+              <Link to="/signin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>SIGN IN</Link>
+            )}
             <Link to="/signup" className="mobile-cta" onClick={() => setIsMobileMenuOpen(false)}>Book Now</Link>
           </nav>
         )}

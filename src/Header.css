@@ -285,3 +285,9 @@
     height: 20px;
   }
 }
+
+.banner-text {
+    font-family: 'Markova';
+    font-weight: normal;
+    font-style: normal;
+}
