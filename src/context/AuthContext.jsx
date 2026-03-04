@@ -8,16 +8,28 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = authService.getCurrentUser();
-        if (storedUser) {
-            setUser(storedUser);
-        }
-        setLoading(false);
+        const verifySession = async () => {
+            try {
+                const storedUser = await authService.getUserInfo();
+                if (storedUser) {
+                    setUser(storedUser);
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Session verification failed:", error);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        verifySession();
     }, []);
 
     const login = async (email, password) => {
         const data = await authService.login(email, password);
-        setUser({ email: data.email, role: data.role });
+        setUser(data.user);
         return data;
     };
 

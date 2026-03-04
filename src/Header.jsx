@@ -43,11 +43,12 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
             <Link to="/home" className="nav-link">HOME</Link>
-            <Link to="/packages" className="nav-link">PACKAGES</Link>
-            <Link to="/about us" className="nav-link">ABOUT US</Link>
-            <Link to="/contact" className="nav-link">CONTACT</Link>
+            <Link to="/search" className="nav-link">PLAN STAY</Link>
+            <Link to="/find-booking" className="nav-link">TRACK BOOKING</Link>
+            {user && <Link to="/my-bookings" className="nav-link">MY ADVENTURES</Link>}
+            {user && <Link to="/profile" className="nav-link">MY PROFILE</Link>}
             {user ? (
-              <button onClick={handleLogout} className="nav-link logout-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit' }}>SIGN OUT</button>
+              <button onClick={handleLogout} className="nav-link logout-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit' }}>LOG OUT</button>
             ) : (
               <Link to="/signin" className="nav-link">SIGN IN</Link>
             )}
@@ -55,7 +56,7 @@ export default function Header() {
 
           {/* CTA Button */}
           <div className="cta-wrapper">
-            <Link to="/signup" className="cta-button">Book Now</Link>
+            <Link to="/search" className="cta-button">Book Now</Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -71,22 +72,23 @@ export default function Header() {
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
           <nav className="mobile-nav">
-            <Link to="/HOME" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>COLLECTIVE</Link>
-            <Link to="/PACKAGES" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>ENTERPRISE</Link>
-            <Link to="/ABOUT US" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>PRICING</Link>
-            <Link to="/Contact" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>REQUEST A DEMO</Link>
+            <Link to="/home" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>HOME</Link>
+            <Link to="/search" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>PLAN STAY</Link>
+            <Link to="/find-booking" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>TRACK BOOKING</Link>
+            {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>MY ADVENTURES</Link>}
+            {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>MY PROFILE</Link>}
             {user ? (
               <button
                 onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
                 className="nav-link"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', textAlign: 'left', padding: '0.5rem 1rem' }}
               >
-                SIGN OUT
+                LOG OUT
               </button>
             ) : (
               <Link to="/signin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>SIGN IN</Link>
             )}
-            <Link to="/signup" className="mobile-cta" onClick={() => setIsMobileMenuOpen(false)}>Book Now</Link>
+            <Link to="/search" className="mobile-cta" onClick={() => setIsMobileMenuOpen(false)}>Book Now</Link>
           </nav>
         )}
       </header>

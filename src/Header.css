@@ -248,6 +248,13 @@
 }
 
 /* --- Media Queries --- */
+@media (max-width: 1200px) {
+  .desktop-nav {
+    gap: 1rem;
+    padding-right: 1rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .desktop-nav {
     display: none;
@@ -287,7 +294,7 @@
 }
 
 .banner-text {
-    font-family: 'Markova';
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Markova';
+  font-weight: normal;
+  font-style: normal;
 }

@@ -15,11 +15,11 @@ export const authService = {
       throw new Error(errorData.error || "Login failed");
     }
 
-    const data = await response.json(); // AuthResponse { accessToken, refreshToken, email, role }
+    const data = await response.json(); // AuthResponse { accessToken, refreshToken, user }
     if (data.accessToken) {
       localStorage.setItem("token", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
-      localStorage.setItem("user", JSON.stringify({ email: data.email, role: data.role }));
+      localStorage.setItem("user", JSON.stringify(data.user));
     }
     return data;
   },
@@ -74,5 +74,31 @@ export const authService = {
 
   getToken() {
     return localStorage.getItem("token");
+  },
+
+  async forgotPassword(email) {
+    const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to send reset email");
+    }
+    return await response.json();
+  },
+
+  async resetPassword(token, newPassword) {
+    const response = await fetch(`${API_BASE_URL}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to reset password");
+    }
+    return await response.json();
   }
 };

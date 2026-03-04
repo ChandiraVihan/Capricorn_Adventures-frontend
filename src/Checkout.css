@@ -1,0 +1,266 @@
+.checkout-container {
+    max-width: 1000px;
+    margin: 150px auto 40px auto;
+    padding: 0 20px;
+}
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 40px;
+}
+
+.checkout-main h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #1c124d;
+    margin-bottom: 30px;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.checkout-form .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.checkout-form .form-group input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    outline: none;
+    font-size: 1rem;
+}
+
+.continue-btn,
+.confirm-btn {
+    background: #1c124d;
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.continue-btn:hover,
+.confirm-btn:hover {
+    background: #2a1b70;
+}
+
+.continue-btn:disabled,
+.confirm-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.checkout-summary {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.checkout-summary h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #1c124d;
+}
+
+.summary-card {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid #eee;
+}
+
+.summary-item {
+    margin-bottom: 15px;
+}
+
+.summary-item .label {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.summary-item .value {
+    font-weight: 600;
+    color: #333;
+}
+
+.summary-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 20px 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #1c124d;
+}
+
+.payment-placeholder {
+    background: #fdfdfd;
+    padding: 30px;
+    border: 2px dashed #ddd;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.card-mockup {
+    background: #1a1a1a;
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    margin: 30px 0;
+    letter-spacing: 2px;
+    font-family: monospace;
+}
+
+.checkout-success {
+    height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.success-box {
+    text-align: center;
+    max-width: 500px;
+    padding: 60px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.success-icon {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background: #4bb543;
+    color: white;
+    line-height: 80px;
+    border-radius: 50%;
+    font-size: 40px;
+    margin-bottom: 30px;
+}
+
+.finish-btn {
+    margin-top: 30px;
+    background: #1c124d;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkout-error {
+    background: #fdf7f7;
+    color: #d9534f;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    border: 1px solid #f0e0e0;
+}
+
+.choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.choice-card {
+    background: #f8f9fa;
+    padding: 40px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.choice-card:hover {
+    border-color: #1c124d;
+    background: white;
+    transform: translateY(-5px);
+}
+
+.choice-card h3 {
+    margin-bottom: 10px;
+    color: #1c124d;
+}
+
+.choice-card p {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.choice-card.guest {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.failure-simulation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+    font-size: 0.9rem;
+    color: #d9534f;
+}
+
+.back-btn-simple {
+    display: block;
+    margin: 20px auto 0;
+    background: none;
+    border: none;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.ref-code {
+    background: #f0f0f0;
+    padding: 5px 15px;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    color: #1c124d;
+}
+
+@media (max-width: 768px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .choice-grid {
+        grid-template-columns: 1fr;
+    }
+}

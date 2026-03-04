@@ -1,0 +1,179 @@
+.search-page-container {
+    display: flex;
+    max-width: 1400px;
+    margin: 150px  40px auto;
+    padding: 0 40px;
+    gap: 40px;
+    min-height: 80vh;
+}
+
+.search-filters-sidebar {
+    width: 300px;
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 20px;
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.search-filters-sidebar h3 {
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 25px;
+    color: #1c124d;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.filter-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.apply-btn {
+    width: 100%;
+    background: #1c124d;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.apply-btn:hover {
+    background: #2a1b70;
+}
+
+.search-results-content {
+    flex: 1;
+}
+
+.results-header {
+    margin-bottom: 40px;
+}
+
+.results-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    color: #1c124d;
+    margin-bottom: 10px;
+}
+
+.results-header p {
+    color: #666;
+}
+
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.room-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+    transform: translateY(-10px);
+}
+
+.room-image {
+    position: relative;
+    height: 250px;
+}
+
+.room-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.price-tag {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: #1c124d;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.price-tag span {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.room-info {
+    padding: 25px;
+}
+
+.room-info h3 {
+    margin-bottom: 15px;
+    color: #1c124d;
+    font-size: 1.4rem;
+}
+
+.room-meta {
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.room-desc {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.view-details-btn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border: 1px solid #1c124d;
+    color: #1c124d;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+    background: #1c124d;
+    color: white;
+}
+
+@media (max-width: 1024px) {
+    .search-page-container {
+        flex-direction: column;
+    }
+
+    .search-filters-sidebar {
+        width: 100%;
+        position: static;
+    }
+}
