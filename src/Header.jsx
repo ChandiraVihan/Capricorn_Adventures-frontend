@@ -15,42 +15,33 @@ export default function Header() {
 
   return (
     <div className="header-container">
-      {/* Top Banner */}
-      <div className="top-banner">
-        <div className="banner-content">
-          <span className="banner-icon">🎨</span>
-          <span className="banner-separator">×</span>
-          <span className="banner-text">CAPRICORN ADVENTURES</span>
-        </div>
-      </div>
-
-      {/* Main Navigation */}
       <header className="main-header">
         <div className="header-content">
-          {/* Logo Area */}
-          <div className="logo-area">
-            <div className="logo-mark">
-              <div className="logo-stripe"></div>
-              <div className="logo-stripe short"></div>
-              <div className="logo-stripe"></div>
-            </div>
-            <div className="logo-text-block">
-              <span className="brand-name">WEAVY</span>
-              <span className="tagline">ARTISTIC<br />INTELLIGENCE</span>
-            </div>
-          </div>
+          {/* Logo Area - Premium Gradient Triangle */}
+          <Link to="/home" className="logo-area">
+            <svg width="34" height="34" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#bef264" />
+                  <stop offset="100%" stopColor="#7dd3fc" />
+                </linearGradient>
+              </defs>
+              <path d="M20 20L80 50L20 80V20Z" stroke="url(#logo-gradient)" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M35 40L65 50L35 60V40Z" fill="url(#logo-gradient)" fillOpacity="0.4"/>
+            </svg>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
-            <Link to="/home" className="nav-link">HOME</Link>
-            <Link to="/search" className="nav-link">PLAN STAY</Link>
-            <Link to="/find-booking" className="nav-link">TRACK BOOKING</Link>
-            {user && <Link to="/my-bookings" className="nav-link">MY ADVENTURES</Link>}
-            {user && <Link to="/profile" className="nav-link">MY PROFILE</Link>}
+            <Link to="/home" className="nav-link">Home</Link>
+            <Link to="/search" className="nav-link">Plan Stay</Link>
+            <Link to="/find-booking" className="nav-link">Track Booking</Link>
+            {user && <Link to="/my-bookings" className="nav-link">My Adventures</Link>}
+            {user && <Link to="/profile" className="nav-link">Profile</Link>}
             {user ? (
-              <button onClick={handleLogout} className="nav-link logout-btn" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit' }}>LOG OUT</button>
+              <button onClick={handleLogout} className="nav-link logout-btn">Log Out</button>
             ) : (
-              <Link to="/signin" className="nav-link">SIGN IN</Link>
+              <Link to="/signin" className="nav-link">Sign In</Link>
             )}
           </nav>
 
@@ -72,21 +63,20 @@ export default function Header() {
         {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
           <nav className="mobile-nav">
-            <Link to="/home" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>HOME</Link>
-            <Link to="/search" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>PLAN STAY</Link>
-            <Link to="/find-booking" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>TRACK BOOKING</Link>
-            {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>MY ADVENTURES</Link>}
-            {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>MY PROFILE</Link>}
+            <Link to="/home" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <Link to="/search" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Plan Stay</Link>
+            <Link to="/find-booking" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Track Booking</Link>
+            {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>My Adventures</Link>}
+            {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Profile</Link>}
             {user ? (
               <button
                 onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
-                className="nav-link"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', textAlign: 'left', padding: '0.5rem 1rem' }}
+                className="nav-link logout-btn"
               >
-                LOG OUT
+                Log Out
               </button>
             ) : (
-              <Link to="/signin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>SIGN IN</Link>
+              <Link to="/signin" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
             )}
             <Link to="/search" className="mobile-cta" onClick={() => setIsMobileMenuOpen(false)}>Book Now</Link>
           </nav>
