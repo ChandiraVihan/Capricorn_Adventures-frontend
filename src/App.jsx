@@ -1,8 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import Header from './Header'
-import HotelLanding from './HotelLanding'
-import Footer from './Footer'
 import Auth from './Auth'
 import ResetPassword from './ResetPassword'
 import OAuth2RedirectHandler from './OAuth2RedirectHandler'
@@ -13,16 +10,20 @@ import FindBooking from './FindBooking'
 import MyBookings from './MyBookings'
 import UserProfile from './UserProfile'
 import { AuthProvider } from './context/AuthContext'
+import Background from './Background'
+import LandingPage from './LandingPage'
+import Header from './Header'
 
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <Background />
+        <Header />
         <div className="hero">
-          <Header />
           <Routes>
-            <Route path="/" element={<HotelLanding />} />
-            <Route path="/home" element={<HotelLanding />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/home" element={<LandingPage />} />
             <Route path="/signin" element={<Auth mode="signin" />} />
             <Route path="/signup" element={<Auth mode="signup" />} />
             <Route path="/forgot-password" element={<Auth mode="forgot-password" />} />
@@ -33,10 +34,9 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/find-booking" element={<FindBooking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
-            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/profile" element={<UserProfile />} />  
           </Routes>
         </div>
-        <Footer />
       </Router>
     </AuthProvider>
   )
