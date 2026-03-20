@@ -2,7 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Users, Calendar, AlertCircle, Info } from 'lucide-react';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 import './SearchRoom.css';
+
+const parseDate = (str) => {
+    if (!str) return null;
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+};
 
 const SearchRoom = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -11,16 +19,32 @@ const SearchRoom = () => {
     const [error, setError] = useState(null);
     const [formErrors, setFormErrors] = useState({});
 
+    // Initialize state from URL - helper to parse dates
+    const parseDate = (dateStr) => {
+        if (!dateStr) return null;
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
     // Initialize state from URL
     const [filters, setFilters] = useState({
-        checkin: searchParams.get('checkin') || '',
-        checkout: searchParams.get('checkout') || '',
+        checkin: parseDate(searchParams.get('checkin')),
+        checkout: parseDate(searchParams.get('checkout')),
         guests: parseInt(searchParams.get('guests')) || 1
     });
 
     const validate = useCallback((data) => {
         const errors = {};
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         if (!data.checkin) {
             errors.checkin = "Check-in date is required";
@@ -56,7 +80,13 @@ const SearchRoom = () => {
         setError(null);
 
         try {
-            const query = new URLSearchParams(params).toString();
+            // Convert Dates to strings for the API
+            const apiParams = {
+                ...params,
+                checkin: params.checkin instanceof Date ? formatDate(params.checkin) : params.checkin,
+                checkout: params.checkout instanceof Date ? formatDate(params.checkout) : params.checkout
+            };
+            const query = new URLSearchParams(apiParams).toString();
             const res = await fetch(`http://localhost:8080/api/v1/rooms/search?${query}`);
             
             if (res.ok) {
@@ -84,18 +114,34 @@ const SearchRoom = () => {
 
         // Only search if we have the minimum required params in URL
         if (params.checkin && params.checkout) {
-            fetchRooms(params);
+            // Convert URL strings back to Date objects for validation/fetching if needed
+            fetchRooms({
+                checkin: parseDate(params.checkin),
+                checkout: parseDate(params.checkout),
+                guests: parseInt(params.guests)
+            });
         }
     }, [searchParams, fetchRooms]);
 
-    const handleFilterChange = (e) => {
-        const { name, value } = e.target;
-        const newFilters = { ...filters, [name]: value };
+    const handleDateChange = (name, date) => {
+        const newFilters = { ...filters, [name]: date };
         setFilters(newFilters);
 
-        // Immediate URL update
         const newParams = new URLSearchParams(searchParams);
-        newParams.set(name, value);
+        if (date) {
+            newParams.set(name, formatDate(date));
+        } else {
+            newParams.delete(name);
+        }
+        setSearchParams(newParams);
+    };
+
+    const handleGuestChange = (e) => {
+        const value = parseInt(e.target.value) || 1;
+        setFilters({ ...filters, guests: value });
+
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('guests', value.toString());
         setSearchParams(newParams);
     };
 
@@ -109,24 +155,32 @@ const SearchRoom = () => {
 
                 <div className="filter-group">
                     <label><Calendar className="small-icon" /> Check In</label>
-                    <input 
-                        type="date" 
-                        name="checkin" 
-                        value={filters.checkin} 
-                        onChange={handleFilterChange}
+                    <DatePicker
+                        selected={filters.checkin}
+                        onChange={(date) => handleDateChange('checkin', date)}
+                        selectsStart
+                        startDate={filters.checkin}
+                        endDate={filters.checkout}
+                        minDate={new Date()}
+                        placeholderText="Select date"
                         className={formErrors.checkin ? 'error' : ''}
+                        dateFormat="MMM d, yyyy"
                     />
                     {formErrors.checkin && <span className="error-text">{formErrors.checkin}</span>}
                 </div>
 
                 <div className="filter-group">
                     <label><Calendar className="small-icon" /> Check Out</label>
-                    <input 
-                        type="date" 
-                        name="checkout" 
-                        value={filters.checkout} 
-                        onChange={handleFilterChange}
+                    <DatePicker
+                        selected={filters.checkout}
+                        onChange={(date) => handleDateChange('checkout', date)}
+                        selectsEnd
+                        startDate={filters.checkin}
+                        endDate={filters.checkout}
+                        minDate={filters.checkin || new Date()}
+                        placeholderText="Select date"
                         className={formErrors.checkout ? 'error' : ''}
+                        dateFormat="MMM d, yyyy"
                     />
                     {formErrors.checkout && <span className="error-text">{formErrors.checkout}</span>}
                 </div>
@@ -137,7 +191,7 @@ const SearchRoom = () => {
                         type="number" 
                         name="guests" 
                         value={filters.guests} 
-                        onChange={handleFilterChange}
+                        onChange={handleGuestChange}
                         min="1"
                         max="10"
                         className={formErrors.guests ? 'error' : ''}
