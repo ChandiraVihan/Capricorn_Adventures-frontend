@@ -82,9 +82,9 @@ const SearchRoom = () => {
         try {
             // Convert Dates to strings for the API
             const apiParams = {
-                ...params,
-                checkin: params.checkin instanceof Date ? formatDate(params.checkin) : params.checkin,
-                checkout: params.checkout instanceof Date ? formatDate(params.checkout) : params.checkout
+                guests: params.guests,
+                checkIn: params.checkin instanceof Date ? formatDate(params.checkin) : params.checkin,
+                checkOut: params.checkout instanceof Date ? formatDate(params.checkout) : params.checkout
             };
             const query = new URLSearchParams(apiParams).toString();
             const res = await fetch(`http://localhost:8080/api/v1/rooms/search?${query}`);
@@ -93,12 +93,22 @@ const SearchRoom = () => {
                 const data = await res.json();
                 setRooms(data);
             } else {
-                const errData = await res.json();
-                setError(errData.messages || { general: "Search failed. Please try again." });
+                let errData;
+                try {
+                    errData = await res.json();
+                } catch (parseError) {
+                    throw new Error("Backend returned an error page. Is the database connection valid?");
+                }
+                
+                if (errData.messages) {
+                    setError(errData.messages);
+                } else {
+                    setError({ general: errData.general || "Search failed. Please try again." });
+                }
             }
         } catch (err) {
             console.error("Search failed", err);
-            setError({ general: "Connection error. Is the backend running?" });
+            setError({ general: err.message || "Connection error. Is the backend running?" });
         } finally {
             setLoading(false);
         }
