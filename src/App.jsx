@@ -13,6 +13,7 @@ import { AuthProvider } from './context/AuthContext'
 import Background from './Background'
 import LandingPage from './LandingPage'
 import Header from './Header'
+import Adventure from './Adventure'
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/find-booking" element={<FindBooking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<UserProfile />} />  
+            <Route path="/adventures" element={<Adventure />} />
           </Routes>
         </div>
       </Router>
