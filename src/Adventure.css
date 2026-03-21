@@ -1,0 +1,119 @@
+.adventure-root {
+  position: fixed;
+  inset: 0;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* ── Canvas ── */
+.adventure-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  cursor: grab;
+  opacity: 0.15;
+}
+
+.adventure-canvas.grabbing {
+  cursor: grabbing;
+}
+
+/* ── Overlay — stays solid until the drop fires ── */
+.adventure-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #080808;
+  pointer-events: none;
+}
+
+/* ── Text layer ── */
+.adventure-textlayer {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  padding-top: 10vh;
+  padding-left: 4vw;
+}
+
+.adventure-line {
+  display: block;
+  font-size: clamp(52px, 10.5vw, 170px);
+  font-weight: 900;
+  line-height: 0.86;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+  will-change: transform, opacity;
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+.adventure-line--1 { color: #f0f0f0; }
+.adventure-line--2 { color: #888; }
+.adventure-line--3 { color: #444; }
+
+/* ── Navbar ── */
+.adventure-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 20;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.adventure-navbar.visible {
+  pointer-events: auto;
+}
+
+.adventure-nav-pill {
+  background: rgba(12, 12, 12, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.adventure-nav-cta {
+  background: #fff;
+  color: #000;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: none;
+}
+
+/* ── Tooltip ── */
+.adventure-tooltip {
+  position: fixed;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fff;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 30;
+  transition: opacity 0.12s;
+  white-space: nowrap;
+}

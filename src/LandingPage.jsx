@@ -26,7 +26,9 @@ export default function LandingPage() {
           
           <div className="button-group">
             <button className="btn btn-primary">View Properties</button>
-            <button className="btn btn-secondary">Schedule Consultation</button>
+            <button className="btn btn-secondary" onClick={() => window.location.href = '/adventures'}>
+              View Adventures
+            </button>
           </div>
         </div>
 
