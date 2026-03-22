@@ -469,3 +469,136 @@
     border-color: white !important;
     border-width: 2px 2px 0 0 !important;
 }
+
+/* Amenities Mini Grid */
+.room-amenities-mini {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    align-items: center;
+}
+
+.amenity-pill {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(28, 18, 77, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1c124d;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(28, 18, 77, 0.1);
+}
+
+.amenity-pill:hover {
+    background: #1c124d;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.more-amenities {
+    font-size: 0.75rem;
+    color: #777;
+    font-weight: 500;
+}
+
+/* Booking Success Modal */
+.booking-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.booking-modal {
+    background: rgba(255, 255, 255, 0.95);
+    width: 90%;
+    max-width: 450px;
+    padding: 2.5rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-modal:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.success-icon {
+    color: #10b981;
+    margin-bottom: 1.5rem;
+}
+
+.booking-modal h2 {
+    color: #0f172a;
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.ref-box {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.ref-box span {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #64748b;
+}
+
+.ref-box strong {
+    font-size: 1.5rem;
+    color: #2563eb;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.booking-modal p {
+    color: #475569;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+.modal-primary-btn {
+    width: 100%;
+    padding: 1rem;
+    background: #0f172a;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.modal-primary-btn:hover {
+    transform: translateY(-2px);
+    background: #1e293b;
+}
