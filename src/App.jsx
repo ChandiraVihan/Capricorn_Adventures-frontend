@@ -14,6 +14,7 @@ import Background from './Background'
 import LandingPage from './LandingPage'
 import Header from './Header'
 import Adventure from './Adventure'
+import AdventureAdmin from './AdventureAdmin'
 
 function App() {
   return (
@@ -37,6 +38,8 @@ function App() {
             <Route path="/my-bookings" element={<MyBookings />} />
             <Route path="/profile" element={<UserProfile />} />  
             <Route path="/adventures" element={<Adventure />} />
+            <Route path="/admin/adventures" element={<AdventureAdmin />} />
+
           </Routes>
         </div>
       </Router>

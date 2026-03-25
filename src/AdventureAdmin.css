@@ -1,0 +1,98 @@
+.admin-container {
+  padding: 80px 40px;
+  color: #fff;
+  min-height: 100vh;
+  background: rgba(0,0,0,0.7);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.admin-section {
+  background: rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.admin-form input, .admin-form textarea {
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+}
+
+.admin-btn {
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.admin-btn:hover {
+  background: #0056b3;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th, .admin-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #444;
+}
+
+.admin-table tr:hover {
+  background: rgba(255,255,255,0.05);
+  cursor: pointer;
+}
+
+.admin-table tr.selected {
+  background: rgba(0,123,255,0.2);
+}
+
+.delete-btn {
+  padding: 5px 10px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 📱 MOBILE SPECIFIC CSS - ADMIN INTERFACE */
+@media (max-width: 992px) {
+  .admin-grid {
+    grid-template-columns: 1fr; /* Stack panels on tablet/mobile */
+  }
+  
+  .admin-container {
+    padding: 60px 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-table {
+    display: block;
+    overflow-x: auto; /* Allow horizontal scroll for tables on small phones */
+  }
+  
+  .admin-section h3 {
+    font-size: 1.2rem;
+  }
+}
+/* END MOBILE SPECIFIC CSS */
