@@ -28,6 +28,7 @@ const SearchRoom = () => {
     const [error, setError] = useState(null);
     const [formErrors, setFormErrors] = useState({});
     const [bookingState, setBookingState] = useState({ status: 'idle', reference: null, error: null });
+    const [hasSearched, setHasSearched] = useState(false);
     
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -103,6 +104,7 @@ const SearchRoom = () => {
             setError({ general: err.message || "Connection error. Is the backend running?" });
         } finally {
             setLoading(false);
+            setHasSearched(true);
         }
     }, [validate]);
 
@@ -186,20 +188,26 @@ const SearchRoom = () => {
 
     const handleDateChange = (name, date) => {
         setFilters(prev => ({ ...prev, [name]: date }));
-        const newParams = new URLSearchParams(searchParams);
-        if (date) {
-            newParams.set(name, formatDate(date));
-        } else {
-            newParams.delete(name);
-        }
-        setSearchParams(newParams);
     };
 
     const handleGuestChange = (e) => {
         const value = parseInt(e.target.value) || 1;
         setFilters(prev => ({ ...prev, guests: value }));
+    };
+
+    const handleSearch = () => {
+        const validationErrors = validate(filters);
+        if (Object.keys(validationErrors).length > 0) {
+            setFormErrors(validationErrors);
+            setRooms([]);
+            return;
+        }
+
+        setFormErrors({});
         const newParams = new URLSearchParams(searchParams);
-        newParams.set('guests', value.toString());
+        if (filters.checkin) newParams.set('checkin', formatDate(filters.checkin));
+        if (filters.checkout) newParams.set('checkout', formatDate(filters.checkout));
+        newParams.set('guests', filters.guests.toString());
         setSearchParams(newParams);
     };
 
@@ -256,6 +264,15 @@ const SearchRoom = () => {
                     />
                     {formErrors.guests && <span className="error-text">{formErrors.guests}</span>}
                 </div>
+
+                <button className="search-trigger-btn" onClick={handleSearch} disabled={loading}>
+                    {loading ? 'Searching...' : (
+                        <>
+                            <Search size={18} />
+                            Search Availability
+                        </>
+                    )}
+                </button>
 
                 {error?.general && (
                     <div className="general-error">
@@ -335,7 +352,7 @@ const SearchRoom = () => {
                                 </motion.div>
                             ))}
                         </motion.div>
-                    ) : !loading && rooms.length === 0 && filters.checkin && filters.checkout ? (
+                    ) : !loading && hasSearched && rooms.length === 0 ? (
                         <motion.div 
                             key="empty"
                             initial={{ opacity: 0, y: 20 }}
@@ -345,6 +362,19 @@ const SearchRoom = () => {
                             <Info size={48} />
                             <h3>No Availability</h3>
                             <p>We couldn't find any rooms for these dates and guests. Try adjusting your search.</p>
+                        </motion.div>
+                    ) : !loading && !hasSearched ? (
+                         <motion.div 
+                            key="initial"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="initial-prompt-state"
+                        >
+                            <div className="prompt-icon-wrapper">
+                                <Search size={48} />
+                            </div>
+                            <h3>Find Your Paradise</h3>
+                            <p>Select your preferred dates and guest count to see available luxury escapes.</p>
                         </motion.div>
                     ) : null}
                 </AnimatePresence>

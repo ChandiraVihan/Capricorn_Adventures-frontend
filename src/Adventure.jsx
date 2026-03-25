@@ -394,9 +394,9 @@ export default function Adventure() {
 
       {/* Headline text */}
       <div ref={textRef} className="adventure-textlayer">
-        <span ref={line1Ref} className="adventure-line adventure-line--1">GOOD SH*T</span>
-        <span ref={line2Ref} className="adventure-line adventure-line--2">HAPPENS</span>
-        <span ref={line3Ref} className="adventure-line adventure-line--3">HERE.</span>
+        <span ref={line1Ref} className="adventure-line adventure-line--1">Capricorn</span>
+        <span ref={line2Ref} className="adventure-line adventure-line--2">Adventures</span>
+        <span ref={line3Ref} className="adventure-line adventure-line--3">Welcome HERE.</span>
       </div>
 
 

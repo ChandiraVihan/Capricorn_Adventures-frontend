@@ -1,5 +1,6 @@
 import React from 'react';
 import './LandingPage.css';
+import logo from './assets/logo.png'; // Ensure you have a logo image in the specified path
 
 export default function LandingPage() {
   const images = [
@@ -11,19 +12,52 @@ export default function LandingPage() {
   ];
 
   return (
+    <>
+
+    <svg width="0" height="0" style={{ position: 'absolute' }}>
+      <defs>
+        <clipPath id="notch-clip" clipPathUnits="objectBoundingBox">
+          <path d="
+  M 0,0
+  L 0,0.98
+  Q 0,1 0.02,1
+  L 0.42,1
+  L 0.42,0.88
+  Q 0.42,0.82 0.44,0.82
+  L 0.60,0.82
+  Q 0.62,0.82 0.62,0.88
+  L 0.62,1
+  L 0.98,1
+  Q 1,1 1,0.98
+  L 1,0
+  L 0.78,0
+  L 0.78,0.08
+  Q 0.78,0.12 0.74,0.12
+  L 0.26,0.12
+  Q 0.22,0.12 0.22,0.08
+  L 0.22,0
+  Z
+
+          "/>
+        </clipPath>
+      </defs>
+    </svg>
+
+    <div className="custom-div"></div>
+    <div className="logo1">
+      <img src={logo} alt="Colombo Water Front Logo" />
+    </div>
     <div className="landing-page-container">
       <div className="hero-section">
         <div className="hero-content">
-          {/* <div className="badge">
-            <span className="icon">♕</span> Premium Properties
-          </div> */}
-          
+      
+
           <h1 className="title">Discover Your Dream Luxury Home</h1>
-          
+
           <p className="description">
             Explore the most exclusive properties in prime locations. From stunning penthouses to sprawling estates, we showcase the finest luxury real estate curated for discerning buyers.
           </p>
-          
+
           <div className="button-group">
             <button className="btn btn-primary">View Properties</button>
             <button className="btn btn-secondary" onClick={() => window.location.href = '/adventures'}>
@@ -52,5 +86,6 @@ export default function LandingPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
