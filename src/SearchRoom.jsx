@@ -1,15 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Users, Calendar, AlertCircle, Info } from 'lucide-react';
+import { Search, Users, Calendar, AlertCircle, Info, Wifi, Tv, Coffee, AirVent, Utensils, Waves, Accessibility, Plane, CigaretteOff, ConciergeBell, Sparkles, ParkingCircle, Wine, CheckCircle2, X } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import './SearchRoom.css';
 
-const parseDate = (str) => {
-    if (!str) return null;
-    const [y, m, d] = str.split('-').map(Number);
-    return new Date(y, m - 1, d);
+const formatDate = (date) => {
+    if (!date) return '';
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day);
 };
 
 const SearchRoom = () => {
@@ -18,21 +27,11 @@ const SearchRoom = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [formErrors, setFormErrors] = useState({});
-
-    // Initialize state from URL - helper to parse dates
-    const parseDate = (dateStr) => {
-        if (!dateStr) return null;
-        const [year, month, day] = dateStr.split('-').map(Number);
-        return new Date(year, month - 1, day);
-    };
-
-    const formatDate = (date) => {
-        if (!date) return '';
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
+    const [bookingState, setBookingState] = useState({ status: 'idle', reference: null, error: null });
+    const [hasSearched, setHasSearched] = useState(false);
+    
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     // Initialize state from URL
     const [filters, setFilters] = useState({
@@ -80,7 +79,6 @@ const SearchRoom = () => {
         setError(null);
 
         try {
-            // Convert Dates to strings for the API
             const apiParams = {
                 guests: params.guests,
                 checkIn: params.checkin instanceof Date ? formatDate(params.checkin) : params.checkin,
@@ -97,61 +95,119 @@ const SearchRoom = () => {
                 try {
                     errData = await res.json();
                 } catch (parseError) {
-                    throw new Error("Backend returned an error page. Is the database connection valid?");
+                    throw new Error("Backend returned an error. Please contact support.");
                 }
-                
-                if (errData.messages) {
-                    setError(errData.messages);
-                } else {
-                    setError({ general: errData.general || "Search failed. Please try again." });
-                }
+                setError({ general: errData.message || "Search failed. Please try again." });
             }
         } catch (err) {
             console.error("Search failed", err);
             setError({ general: err.message || "Connection error. Is the backend running?" });
         } finally {
             setLoading(false);
+            setHasSearched(true);
         }
     }, [validate]);
 
-    // Update URL and trigger search when filters change
     useEffect(() => {
-        const params = {
-            checkin: searchParams.get('checkin') || '',
-            checkout: searchParams.get('checkout') || '',
-            guests: searchParams.get('guests') || '1'
-        };
+        const checkin = searchParams.get('checkin');
+        const checkout = searchParams.get('checkout');
+        const guests = searchParams.get('guests');
 
-        // Only search if we have the minimum required params in URL
-        if (params.checkin && params.checkout) {
-            // Convert URL strings back to Date objects for validation/fetching if needed
+        if (checkin && checkout) {
             fetchRooms({
-                checkin: parseDate(params.checkin),
-                checkout: parseDate(params.checkout),
-                guests: parseInt(params.guests)
+                checkin: parseDate(checkin),
+                checkout: parseDate(checkout),
+                guests: parseInt(guests) || 1
             });
         }
     }, [searchParams, fetchRooms]);
 
-    const handleDateChange = (name, date) => {
-        const newFilters = { ...filters, [name]: date };
-        setFilters(newFilters);
-
-        const newParams = new URLSearchParams(searchParams);
-        if (date) {
-            newParams.set(name, formatDate(date));
-        } else {
-            newParams.delete(name);
+    const handleConfirmBooking = async (room) => {
+        if (!user) {
+            navigate('/auth');
+            return;
         }
-        setSearchParams(newParams);
+
+        setBookingState({ status: 'loading', reference: null, error: null });
+
+        try {
+            const response = await fetch('http://localhost:8080/api/v1/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    roomId: room.id,
+                    checkInDate: formatDate(filters.checkin),
+                    checkOutDate: formatDate(filters.checkout),
+                    guests: filters.guests
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Booking failed');
+            }
+
+            const data = await response.json();
+            setBookingState({ status: 'success', reference: data.referenceId, error: null });
+        } catch (err) {
+            setBookingState({ status: 'error', reference: null, error: err.message });
+        }
+    };
+
+    const renderAmenityIcon = (identifier) => {
+        switch (identifier?.toLowerCase()) {
+            case 'wifi': return <Wifi size={14} />;
+            case 'tv': return <Tv size={14} />;
+            case 'coffee': return <Coffee size={14} />;
+            case 'ac': 
+            case 'airvent': return <AirVent size={14} />;
+            case 'breakfast':
+            case 'utensils': return <Utensils size={14} />;
+            case 'pool':
+            case 'waves': return <Waves size={14} />;
+            case 'disabled':
+            case 'accessibility': return <Accessibility size={14} />;
+            case 'shuttle':
+            case 'plane': return <Plane size={14} />;
+            case 'nonsmoking':
+            case 'cigaretteoff': return <CigaretteOff size={14} />;
+            case 'roomservice':
+            case 'conciergebell': return <ConciergeBell size={14} />;
+            case 'spa':
+            case 'sparkles': return <Sparkles size={14} />;
+            case 'parking':
+            case 'parkingcircle': return <ParkingCircle size={14} />;
+            case 'bar':
+            case 'wine': return <Wine size={14} />;
+            default: return null;
+        }
+    };
+
+    const handleDateChange = (name, date) => {
+        setFilters(prev => ({ ...prev, [name]: date }));
     };
 
     const handleGuestChange = (e) => {
         const value = parseInt(e.target.value) || 1;
-        setFilters({ ...filters, guests: value });
+        setFilters(prev => ({ ...prev, guests: value }));
+    };
 
+    const handleSearch = () => {
+        const validationErrors = validate(filters);
+        if (Object.keys(validationErrors).length > 0) {
+            setFormErrors(validationErrors);
+            setRooms([]);
+            return;
+        }
+
+        setFormErrors({});
         const newParams = new URLSearchParams(searchParams);
-        newParams.set('guests', value.toString());
+        if (filters.checkin) newParams.set('checkin', formatDate(filters.checkin));
+        if (filters.checkout) newParams.set('checkout', formatDate(filters.checkout));
+        newParams.set('guests', filters.guests.toString());
         setSearchParams(newParams);
     };
 
@@ -209,6 +265,15 @@ const SearchRoom = () => {
                     {formErrors.guests && <span className="error-text">{formErrors.guests}</span>}
                 </div>
 
+                <button className="search-trigger-btn" onClick={handleSearch} disabled={loading}>
+                    {loading ? 'Searching...' : (
+                        <>
+                            <Search size={18} />
+                            Search Availability
+                        </>
+                    )}
+                </button>
+
                 {error?.general && (
                     <div className="general-error">
                         <AlertCircle className="small-icon" />
@@ -248,66 +313,109 @@ const SearchRoom = () => {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: index * 0.1 }}
-                                    key={index}
+                                    key={room.id || index}
                                     className="room-card"
                                 >
                                     <div className="room-image">
-                                        <img src={`https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800`} alt={room.roomType} />
-                                        <div className="price-tag">${room.pricePerNight}<span>/night</span></div>
+                                        <img 
+                                            src={room.images && room.images.length > 0 ? room.images[0].imageUrl : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800'} 
+                                            alt={room.name} 
+                                        />
+                                        <div className="price-tag">LKR {room.basePrice}<span>/night</span></div>
                                     </div>
                                     <div className="room-info">
                                         <div className="room-type-badge">Luxury Concept</div>
-                                        <h3>{room.roomType}</h3>
-                                        <p className="room-desc">{room.details}</p>
+                                        <h3>{room.name}</h3>
+                                        <p className="room-desc">{room.description}</p>
+                                        
+                                        {room.amenities && room.amenities.length > 0 && (
+                                            <div className="room-amenities-mini">
+                                                {room.amenities.slice(0, 4).map((amenity) => (
+                                                    <div key={amenity.id} className="amenity-pill" title={amenity.name}>
+                                                        {renderAmenityIcon(amenity.iconIdentifier)}
+                                                    </div>
+                                                ))}
+                                                {room.amenities.length > 4 && <span className="more-amenities">+{room.amenities.length - 4}</span>}
+                                            </div>
+                                        )}
+
                                         <div className="card-footer">
-                                            <Link to="#" className="view-details-btn">
-                                                Explore Suite
-                                            </Link>
+                                            <button 
+                                                className="view-details-btn" 
+                                                onClick={() => handleConfirmBooking(room)}
+                                                disabled={bookingState.status === 'loading'}
+                                            >
+                                                {bookingState.status === 'loading' ? 'Processing...' : 'Confirm Booking'}
+                                            </button>
                                         </div>
                                     </div>
                                 </motion.div>
                             ))}
                         </motion.div>
-                    ) : !loading && rooms.length === 0 && filters.checkin && filters.checkout ? (
+                    ) : !loading && hasSearched && rooms.length === 0 ? (
                         <motion.div 
                             key="empty"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="no-availability-container"
+                            className="empty-results"
                         >
-                            <div className="empty-icon-wrapper">
-                                <Info className="empty-icon" />
+                            <Info size={48} />
+                            <h3>No Availability</h3>
+                            <p>We couldn't find any rooms for these dates and guests. Try adjusting your search.</p>
+                        </motion.div>
+                    ) : !loading && !hasSearched ? (
+                         <motion.div 
+                            key="initial"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="initial-prompt-state"
+                        >
+                            <div className="prompt-icon-wrapper">
+                                <Search size={48} />
                             </div>
-                            <h3>No Availability Found</h3>
-                            <p>We couldn't find any rooms matching your exact combination of guests and dates.</p>
-                            
-                            <div className="suggestions-box">
-                                <h4>Actionable Suggestions:</h4>
-                                <ul>
-                                    <li>Try adjusting your dates by a few days</li>
-                                    <li>Reducing the number of guests may reveal more options</li>
-                                    <li>If you have exactly 5 guests, try searching for two separate rooms</li>
-                                </ul>
-                            </div>
-                            
-                            <button 
-                                onClick={() => {
-                                    setFilters({ ...filters, guests: 2 });
-                                    const newParams = new URLSearchParams(searchParams);
-                                    newParams.set('guests', '2');
-                                    setSearchParams(newParams);
-                                }}
-                                className="reset-suggestion-btn"
-                            >
-                                Try 2 Guests
-                            </button>
+                            <h3>Find Your Paradise</h3>
+                            <p>Select your preferred dates and guest count to see available luxury escapes.</p>
                         </motion.div>
                     ) : null}
                 </AnimatePresence>
             </main>
+
+            {/* Booking Status Pop-up */}
+            <AnimatePresence>
+                {bookingState.status === 'success' && (
+                    <motion.div 
+                        className="booking-modal-overlay"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                    >
+                        <motion.div 
+                            className="booking-modal"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                        >
+                            <button className="close-modal" onClick={() => setBookingState({ status: 'idle', reference: null, error: null })}>
+                                <X size={20} />
+                            </button>
+                            <div className="modal-content">
+                                <CheckCircle2 size={64} className="success-icon" />
+                                <h2>Booking Confirmed!</h2>
+                                <div className="ref-box">
+                                    <span>Reference Number</span>
+                                    <strong>{bookingState.reference}</strong>
+                                </div>
+                                <p>We've sent a confirmation email to <strong>{user?.email}</strong>. Please check your inbox for details.</p>
+                                <button className="modal-primary-btn" onClick={() => setBookingState({ status: 'idle', reference: null, error: null })}>
+                                    Great, thanks!
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
 export default SearchRoom;
-
