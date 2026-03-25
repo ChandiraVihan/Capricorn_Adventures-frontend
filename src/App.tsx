@@ -8,6 +8,9 @@ import ResetPassword from './ResetPassword'
 import OAuth2RedirectHandler from './OAuth2RedirectHandler'
 import SearchRoom from './SearchRoom'
 import RoomDetails from './RoomDetails'
+import Adventures from './Adventures'
+import AdventureDetails from './AdventureDetails'
+import AdventureCheckout from './AdventureCheckout'
 import Checkout from './Checkout'
 import FindBooking from './FindBooking'
 import MyBookings from './MyBookings'
@@ -30,6 +33,9 @@ function App() {
             <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
             <Route path="/search" element={<SearchRoom />} />
             <Route path="/rooms/:roomId" element={<RoomDetails />} />
+            <Route path="/adventures" element={<Adventures />} />
+            <Route path="/adventures/checkout" element={<AdventureCheckout />} />
+            <Route path="/adventures/:adventureId" element={<AdventureDetails />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/find-booking" element={<FindBooking />} />
             <Route path="/my-bookings" element={<MyBookings />} />

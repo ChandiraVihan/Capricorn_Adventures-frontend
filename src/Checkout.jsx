@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import './Checkout.css';
+import { API_BASE_URL } from './api/config';
 
 const Checkout = () => {
     const location = useLocation();
@@ -61,7 +62,7 @@ const Checkout = () => {
         setError('');
 
         try {
-            const res = await fetch('http://localhost:8080/api/bookings', {
+            const res = await fetch(`${API_BASE_URL}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -75,7 +76,7 @@ const Checkout = () => {
                 const data = await res.json();
                 const bookingId = data.id;
 
-                const guestRes = await fetch(`http://localhost:8080/api/checkout/${bookingId}/guest`, {
+                const guestRes = await fetch(`${API_BASE_URL}/checkout/${bookingId}/guest`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(guestData)
@@ -104,7 +105,7 @@ const Checkout = () => {
         const bookingId = localStorage.getItem('pendingBookingId');
 
         try {
-            const res = await fetch(`http://localhost:8080/api/checkout/${bookingId}/confirm?paymentSuccess=${!simulateFailure}`, {
+            const res = await fetch(`${API_BASE_URL}/checkout/${bookingId}/confirm?paymentSuccess=${!simulateFailure}`, {
                 method: 'POST'
             });
 

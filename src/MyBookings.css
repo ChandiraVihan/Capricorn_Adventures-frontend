@@ -20,6 +20,13 @@
     gap: 20px;
 }
 
+.history-management-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
 .history-card {
     background: white;
     padding: 25px 35px;
@@ -34,6 +41,11 @@
 
 .history-card:hover {
     transform: translateX(10px);
+}
+
+.history-card.selected {
+    border-color: #1c124d;
+    box-shadow: 0 12px 28px rgba(28, 18, 77, 0.12);
 }
 
 .history-card-left {
@@ -98,6 +110,93 @@
     color: #ffc107;
 }
 
+.booking-management-panel {
+    background: #fff;
+    border: 1px solid #e7e8f2;
+    border-radius: 18px;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.05);
+    padding: 22px;
+    position: sticky;
+    top: 120px;
+}
+
+.booking-management-panel h2 {
+    margin-top: 0;
+    color: #1c124d;
+    font-size: 1.3rem;
+}
+
+.management-block {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #ececf4;
+}
+
+.management-block h3,
+.management-block h4 {
+    margin: 0 0 10px;
+    color: #1c124d;
+}
+
+.management-block p {
+    margin: 6px 0;
+    color: #3f3f52;
+    line-height: 1.45;
+}
+
+.reschedule-select {
+    width: 100%;
+    border: 1px solid #d6d8e6;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+
+.action-btn {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #1c124d;
+    color: #fff;
+}
+
+.action-btn.cancel {
+    background: #9d1c1c;
+}
+
+.action-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.restriction-banner,
+.success-banner {
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.restriction-banner {
+    background: #fff4e2;
+    border: 1px solid #ffd59a;
+    color: #8a4f00;
+}
+
+.success-banner {
+    background: #e9f9ee;
+    border: 1px solid #b4e2c2;
+    color: #0f5d2b;
+}
+
+.muted-text {
+    color: #707089;
+}
+
 .empty-history {
     text-align: center;
     padding: 100px 20px;
@@ -108,6 +207,14 @@
 @media (max-width: 768px) {
     .bookings-history-container {
         margin-top: 120px;
+    }
+
+    .history-management-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-management-panel {
+        position: static;
     }
 
     .history-header h1 {

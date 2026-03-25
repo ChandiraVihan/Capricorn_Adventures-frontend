@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './SearchRoom.css';
+import { API_BASE_URL } from './api/config';
 
 const SearchRoom = () => {
     const location = useLocation();
@@ -27,7 +28,7 @@ const SearchRoom = () => {
     const fetchRooms = async (checkIn, checkOut, guests) => {
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/rooms/search?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
+            const res = await fetch(`${API_BASE_URL}/rooms/search?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
             if (res.ok) {
                 const data = await res.json();
                 setRooms(data);

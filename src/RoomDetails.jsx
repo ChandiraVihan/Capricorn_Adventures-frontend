@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './RoomDetails.css';
+import { API_BASE_URL } from './api/config';
 
 const RoomDetails = () => {
     const { roomId } = useParams();
@@ -28,7 +29,7 @@ const RoomDetails = () => {
 
     const fetchRoomDetails = async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/rooms/${roomId}`);
+            const res = await fetch(`${API_BASE_URL}/rooms/${roomId}`);
             if (res.ok) {
                 const data = await res.json();
                 setRoom(data);
@@ -42,7 +43,7 @@ const RoomDetails = () => {
 
     const checkAvailability = async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/rooms/${roomId}/availability?checkInDate=${dates.checkIn}&checkOutDate=${dates.checkOut}`);
+            const res = await fetch(`${API_BASE_URL}/rooms/${roomId}/availability?checkInDate=${dates.checkIn}&checkOutDate=${dates.checkOut}`);
             if (res.ok) {
                 const data = await res.json();
                 setAvailability(data);

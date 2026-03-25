@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './FindBooking.css';
+import { API_BASE_URL } from './api/config';
 
 const FindBooking = () => {
     const [reference, setReference] = useState('');
@@ -17,7 +18,7 @@ const FindBooking = () => {
         setBooking(null);
 
         try {
-            const res = await fetch(`http://localhost:8080/api/bookings/reference/${reference.trim()}`);
+            const res = await fetch(`${API_BASE_URL}/bookings/reference/${reference.trim()}`);
             if (res.ok) {
                 const data = await res.json();
                 setBooking(data);

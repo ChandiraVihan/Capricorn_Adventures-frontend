@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import { authService } from "./api/authService";
+import { BACKEND_BASE_URL } from "./api/config";
 import "./Auth.css";
 
 export default function Auth({ mode }) {
@@ -75,7 +76,7 @@ export default function Auth({ mode }) {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorize/google";
+        window.location.href = `${BACKEND_BASE_URL}/oauth2/authorize/google`;
     };
 
     const getTitle = () => {

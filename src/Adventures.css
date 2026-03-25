@@ -1,0 +1,286 @@
+.adventures-page-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 150px 40px auto;
+  padding: 0 40px;
+  gap: 40px;
+  min-height: 80vh;
+}
+
+.adventures-filters-sidebar {
+  width: 320px;
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.adventures-filters-sidebar h3 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 20px;
+  color: #1c124d;
+}
+
+.category-list {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.category-pill {
+  width: 100%;
+  border: 1px solid #d9dcff;
+  background: #fff;
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #1c124d;
+  cursor: pointer;
+}
+
+.category-pill strong {
+  font-size: 0.8rem;
+  background: #eef0ff;
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+.category-pill.active {
+  background: #1c124d;
+  color: #fff;
+  border-color: #1c124d;
+}
+
+.category-pill.active strong {
+  background: #f7ff9e;
+  color: #111;
+}
+
+.filter-group {
+  margin-bottom: 16px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.filter-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.apply-btn,
+.clear-btn {
+  width: 100%;
+  border: none;
+  padding: 13px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.apply-btn {
+  background: #1c124d;
+  color: #fff;
+  margin-top: 8px;
+}
+
+.apply-btn:hover {
+  background: #2d2173;
+}
+
+.clear-btn {
+  margin-top: 10px;
+  background: #e8eaf8;
+  color: #1c124d;
+}
+
+.clear-btn:hover {
+  background: #dfe2f8;
+}
+
+.adventures-results-content {
+  flex: 1;
+}
+
+.results-header {
+  margin-bottom: 30px;
+}
+
+.results-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #1c124d;
+  margin-bottom: 10px;
+}
+
+.results-header p {
+  color: #666;
+}
+
+.data-warning {
+  color: #935f00;
+  background: #fff4dc;
+  border: 1px solid #ffdf9a;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 12px;
+}
+
+.adventures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 28px;
+}
+
+.adventure-card {
+  background: #fff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.adventure-card:hover {
+  transform: translateY(-8px);
+}
+
+.adventure-image {
+  position: relative;
+  height: 230px;
+}
+
+.adventure-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.difficulty-chip {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 0.74rem;
+}
+
+.price-tag {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: #1c124d;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.price-tag span {
+  font-size: 0.72rem;
+  opacity: 0.82;
+}
+
+.adventure-info {
+  padding: 22px;
+}
+
+.adventure-info h3 {
+  margin-bottom: 8px;
+  color: #1c124d;
+  font-size: 1.25rem;
+}
+
+.adventure-meta {
+  font-size: 0.84rem;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.adventure-desc {
+  font-size: 0.9rem;
+  color: #787878;
+  margin-bottom: 20px;
+  line-height: 1.55;
+}
+
+.view-details-btn {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  border: 1px solid #1c124d;
+  color: #1c124d;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+  background: #1c124d;
+  color: #fff;
+}
+
+.empty-category-box {
+  border: 1px dashed #cfd4ff;
+  border-radius: 14px;
+  background: #fafbff;
+  padding: 24px;
+}
+
+.empty-category-box h3 {
+  color: #1c124d;
+  margin-bottom: 6px;
+}
+
+.empty-category-box p {
+  color: #666;
+}
+
+.empty-suggestions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.empty-suggestions button {
+  border: 1px solid #1c124d;
+  background: #fff;
+  color: #1c124d;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.loading-state {
+  color: #1c124d;
+  font-weight: 600;
+}
+
+@media (max-width: 1024px) {
+  .adventures-page-container {
+    flex-direction: column;
+  }
+
+  .adventures-filters-sidebar {
+    width: 100%;
+    position: static;
+  }
+}

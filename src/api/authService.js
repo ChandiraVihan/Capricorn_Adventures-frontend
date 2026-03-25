@@ -1,8 +1,10 @@
-const API_BASE_URL = "http://localhost:8080/api/auth";
+import { API_BASE_URL } from "./config";
+
+const AUTH_API_BASE_URL = `${API_BASE_URL}/auth`;
 
 export const authService = {
   async login(email, password) {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -25,7 +27,7 @@ export const authService = {
   },
 
   async register(firstName, lastName, email, password) {
-    const response = await fetch(`${API_BASE_URL}/register`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,7 +53,7 @@ export const authService = {
     const token = this.getToken();
     if (!token) return null;
 
-    const response = await fetch(`${API_BASE_URL}/me`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/me`, {
       headers: {
         "Authorization": `Bearer ${token}`,
       },
@@ -77,7 +79,7 @@ export const authService = {
   },
 
   async forgotPassword(email) {
-    const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/forgot-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -90,7 +92,7 @@ export const authService = {
   },
 
   async resetPassword(token, newPassword) {
-    const response = await fetch(`${API_BASE_URL}/reset-password`, {
+    const response = await fetch(`${AUTH_API_BASE_URL}/reset-password`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token, newPassword }),

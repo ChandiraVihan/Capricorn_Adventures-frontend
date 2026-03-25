@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
 import './UserProfile.css';
+import { API_BASE_URL } from './api/config';
 
 const UserProfile = () => {
     const { user, setUser } = useAuth();
@@ -34,7 +35,7 @@ const UserProfile = () => {
 
         try {
             const token = localStorage.getItem('accessToken');
-            const res = await fetch('http://localhost:8080/api/users/profile', {
+            const res = await fetch(`${API_BASE_URL}/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
