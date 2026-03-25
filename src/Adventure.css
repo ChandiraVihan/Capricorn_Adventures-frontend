@@ -117,3 +117,42 @@
   transition: opacity 0.12s;
   white-space: nowrap;
 }
+
+/*Mobile Responsive UI */
+@media (max-width: 768px) {
+  .adventure-line {
+    font-size: clamp(32px, 15vw, 64px); /* Smaller headlines on mobile */
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  
+  .adventure-textlayer {
+    padding-top: 20vh;
+    padding-left: 20px;
+  }
+  
+  .booking-modal {
+    padding: 25px;
+    width: 95%;
+    border-radius: 15px;
+  }
+  
+  .booking-modal h3 {
+    font-size: 1.25rem;
+    margin-right: 30px; /* Room for close button */
+  }
+  
+  .modal-form {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .adventure-line {
+    font-size: 40px; /* Force specific size for very small screens */
+  }
+  
+  .booking-modal {
+    padding: 20px 15px;
+  }
+}
