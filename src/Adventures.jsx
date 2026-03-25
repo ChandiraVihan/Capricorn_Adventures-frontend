@@ -1,10 +1,103 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Adventures.css';
-import defaultAdventureImage from './assets/photo-1550025005-05b9002486c5.avif';
+import defaultAdventureImage from './assets/1144044-12fb5cf4-fbd4-421a-bd23-76d6d164b227.avif';
+import whaleWatchingImage from './assets/whale-watching-sri-lanka.webp';
+import safariImage from './assets/images (2).jpg';
+import waterSportsImage from './assets/watersking.jpg';
+import culturalToursImage from './assets/Sri-Lanka-Cultural-Tours-Polonnaruwa.jpg';
+import hikingImage from './assets/um-palacio-no-topo-da.jpg';
+import campingImage from './assets/1.jpg';
+import colomboCityImage from './assets/colombo-sri-lanka-12fb929f68f145379077137d65531e81.jpg';
+import yalaImage from './assets/700644293.jpg';
+import galleFortImage from './assets/700644344.jpg';
+import localCardImage1 from './assets/images (3).jpg';
+import localCardImage2 from './assets/754838806.jpg';
+import localCardImage3 from './assets/754839073.jpg';
+import localCardImage4 from './assets/754840632.jpg';
+import localCardImage5 from './assets/754841326.jpg';
 import { adventureService } from './api/adventureService';
 
 const EMPTY_CATEGORY_LABEL = 'All';
+
+const lkrFormatter = new Intl.NumberFormat('en-LK', {
+  style: 'currency',
+  currency: 'LKR',
+  maximumFractionDigits: 0,
+});
+
+const formatLkr = (value) => lkrFormatter.format(Number(value || 0));
+
+const catalogImagePool = [
+  whaleWatchingImage,
+  safariImage,
+  waterSportsImage,
+  culturalToursImage,
+  hikingImage,
+  campingImage,
+  localCardImage1,
+  localCardImage2,
+  localCardImage3,
+  localCardImage4,
+  localCardImage5,
+];
+
+const hashString = (value) => {
+  const input = String(value || 'default');
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+};
+
+const categoryImageMap = {
+  'WHALE WATCHING': whaleWatchingImage,
+  SAFARIS: safariImage,
+  'WATER SPORTS': waterSportsImage,
+  'CULTURAL TOURS': culturalToursImage,
+  HIKING: hikingImage,
+  CAMPING: campingImage,
+};
+
+// Adventure-title specific overrides. Keep keys uppercase for easier matching.
+const adventureImageMap = {
+  'SUNRISE WHALE WATCHING CRUISE': whaleWatchingImage,
+  'YALA HALF-DAY SAFARI': yalaImage,
+  'GALLE FORT CULTURAL WALK': galleFortImage,
+  'COLOMBO CITY TOUR': colomboCityImage,
+};
+
+const parseImageUrls = (value) => {
+  if (typeof value !== 'string') return [];
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const normalizeKey = (value) => String(value || '').trim().toUpperCase();
+
+const pickRandomCatalogImage = (item) => {
+  const seed = `${item?.id || item?.adventureId || item?._id || ''}-${item?.title || item?.name || ''}`;
+  const index = hashString(seed) % catalogImagePool.length;
+  return catalogImagePool[index] || defaultAdventureImage;
+};
+
+const pickFallbackImage = (item) => {
+  const titleKey = normalizeKey(item?.title || item?.name);
+  if (titleKey && adventureImageMap[titleKey]) {
+    return adventureImageMap[titleKey];
+  }
+
+  const categoryLabel = String(item?.category || item?.type || '').toUpperCase();
+  if (categoryImageMap[categoryLabel]) {
+    return categoryImageMap[categoryLabel];
+  }
+
+  const matchedKey = Object.keys(categoryImageMap).find((key) => categoryLabel.includes(key));
+  return matchedKey ? categoryImageMap[matchedKey] : defaultAdventureImage;
+};
 
 const normalizeAdventure = (item) => ({
   id: item?.id || item?.adventureId || item?._id,
@@ -18,7 +111,7 @@ const normalizeAdventure = (item) => ({
   minAge: item?.minAge || item?.ageRestriction?.min || 0,
   maxAge: item?.maxAge || item?.ageRestriction?.max || null,
   isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
-  image: item?.coverImage || item?.thumbnail || item?.images?.[0]?.imageUrl || defaultAdventureImage,
+  image: adventureImageMap[normalizeKey(item?.title || item?.name)] || pickFallbackImage(item) || pickRandomCatalogImage(item),
 });
 
 const fallbackAdventures = [
@@ -34,7 +127,7 @@ const fallbackAdventures = [
     minAge: 8,
     maxAge: null,
     isActive: true,
-    image: defaultAdventureImage,
+    image: categoryImageMap['WHALE WATCHING'],
   },
   {
     id: 'sample-safari-02',
@@ -48,7 +141,7 @@ const fallbackAdventures = [
     minAge: 10,
     maxAge: null,
     isActive: true,
-    image: defaultAdventureImage,
+    image: categoryImageMap.SAFARIS,
   },
   {
     id: 'sample-culture-03',
@@ -62,7 +155,7 @@ const fallbackAdventures = [
     minAge: 6,
     maxAge: null,
     isActive: true,
-    image: defaultAdventureImage,
+    image: categoryImageMap['CULTURAL TOURS'],
   },
 ];
 
@@ -213,12 +306,12 @@ const Adventures = () => {
 
         <div className="filter-group">
           <label>Min Price</label>
-          <input type="number" min="0" value={filters.minPrice} onChange={(e) => updateFilter('minPrice', e.target.value)} placeholder="USD" />
+          <input type="number" min="0" value={filters.minPrice} onChange={(e) => updateFilter('minPrice', e.target.value)} placeholder="LKR" />
         </div>
 
         <div className="filter-group">
           <label>Max Price</label>
-          <input type="number" min="0" value={filters.maxPrice} onChange={(e) => updateFilter('maxPrice', e.target.value)} placeholder="USD" />
+          <input type="number" min="0" value={filters.maxPrice} onChange={(e) => updateFilter('maxPrice', e.target.value)} placeholder="LKR" />
         </div>
 
         <div className="filter-group">
@@ -255,9 +348,15 @@ const Adventures = () => {
                 {visibleAdventures.map((adventure) => (
                   <article key={adventure.id} className="adventure-card">
                     <div className="adventure-image">
-                      <img src={adventure.image} alt={adventure.title} />
+                      <img
+                        src={adventure.image}
+                        alt={adventure.title}
+                        onError={(event) => {
+                          event.currentTarget.src = defaultAdventureImage;
+                        }}
+                      />
                       <span className="difficulty-chip">{adventure.difficulty}</span>
-                      <span className="price-tag">${adventure.price}<span>/person</span></span>
+                      <span className="price-tag">{formatLkr(adventure.price)}<span>/person</span></span>
                     </div>
                     <div className="adventure-info">
                       <h3>{adventure.title}</h3>

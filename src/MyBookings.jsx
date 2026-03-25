@@ -6,6 +6,14 @@ import { adventureService } from './api/adventureService';
 
 const toTitleCase = (value) => (value ? String(value).toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : '-');
 
+const lkrFormatter = new Intl.NumberFormat('en-LK', {
+    style: 'currency',
+    currency: 'LKR',
+    maximumFractionDigits: 0,
+});
+
+const formatLkr = (value) => lkrFormatter.format(Number(value || 0));
+
 const formatDateTime = (value) => {
     if (!value) return '-';
     const parsed = new Date(value);
@@ -266,7 +274,7 @@ const MyBookings = () => {
                                         <div className="date-range">
                                             {getBookingDates(booking)}
                                         </div>
-                                        <div className="history-price">${getBookingPrice(booking)}</div>
+                                        <div className="history-price">{formatLkr(getBookingPrice(booking))}</div>
                                         <div className={`status-text ${(booking.status || 'pending').toLowerCase()}`}>{booking.status || 'PENDING'}</div>
                                     </div>
                                 </motion.div>

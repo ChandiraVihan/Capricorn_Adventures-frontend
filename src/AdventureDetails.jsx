@@ -2,8 +2,47 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import './AdventureDetails.css';
 import defaultAdventureImage from './assets/1144044-12fb5cf4-fbd4-421a-bd23-76d6d164b227.avif';
+import localImage1 from './assets/1.jpg';
+import localImage2 from './assets/2d.jpg';
+import localImage3 from './assets/images (1).jpg';
+import localImage4 from './assets/700644344.jpg';
+import localImage5 from './assets/700644293.jpg';
+import localImage6 from './assets/whale-watching-sri-lanka.webp';
 import { useNavigate } from 'react-router-dom';
 import { adventureService } from './api/adventureService';
+
+const lkrFormatter = new Intl.NumberFormat('en-LK', {
+  style: 'currency',
+  currency: 'LKR',
+  maximumFractionDigits: 0,
+});
+
+const formatLkr = (value) => lkrFormatter.format(Number(value || 0));
+
+const localAdventureImages = [localImage1, localImage2, localImage3, localImage4, localImage5, localImage6];
+
+const hashString = (value) => {
+  const input = String(value || 'default');
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+};
+
+const pickRandomImagesForAdventure = (seedValue, count = 4) => {
+  const seed = hashString(seedValue);
+  const pool = [...localAdventureImages];
+  const chosen = [];
+
+  while (pool.length > 0 && chosen.length < count) {
+    const index = (seed + chosen.length * 7) % pool.length;
+    chosen.push(pool[index]);
+    pool.splice(index, 1);
+  }
+
+  return chosen.length ? chosen : [defaultAdventureImage];
+};
 
 const toList = (value) => {
   if (Array.isArray(value)) return value.filter(Boolean);
@@ -33,8 +72,12 @@ const toPhotoList = (item) => {
   return [...imageObjects, ...directPhotos, ...imageUrlString];
 };
 
-const normalizeAdventure = (item) => ({
-  id: item?.id || item?.adventureId || item?._id,
+const normalizeAdventure = (item) => {
+  const normalizedId = item?.id || item?.adventureId || item?._id;
+  const normalizedTitle = item?.title || item?.name || 'Adventure';
+
+  return {
+  id: normalizedId,
   title: item?.title || item?.name || 'Adventure',
   description: item?.description || item?.summary || 'No details available right now.',
   location: item?.location || item?.destination || 'Location TBA',
@@ -45,17 +88,42 @@ const normalizeAdventure = (item) => ({
   isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
   inclusions: toList(item?.inclusions || item?.includes),
   itinerary: toList(item?.itinerary || item?.highlights),
-  photos: toPhotoList(item),
-});
+  photos: pickRandomImagesForAdventure(`${normalizedId}-${normalizedTitle}`),
+};
+};
 
-const normalizeSlot = (slot) => ({
-  id: slot?.id || `${slot?.date || 'date'}-${slot?.time || 'time'}`,
-  date: slot?.date || slot?.day || '',
-  time: slot?.time || slot?.startTime || '',
-  capacity: slot?.capacity ?? slot?.maxCapacity ?? 0,
-  available: slot?.available ?? slot?.isAvailable ?? (slot?.remainingCapacity > 0),
-  remainingCapacity: slot?.remainingCapacity ?? slot?.capacityLeft ?? 0,
-});
+const normalizeSlot = (slot, index) => {
+  // Support both legacy and new scheduleSlots shape
+  if (slot && typeof slot === 'object' && 'scheduleId' in slot && 'startDate' in slot) {
+    // New backend shape
+    const start = new Date(slot.startDate);
+    const end = slot.endDate ? new Date(slot.endDate) : null;
+    const pad = (n) => n.toString().padStart(2, '0');
+    const dateStr = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
+    const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+    return {
+      id: slot.scheduleId || `slot-${index}`,
+      date: dateStr,
+      time: timeStr,
+      capacity: slot.availableSlots ?? 0,
+      available: slot.available !== false && slot.status !== 'FULL' && (slot.availableSlots ?? 0) > 0,
+      remainingCapacity: slot.availableSlots ?? 0,
+      status: slot.status,
+      disabled: slot.disabled,
+      disabledReason: slot.disabledReason,
+      endDate: end,
+    };
+  }
+  // Fallback to legacy shape
+  return {
+    id: slot?.id || `${slot?.date || 'date'}-${slot?.time || 'time'}-${index}`,
+    date: slot?.date || slot?.day || '',
+    time: slot?.time || slot?.startTime || '',
+    capacity: slot?.capacity ?? slot?.maxCapacity ?? 0,
+    available: slot?.available ?? slot?.isAvailable ?? (slot?.remainingCapacity > 0),
+    remainingCapacity: slot?.remainingCapacity ?? slot?.capacityLeft ?? 0,
+  };
+};
 
 const extractSlotsFromAdventure = (adventurePayload) => {
   const candidates =
@@ -71,7 +139,7 @@ const extractSlotsFromAdventure = (adventurePayload) => {
     return [];
   }
 
-  return candidates.map(normalizeSlot);
+  return candidates.map((slot, index) => normalizeSlot(slot, index));
 };
 
 const fallbackSlots = [
@@ -120,7 +188,7 @@ const AdventureDetails = () => {
         isActive: false,
         inclusions: ['Guide support', 'Safety briefing', 'Light refreshments'],
         itinerary: ['Arrival and check-in', 'Briefing and gear setup', 'Guided experience'],
-        photos: [defaultAdventureImage],
+        photos: pickRandomImagesForAdventure(adventureId),
       });
       setSlots(fallbackSlots);
       setError('Live details could not be loaded. Showing a preview format instead.');
@@ -210,7 +278,7 @@ const AdventureDetails = () => {
           </div>
           <div className="thumbnails">
             {(adventure.photos?.length ? adventure.photos : [defaultAdventureImage]).slice(0, 4).map((photo, idx) => (
-              <img key={idx} src={photo} alt={`${adventure.title} ${idx + 1}`} />
+              <img key={`${adventure.id}-photo-${idx}`} src={photo} alt={`${adventure.title} ${idx + 1}`} />
             ))}
           </div>
         </div>
@@ -219,7 +287,7 @@ const AdventureDetails = () => {
           <div className="fact-chip">📍 {adventure.location}</div>
           <div className="fact-chip">🧭 {adventure.difficulty}</div>
           <div className="fact-chip">👶 Min age {adventure.minAge}</div>
-          <div className="fact-chip">💵 ${adventure.price}/person</div>
+          <div className="fact-chip">💵 {formatLkr(adventure.price)}/person</div>
         </div>
 
         <div className="adventure-info-grid">
@@ -255,7 +323,7 @@ const AdventureDetails = () => {
 
           <aside className="booking-sidebar">
             <div className="price-box">
-              <span className="price">${adventure.price}</span>
+              <span className="price">{formatLkr(adventure.price)}</span>
               <span className="unit">/ person</span>
             </div>
 

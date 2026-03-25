@@ -4,6 +4,14 @@ import { useAuth } from './context/AuthContext';
 import './Checkout.css';
 import { adventureService } from './api/adventureService';
 
+const lkrFormatter = new Intl.NumberFormat('en-LK', {
+  style: 'currency',
+  currency: 'LKR',
+  maximumFractionDigits: 0,
+});
+
+const formatLkr = (value) => lkrFormatter.format(Number(value || 0));
+
 const AdventureCheckout = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -196,7 +204,7 @@ const AdventureCheckout = () => {
               </label>
 
               <button onClick={handleConfirmBooking} disabled={loading} className="confirm-btn">
-                {loading ? 'Verifying Transaction...' : `Confirm Payment - $${totalAmount}`}
+                {loading ? 'Verifying Transaction...' : `Confirm Payment - ${formatLkr(totalAmount)}`}
               </button>
               <button onClick={() => setStep(1)} className="back-btn-simple">Back to details</button>
             </div>
@@ -230,8 +238,8 @@ const AdventureCheckout = () => {
             </div>
             <div className="summary-divider"></div>
             <div className="summary-total">
-              <span>Total (USD)</span>
-              <span className="total-price">${summaryDetails?.totalPrice || totalAmount}</span>
+              <span>Total (LKR)</span>
+              <span className="total-price">{formatLkr(summaryDetails?.totalPrice || totalAmount)}</span>
             </div>
           </div>
         </div>
