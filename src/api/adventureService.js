@@ -37,14 +37,14 @@ export const adventureService = {
   async getCategories() {
     try {
       const url = `${API_BASE_URL}/adventure-categories`;
-      console.log('📡 Fetching categories from:', url);
+      console.log('Fetching categories from:', url);
       const response = await fetch(url);
-      console.log('✓ Categories response:', response.status, response.statusText);
+      console.log('Categories response:', response.status, response.statusText);
       if (!response.ok) {
         await throwApiError(response, 'Failed to load categories');
       }
       const data = await parseJson(response);
-      console.log('✓ Categories data:', data);
+      console.log('Categories data:', data);
       // Handle various response formats
       if (Array.isArray(data)) return data;
       if (data?.items) return data.items;
@@ -61,14 +61,14 @@ export const adventureService = {
     try {
       const query = toQueryString(filters);
       const url = `${API_BASE_URL}/adventures${query ? `?${query}` : ''}`;
-      console.log('📡 Fetching adventures from:', url);
+      console.log('Fetching adventures from:', url);
       const response = await fetch(url);
-      console.log('✓ Adventures response:', response.status, response.statusText);
+      console.log('Adventures response:', response.status, response.statusText);
       if (!response.ok) {
         await throwApiError(response, 'Failed to load adventures');
       }
       const data = await parseJson(response);
-      console.log('✓ Adventures data:', data);
+      console.log('Adventures data:', data);
       // Handle various response formats
       if (Array.isArray(data)) return data;
       if (data?.adventures) return data.adventures;
@@ -85,14 +85,14 @@ export const adventureService = {
     try {
       const query = toQueryString({ selectedFromDate, selectedToDate });
       const url = `${API_BASE_URL}/adventures/${adventureId}${query ? `?${query}` : ''}`;
-      console.log('📡 Fetching adventure details from:', url);
+      console.log('Fetching adventure details from:', url);
       const response = await fetch(url);
-      console.log('✓ Adventure details response:', response.status, response.statusText);
+      console.log('Adventure details response:', response.status, response.statusText);
       if (!response.ok) {
         await throwApiError(response, 'Failed to load adventure details');
       }
       const data = await parseJson(response);
-      console.log('✓ Adventure details data:', data);
+      console.log('Adventure details data:', data);
       // Handle nested response
       return data?.adventure || data;
     } catch (error) {
