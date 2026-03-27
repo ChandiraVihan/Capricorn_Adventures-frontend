@@ -412,6 +412,7 @@ import { gsap } from 'gsap';
 import './Adventure.css';
 import { adventureService } from './api/adventureService';
 import { useAuth } from './context/AuthContext';
+import { paymentService } from './api/paymentService';
 
 // ─── Grid constants (original nika.agency values) ────────────────────────────
 const TILE_W   = 280;
@@ -707,15 +708,45 @@ export default function Adventure() {
     e.preventDefault();
     if (!user) { alert("Please sign in to book"); return; }
     try {
-      await adventureService.createBooking({
+      const response = await adventureService.createBooking({
         adventureId: selectedAdv.id,
         scheduleId: bookingData.scheduleId,
         bookingDate: bookingData.date,
         numberOfParticipants: parseInt(bookingData.participants),
         userId: user.id
       });
-      alert("Booking successful!");
-      setSelectedAdv(null);
+      
+      const bookingId = response.bookingId;
+      const totalPrice = selectedAdv.price * bookingData.participants;
+
+      // Generate Hash
+      const hash = await paymentService.generateHash(bookingId, totalPrice, "LKR");
+
+      // Start PayHere Payment
+      paymentService.startPayHerePayment(
+        {
+          orderId: bookingId,
+          items: `Adventure: ${selectedAdv.name}`,
+          totalAmount: totalPrice,
+          hash: hash,
+          firstName: user.firstName || user.name?.split(' ')[0] || "Guest",
+          lastName: user.lastName || user.name?.split(' ')[1] || "",
+          email: user.email,
+          phone: user.phone || ""
+        },
+        (orderId) => {
+          console.log("Adventure Payment completed", orderId);
+          alert("Booking and Payment successful! Order ID: " + orderId);
+          setSelectedAdv(null);
+        },
+        () => {
+          alert("Payment dismissed. Your booking is pending payment.");
+        },
+        (err) => {
+          alert("Payment error: " + err);
+        }
+      );
+
     } catch (err) {
       alert("Booking failed: " + err.message);
     }

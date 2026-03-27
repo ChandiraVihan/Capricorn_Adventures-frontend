@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { paymentService } from './api/paymentService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Users, Calendar, AlertCircle, Info, Wifi, Tv, Coffee, AirVent, Utensils, Waves, Accessibility, Plane, CigaretteOff, ConciergeBell, Sparkles, ParkingCircle, Wine, CheckCircle2, X } from 'lucide-react';
 import DatePicker from 'react-datepicker';
@@ -131,6 +132,9 @@ const SearchRoom = () => {
         setBookingState({ status: 'loading', reference: null, error: null });
 
         try {
+            const checkInStr = formatDate(filters.checkin);
+            const checkOutStr = formatDate(filters.checkout);
+            
             const response = await fetch('http://localhost:8080/api/v1/bookings', {
                 method: 'POST',
                 headers: {
@@ -139,8 +143,8 @@ const SearchRoom = () => {
                 },
                 body: JSON.stringify({
                     roomId: room.id,
-                    checkInDate: formatDate(filters.checkin),
-                    checkOutDate: formatDate(filters.checkout),
+                    checkInDate: checkInStr,
+                    checkOutDate: checkOutStr,
                     guests: filters.guests
                 })
             });
@@ -151,7 +155,38 @@ const SearchRoom = () => {
             }
 
             const data = await response.json();
-            setBookingState({ status: 'success', reference: data.referenceId, error: null });
+            
+            // Calculate total price
+            const nights = Math.ceil(Math.abs(filters.checkout - filters.checkin) / (1000 * 60 * 60 * 24)) || 1;
+            const totalPrice = room.basePrice * nights;
+
+            // Generate Hash
+            const hash = await paymentService.generateHash(data.referenceId, totalPrice, "LKR");
+
+            // Start PayHere Payment
+            paymentService.startPayHerePayment(
+                {
+                    orderId: data.referenceId,
+                    items: `Booking for ${room.name}`,
+                    totalAmount: totalPrice,
+                    hash: hash,
+                    firstName: user.firstName || user.name?.split(' ')[0] || "Guest",
+                    lastName: user.lastName || user.name?.split(' ')[1] || "",
+                    email: user.email,
+                    phone: user.phone || ""
+                },
+                (orderId) => {
+                    console.log("Payment completed", orderId);
+                    setBookingState({ status: 'success', reference: data.referenceId, error: null });
+                },
+                () => {
+                    setBookingState({ status: 'error', reference: null, error: 'Payment dismissed' });
+                },
+                (err) => {
+                    setBookingState({ status: 'error', reference: null, error: 'Payment error: ' + err });
+                }
+            );
+
         } catch (err) {
             setBookingState({ status: 'error', reference: null, error: err.message });
         }
