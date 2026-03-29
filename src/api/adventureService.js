@@ -35,70 +35,157 @@ const throwApiError = async (response, fallbackMessage) => {
 
 export const adventureService = {
   async getCategories() {
-    try {
-      const url = `${API_BASE_URL}/adventure-categories`;
-      console.log('Fetching categories from:', url);
-      const response = await fetch(url);
-      console.log('Categories response:', response.status, response.statusText);
-      if (!response.ok) {
-        await throwApiError(response, 'Failed to load categories');
-      }
-      const data = await parseJson(response);
-      console.log('Categories data:', data);
-      // Handle various response formats
-      if (Array.isArray(data)) return data;
-      if (data?.items) return data.items;
-      if (data?.content) return data.content;
-      if (data?.categories) return data.categories;
-      return [];
-    } catch (error) {
-      console.error('❌ Error loading categories:', error.message);
-      throw error;
+    const response = await fetch(`${API_BASE_URL}/adventure-categories`);
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to load categories');
     }
+
+    const data = await parseJson(response);
+    if (Array.isArray(data)) return data;
+    if (data?.items) return data.items;
+    if (data?.content) return data.content;
+    if (data?.categories) return data.categories;
+    return [];
+  },
+
+  async createCategory(category) {
+    const response = await fetch(`${API_BASE_URL}/adventure-categories`, {
+      method: 'POST',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify(category),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to create category');
+    }
+
+    return parseJson(response);
   },
 
   async browseAdventures(filters = {}) {
-    try {
-      const query = toQueryString(filters);
-      const url = `${API_BASE_URL}/adventures${query ? `?${query}` : ''}`;
-      console.log('Fetching adventures from:', url);
-      const response = await fetch(url);
-      console.log('Adventures response:', response.status, response.statusText);
-      if (!response.ok) {
-        await throwApiError(response, 'Failed to load adventures');
-      }
-      const data = await parseJson(response);
-      console.log('Adventures data:', data);
-      // Handle various response formats
-      if (Array.isArray(data)) return data;
-      if (data?.adventures) return data.adventures;
-      if (data?.items) return data.items;
-      if (data?.content) return data.content;
-      return [];
-    } catch (error) {
-      console.error('❌ Error loading adventures:', error.message);
-      throw error;
+    const query = toQueryString(filters);
+    const response = await fetch(`${API_BASE_URL}/adventures${query ? `?${query}` : ''}`);
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to load adventures');
     }
+
+    const data = await parseJson(response);
+    if (Array.isArray(data)) return data;
+    if (data?.adventures) return data.adventures;
+    if (data?.items) return data.items;
+    if (data?.content) return data.content;
+    return [];
+  },
+
+  async getAllAdventures() {
+    return this.browseAdventures();
   },
 
   async getAdventureDetails(adventureId, selectedFromDate, selectedToDate) {
-    try {
-      const query = toQueryString({ selectedFromDate, selectedToDate });
-      const url = `${API_BASE_URL}/adventures/${adventureId}${query ? `?${query}` : ''}`;
-      console.log('Fetching adventure details from:', url);
-      const response = await fetch(url);
-      console.log('Adventure details response:', response.status, response.statusText);
-      if (!response.ok) {
-        await throwApiError(response, 'Failed to load adventure details');
-      }
-      const data = await parseJson(response);
-      console.log('Adventure details data:', data);
-      // Handle nested response
-      return data?.adventure || data;
-    } catch (error) {
-      console.error('❌ Error loading adventure details:', error.message);
-      throw error;
+    const query = toQueryString({ selectedFromDate, selectedToDate });
+    const response = await fetch(`${API_BASE_URL}/adventures/${adventureId}${query ? `?${query}` : ''}`);
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to load adventure details');
     }
+
+    const data = await parseJson(response);
+    return data?.adventure || data;
+  },
+
+  async getSchedules(adventureId) {
+    const response = await fetch(`${API_BASE_URL}/adventures/${adventureId}/schedules`);
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch schedules');
+    }
+
+    const data = await parseJson(response);
+    if (Array.isArray(data)) return data;
+    if (data?.schedules) return data.schedules;
+    if (data?.items) return data.items;
+    if (data?.content) return data.content;
+    return [];
+  },
+
+  async createAdventure(adventure) {
+    const response = await fetch(`${API_BASE_URL}/admin/adventures`, {
+      method: 'POST',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify(adventure),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to create adventure');
+    }
+
+    return parseJson(response);
+  },
+
+  async updateAdventure(id, adventure) {
+    const response = await fetch(`${API_BASE_URL}/admin/adventures/${id}`, {
+      method: 'PUT',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify(adventure),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to update adventure');
+    }
+
+    return parseJson(response);
+  },
+
+  async deleteAdventure(id) {
+    const response = await fetch(`${API_BASE_URL}/admin/adventures/${id}`, {
+      method: 'DELETE',
+      headers: { ...authHeaders() },
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to delete adventure');
+    }
+
+    return true;
+  },
+
+  async createSchedule(adventureId, schedule) {
+    const response = await fetch(`${API_BASE_URL}/admin/adventures/schedules`, {
+      method: 'POST',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify({ adventureId, ...schedule }),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to create schedule');
+    }
+
+    return parseJson(response);
+  },
+
+  async getAvailability(scheduleId, date) {
+    const response = await fetch(`${API_BASE_URL}/adventures/schedules/${scheduleId}/availability?date=${date}`);
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to fetch availability');
+    }
+
+    return parseJson(response);
+  },
+
+  async createBooking(bookingRequest) {
+    const response = await fetch(`${API_BASE_URL}/adventure-bookings`, {
+      method: 'POST',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify(bookingRequest),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Failed to create booking');
+    }
+
+    return parseJson(response);
   },
 
   async validateBooking(adventureId, payload) {

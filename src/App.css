@@ -1,17 +1,12 @@
 .hero {
   z-index: 2;
-  background-color: #fff;
-  background-image:
-    linear-gradient(0deg, #ffffff4d 34%, #c1cdd559 71%),
-    url("./assets/bg.avif");
-  background-position: 0 0, 50%;
-  background-size: auto, cover;
-  background-attachment: scroll, scroll;
   width: 100vw;
   height: auto;
   min-height: 100vh;
   position: relative;
   display: flex;
   flex-direction: column;
+  padding-top: 100px; /* Offset for the fixed floating header */
 }
+
 

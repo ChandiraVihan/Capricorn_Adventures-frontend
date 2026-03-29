@@ -1,0 +1,401 @@
+/* Base Layout & Typography */
+/* .hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: transparent;
+  overflow: hidden;
+} */
+
+/* .hero-section {
+  position: relative; /* CRITICAL: This keeps the red div inside this section */
+  /* display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Changed from center to allow better spacing */
+  /* min-height: 100vh;               /* Force it to be exactly screen height */
+  /*width: 100%;
+  padding: 4rem 2rem;
+  overflow: hidden;  
+  z-index: 1;          Prevents the collage from making the page scroll */
+/*} */
+
+/*.custom-div {
+    position: fixed;
+    /* This creates even margins on all 4 sides */
+    /*top: clamp(10px, 2vw, 40px);
+    bottom: clamp(10px, 2vw, 40px); 
+    left: clamp(10px, 2vw, 40px);
+    right: clamp(10px, 2vw, 40px);
+    
+    background-color: red;
+    border-radius: 24px; /* Optional: matches your gallery card style */
+  /*  z-index: -1; /* Moves the red background BEHIND your text and images */
+/*} */
+
+.hero-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  width: 100%;
+  padding: 4rem 2rem;
+  overflow: hidden;
+  z-index: 1;
+  color: aliceblue;
+}
+
+.custom-div {
+  position: absolute;
+  top: clamp(4px, 2vw, 20px);
+  left: clamp(4px, 2vw, 20px);
+  right: calc(clamp(4px, 2vw, 20px) + var(--scrollbar-width, 0px));
+  height: calc(100dvh - clamp(4px, 2vw, 20px) * 2);
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200&h=600');
+  background-size: cover;
+  background-position: center;
+  border-radius: 24px;
+  z-index: -1;
+ clip-path: url(#notch-clip);
+ 
+
+}
+
+.logo1 {
+  display: flex;
+  position: absolute;
+  height: 160px;
+  width: 100px;
+  z-index: 10;
+
+  /* Center horizontally within the hero parent */
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Align to where the bottom notch sits */
+  /* The red div is 100dvh tall, notch is at 82% height */
+  top: calc(100dvh * 0.82 - 20px); /* vertically centers logo on the notch line */
+
+  filter: brightness(0); /* make it black */
+}
+
+.hero-content {
+  position: absolute;
+  text-align: center;
+  max-width: 800px;
+  margin-bottom: 14rem;
+  color: aliceblue;
+}
+
+/* Badge styling */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.badge .icon {
+  font-size: 1.1rem;
+}
+
+/* Typography */
+.title {
+  font-size: 3.5rem;
+  font-weight: 500;
+  color: aliceblue;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 auto 2rem auto;
+  max-width: 700px;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn {
+  padding: 0.8rem 1.8rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #111;
+  color: #fff;
+  border: 2px solid #111;
+}
+
+.btn-primary:hover {
+  background-color: #333;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #111;
+  border: 2px solid #ddd;
+}
+
+.btn-secondary:hover {
+  border-color: #111;
+}
+
+/* Interactive Gallery Layout */
+/* .gallery-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 350px;
+  margin-top: 30%;
+  padding-top: 2rem;
+} */
+
+.gallery-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 350px;
+  margin-top: 44rem; /* Reduced from 30% to fit within 100vh */
+  padding-top: 2rem;
+  position: relative;
+    z-index: 3; /* Above custom-div */
+
+}
+
+.gallery-card {
+  width: 240px;
+  height: 320px;
+  background: white;
+  border: 5px solid white;
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  position: relative;
+  /* Negative margin creates the overlap effect */
+  margin-left: -60px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  z-index: 3;
+}
+
+/* Remove negative margin from the first item so it doesn't get pushed off-center */
+.gallery-card:first-child {
+  margin-left: 0;
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 14px;
+  /* Slightly smaller than outer border-radius to look natural */
+}
+
+/* Specific initial rotations for the "fanned" out look */
+.gallery-card:nth-child(1) {
+  transform: rotate(-10deg) translateY(10px);
+}
+
+.gallery-card:nth-child(2) {
+  transform: rotate(5deg) translateY(-5px);
+}
+
+.gallery-card:nth-child(3) {
+  transform: rotate(-2deg) translateY(5px);
+}
+
+.gallery-card:nth-child(4) {
+  transform: rotate(8deg) translateY(-10px);
+}
+
+.gallery-card:nth-child(5) {
+  transform: rotate(-5deg) translateY(15px);
+}
+
+/* The Hover Effect */
+.gallery-card:hover {
+  /* Scale up, straighten out, and move up */
+  transform: scale(1.15) translateY(-40px) rotate(0deg) !important;
+  /* Immediately jump to the front */
+  z-index: 10;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* About Section */
+.landing-page-container {
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.about-section {
+  position: relative;
+  max-width: 1500px;
+  width: 90%;
+  margin: 22rem auto 8rem auto;
+  min-height: 500px;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  /* Architectural background image */
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200&h=600');
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+}
+
+.about-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  /* Slight white tint */
+  backdrop-filter: blur(16px) grayscale(60%);
+  -webkit-backdrop-filter: blur(16px) grayscale(60%);
+  z-index: 1;
+}
+
+.about-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 750px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.about-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.about-badge .icon {
+  font-size: 1rem;
+}
+
+.about-title {
+  font-size: 3.5rem;
+  font-weight: 400;
+  margin: 0 0 1.2rem 0;
+  color: #000;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.about-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 auto 2.5rem auto;
+  color: #111;
+  font-weight: 400;
+}
+
+.about-btn {
+  padding: 1rem 2.5rem !important;
+  font-size: 1rem !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  font-weight: 600 !important;
+}
+
+/* Responsive Mobile UI */
+@media (max-width: 768px) {
+  .hero-content {
+    padding: 0 20px;
+    margin-bottom: 8rem;
+    position: relative;
+    top: 60px;
+  }
+
+  .title {
+    font-size: 2.2rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .gallery-container {
+    margin-top: 10rem;
+    height: 250px;
+    transform: scale(0.8); /* Scale down the whole gallery for mobile */
+  }
+
+  .gallery-card {
+    width: 160px;
+    height: 220px;
+    margin-left: -80px;
+  }
+
+  .about-section {
+    margin-top: 5rem;
+    padding: 3rem 1rem;
+    width: 95%;
+  }
+
+  .about-title {
+    font-size: 2rem;
+  }
+  
+  .custom-div {
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .button-group {
+    flex-direction: column;
+    width: 100%;
+    padding: 0 20px;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .gallery-container {
+    margin-top: 12rem;
+    transform: scale(0.65);
+  }
+}

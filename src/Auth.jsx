@@ -201,7 +201,8 @@ export default function Auth({ mode }) {
                                     gap: "10px",
                                     cursor: "pointer",
                                     fontSize: "14px",
-                                    fontWeight: "500"
+                                    fontWeight: "500",
+                                    color: "#555",
                                 }}
                             >
                                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: "18px" }} />

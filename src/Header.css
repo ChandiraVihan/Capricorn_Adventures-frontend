@@ -1,4 +1,4 @@
-/* Header.css */
+/* Header.css - Refined Bombon Style */
 
 .header-container {
   width: 100%;
@@ -6,295 +6,228 @@
   top: 0;
   left: 0;
   z-index: 1000;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* --- Top Banner --- */
-.top-banner {
-  background-color: #000000;
-  color: #ffffff;
-  padding: 13px 16px;
-  /* Added ~10px total height */
-  text-align: center;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.banner-content {
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 8px;
+  padding: 24px 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  pointer-events: none;
 }
 
-.banner-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.weavy-symbol {
-  font-weight: 800;
-  font-family: monospace;
-}
-
-.banner-separator {
-  color: #888;
-}
-
-/* --- Main Navigation --- */
 .main-header {
-  background-color: transparent;
+  background: rgba(13, 13, 18, 0.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  width: 95%;
+  max-width: 1100px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px 0 28px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 20px 40px -10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.05);
+  pointer-events: auto;
 }
 
 .header-content {
+  width: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: stretch;
-  height: 80px;
 }
 
-/* --- Logo Area --- */
+/* Logo Area */
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 16px;
-  height: 100%;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
 }
 
-.logo-mark {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  background-color: #000000;
-  height: 100%;
-  padding: 0 16px 16px 16px;
-  /* Pad sides and push stripes to bottom */
+.logo-area:hover {
+  transform: scale(1.1) rotate(-5deg);
 }
 
-.logo-stripe {
-  width: 10px;
-  height: 40px;
-  background-color: #ffffff;
-}
-
-.logo-stripe.short {
-  height: 24px;
-}
-
-.logo-text-block {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-left: 8px;
-}
-
-.brand-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111111;
-  letter-spacing: 0.05em;
-}
-
-.tagline {
-  font-size: 0.65rem;
-  color: #555555;
-  line-height: 1.2;
-  border-left: 1px solid #cccccc;
-  padding-left: 16px;
-}
-
-/* --- Desktop Nav --- */
+/* Desktop Navigation */
 .desktop-nav {
   display: flex;
   align-items: center;
-  gap: 2rem;
-  /* Evenly spaced ~2rem */
-  flex: 1;
-  justify-content: flex-end;
-  padding-right: 2rem;
+  gap: 3.5rem; /* Larger gap for premium feel */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%); /* Perfectly centered */
 }
 
 .nav-link {
   text-decoration: none;
-  color: #333333;
-  /* Dark gray */
-  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.88rem;
   font-weight: 500;
-  /* Medium weight */
-  text-transform: uppercase;
-  transition: color 0.2s ease;
+  letter-spacing: 0.03em;
+  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: #bef264;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
 .nav-link:hover {
-  color: #000000;
+  color: #ffffff;
 }
 
-/* --- CTA Button --- */
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.logout-btn {
+  color: #f87171;
+}
+
+/* CTA Button - Elegant Neon Outline */
 .cta-wrapper {
-  display: flex;
-  align-items: stretch;
+  flex-shrink: 0;
 }
 
 .cta-button {
+  background: transparent;
+  color: #bef264;
+  border: 1px solid rgba(190, 242, 100, 0.4);
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f7ff9e;
-  /* Bright yellow/lime */
-  color: #000000;
-  /* Black bold text */
-  font-size: 2rem;
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0 3rem;
-  /* Substantial padding */
-  border-radius: 0;
-  /* Rounded corners removed to fit right edge */
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  margin: 0;
-  /* Margin removed to fit right edge */
+  box-shadow: 0 0 0 0 rgba(190, 242, 100, 0);
 }
 
 .cta-button:hover {
-  background-color: #000000;
-  color: #ffffff;
-  /* Slightly darker on hover */
+  background: #bef264;
+  color: #000000;
+  border-color: #bef264;
+  box-shadow: 0 0 25px rgba(190, 242, 100, 0.35);
+  transform: translateY(-1px);
 }
 
-.cta-button:active {
-  transform: scale(0.98);
-}
-
-/* --- Mobile Components --- */
+/* Mobile Toggle */
 .mobile-menu-toggle {
   display: none;
   background: none;
   border: none;
-  padding: 0 1.5rem;
+  padding: 10px;
   cursor: pointer;
 }
 
 .hamburger {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 2px;
-  background-color: #000;
+  background-color: #ffffff;
   position: relative;
-  transition: background-color 0.3s;
 }
 
 .hamburger::before,
 .hamburger::after {
   content: '';
   position: absolute;
-  width: 24px;
+  width: 22px;
   height: 2px;
-  background-color: #000;
+  background-color: #ffffff;
   left: 0;
-  transition: transform 0.3s;
+  transition: transform 0.3s ease;
 }
 
-.hamburger::before {
-  top: -8px;
-}
+.hamburger::before { top: -7px; }
+.hamburger::after { bottom: -7px; }
 
-.hamburger::after {
-  bottom: -8px;
-}
 
-.hamburger.open {
-  background-color: transparent;
-}
-
-.hamburger.open::before {
-  transform: rotate(45deg);
-  top: 0;
-}
-
-.hamburger.open::after {
-  transform: rotate(-45deg);
-  top: 0;
-}
-
+/*  Responsive MOBILE UI */
 .mobile-nav {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  background: rgba(13, 13, 18, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
-  border-top: 1px solid #e0e0e0;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  gap: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .mobile-nav .nav-link {
-  padding: 1rem 0;
-  border-bottom: 1px solid #eaeaea;
+  font-size: 1.1rem;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  text-align: center;
+}
+
+.mobile-nav .nav-link:last-of-type {
+  border-bottom: none;
 }
 
 .mobile-cta {
-  display: inline-block;
-  background-color: #e8ff4d;
+  background: #bef264;
   color: #000;
-  text-align: center;
-  padding: 1rem;
-  margin-top: 1rem;
   text-decoration: none;
-  font-weight: 600;
-  border-radius: 8px;
+  padding: 16px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 700;
+  margin-top: 8px;
+  transition: transform 0.2s;
 }
 
-/* --- Media Queries --- */
-@media (max-width: 1200px) {
+.mobile-cta:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 1100px) {
   .desktop-nav {
-    gap: 1rem;
-    padding-right: 1rem;
+    gap: 2rem;
   }
 }
 
-@media (max-width: 1024px) {
-  .desktop-nav {
+@media (max-width: 950px) {
+  .desktop-nav, .cta-wrapper {
     display: none;
   }
-
-  .cta-wrapper {
-    display: none;
-  }
-
   .mobile-menu-toggle {
-    display: flex;
-    align-items: center;
+    display: block;
   }
-}
-
-@media (max-width: 600px) {
-  .logo-text-block {
-    display: none;
-    /* Hide text on small screens to maintain layout */
+  .main-header {
+    height: 60px;
+    padding: 0 16px;
+    width: 94%;
   }
-
-  .header-content {
-    height: 64px;
-  }
-
-  .logo-mark {
-    padding-bottom: 8px;
-  }
-
-  .logo-stripe {
-    height: 32px;
-  }
-
-  .logo-stripe.short {
-    height: 20px;
-  }
-}
-
-.banner-text {
-  font-family: 'Markova';
-  font-weight: normal;
-  font-style: normal;
 }
