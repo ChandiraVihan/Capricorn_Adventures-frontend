@@ -35,6 +35,7 @@ export default function Header() {
           <nav className="desktop-nav">
             <Link to="/home" className="nav-link">Home</Link>
             <Link to="/search" className="nav-link">Plan Stay</Link>
+            <Link to="/adventures" className="nav-link">Adventures</Link>
             <Link to="/find-booking" className="nav-link">Track Booking</Link>
             {user && <Link to="/my-bookings" className="nav-link">My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link">Profile</Link>}
@@ -65,6 +66,7 @@ export default function Header() {
           <nav className="mobile-nav">
             <Link to="/home" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
             <Link to="/search" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Plan Stay</Link>
+            <Link to="/adventures" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Adventures</Link>
             <Link to="/find-booking" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Track Booking</Link>
             {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Profile</Link>}
