@@ -96,7 +96,7 @@ const SearchRoom = () => {
                 let errData;
                 try {
                     errData = await res.json();
-                } catch (parseError) {
+                } catch {
                     throw new Error("Backend returned an error. Please contact support.");
                 }
                 setError({ general: errData.message || "Search failed. Please try again." });

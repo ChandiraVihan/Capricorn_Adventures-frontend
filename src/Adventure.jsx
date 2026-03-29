@@ -611,7 +611,7 @@ export default function Adventure() {
       dtx = targetX;   dty = targetY;
     }
 
-    function onMouseUp(e) {
+    function onMouseUp() {
       if (!drag) {
         // Detect click
         if (hovCol !== null && hovRow !== null) {
@@ -627,8 +627,8 @@ export default function Adventure() {
       try {
         const sch = await adventureService.getSchedules(adv.id);
         setSchedules(sch);
-      } catch (err) {
-        console.error("Failed to fetch schedules");
+      } catch (error) {
+        console.error("Failed to fetch schedules", error);
       }
     };
 

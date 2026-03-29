@@ -18,11 +18,6 @@ export default function AdventureAdmin() {
   // Fields match CreateAdventureScheduleRequestDTO: startDate (ISO datetime), endDate (ISO datetime), availableSlots
   const [newSchedule, setNewSchedule] = useState({ startDate: '', endDate: '', availableSlots: '' });
 
-  useEffect(() => {
-    fetchAdventures();
-    fetchCategories();
-  }, []);
-
   const fetchAdventures = async () => {
     try {
       const data = await adventureService.getAllAdventures();
@@ -40,6 +35,11 @@ export default function AdventureAdmin() {
       console.error("Error fetching categories:", err.message);
     }
   };
+
+  useEffect(() => {
+    fetchAdventures();
+    fetchCategories();
+  }, []);
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();

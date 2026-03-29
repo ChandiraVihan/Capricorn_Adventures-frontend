@@ -55,23 +55,6 @@ const toList = (value) => {
   return [];
 };
 
-const toPhotoList = (item) => {
-  const imageObjects = Array.isArray(item?.images)
-    ? item.images.map((img) => img?.imageUrl).filter(Boolean)
-    : [];
-
-  const directPhotos = Array.isArray(item?.photos) ? item.photos.filter(Boolean) : [];
-
-  const imageUrlString = typeof item?.imageUrls === 'string'
-    ? item.imageUrls
-        .split(',')
-        .map((url) => url.trim())
-        .filter(Boolean)
-    : [];
-
-  return [...imageObjects, ...directPhotos, ...imageUrlString];
-};
-
 const normalizeAdventure = (item) => {
   const normalizedId = item?.id || item?.adventureId || item?._id;
   const normalizedTitle = item?.title || item?.name || 'Adventure';
@@ -175,7 +158,7 @@ const AdventureDetails = () => {
       const data = await adventureService.getAdventureDetails(adventureId, fromDate, toDate);
       setAdventure(normalizeAdventure(data));
       setSlots(extractSlotsFromAdventure(data));
-    } catch (err) {
+    } catch {
       setAdventure({
         id: adventureId,
         title: 'Adventure details coming soon',

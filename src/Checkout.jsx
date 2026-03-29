@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import './Checkout.css';
@@ -100,7 +100,7 @@ const Checkout = () => {
                 const errData = await res.json();
                 setError(errData.message || "Room unavailable for these dates.");
             }
-        } catch (err) {
+        } catch {
             setError("Server connection failed.");
         } finally {
             setLoading(false);
@@ -126,7 +126,7 @@ const Checkout = () => {
                 const msg = await res.text();
                 setError(msg || "Payment was declined. Please try a different card.");
             }
-        } catch (err) {
+        } catch {
             setError("Confirmation failed. Check your internet connection.");
         } finally {
             setLoading(false);

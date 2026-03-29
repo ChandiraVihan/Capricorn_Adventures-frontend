@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import './RoomDetails.css';
 import { API_BASE_URL } from './api/config';
 

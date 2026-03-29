@@ -42,7 +42,7 @@ function App() {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/find-booking" element={<FindBooking />} />
             <Route path="/my-bookings" element={<MyBookings />} />
-            <Route path="/profile" element={<UserProfile />} />  
+            <Route path="/profile" element={<UserProfile />} />
             <Route path="/adventures" element={<Adventure />} />
             <Route path="/admin/adventures" element={<AdventureAdmin />} />
 
@@ -54,4 +54,3 @@ function App() {
 }
 
 export default App
-

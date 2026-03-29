@@ -68,14 +68,6 @@ const adventureImageMap = {
   'COLOMBO CITY TOUR': colomboCityImage,
 };
 
-const parseImageUrls = (value) => {
-  if (typeof value !== 'string') return [];
-  return value
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean);
-};
-
 const normalizeKey = (value) => String(value || '').trim().toUpperCase();
 
 const pickRandomCatalogImage = (item) => {
@@ -194,7 +186,7 @@ const Adventures = () => {
     try {
       const data = await adventureService.getCategories();
       setCategories(Array.isArray(data) ? data : []);
-    } catch (err) {
+    } catch {
       setCategories([]);
     }
   };
@@ -212,7 +204,7 @@ const Adventures = () => {
         maxDurationHours: currentFilters.maxDurationHours || undefined,
       });
       setAdventures(rows.map(normalizeAdventure));
-    } catch (err) {
+    } catch {
       setError('Showing sample adventures because live data is currently unavailable.');
       const sample = fallbackAdventures.filter((item) => {
         const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;

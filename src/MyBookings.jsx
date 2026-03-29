@@ -69,7 +69,7 @@ const MyBookings = () => {
                 setSelectedScheduleId('');
                 setRestrictionMessage('');
             }
-        } catch (fetchError) {
+        } catch {
             setError('Server connection issues.');
         } finally {
             setLoading(false);

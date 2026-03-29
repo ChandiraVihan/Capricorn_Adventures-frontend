@@ -53,7 +53,7 @@ const UserProfile = () => {
                 const errorText = await res.text();
                 setMessage({ type: 'error', text: errorText || 'Failed to update profile.' });
             }
-        } catch (err) {
+        } catch {
             setMessage({ type: 'error', text: 'Server connection error.' });
         } finally {
             setLoading(false);
