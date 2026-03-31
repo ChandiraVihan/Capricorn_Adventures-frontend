@@ -10,6 +10,7 @@ import localImage5 from './assets/700644293.jpg';
 import localImage6 from './assets/whale-watching-sri-lanka.webp';
 import { useNavigate } from 'react-router-dom';
 import { adventureService } from './api/adventureService';
+import InteractiveTrailMap from './InteractiveTrailMap';
 
 const lkrFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
@@ -55,24 +56,58 @@ const toList = (value) => {
   return [];
 };
 
+const generateDummyTrail = (seedStr) => {
+  const points = [];
+  const steps = 30;
+  // Use a pseudo-random seed to generate a consistent but interesting trail
+  let s = hashString(seedStr);
+  const random = () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+
+  // Base coords around Boralesgamuwa, Sri Lanka (the hotel address)
+  let currentLat = 6.8481 + (random() * 0.02);
+  let currentLng = 79.9041 + (random() * 0.02);
+  let elevation = 100 + (random() * 800);
+  let distance = 0;
+
+  for (let i = 0; i < steps; i++) {
+    points.push({
+      lat: currentLat,
+      lng: currentLng,
+      elevation: Math.round(elevation),
+      distance: distance.toFixed(1)
+    });
+    // Wander slightly to create a trail polyline
+    currentLat += (random() - 0.45) * 0.02;
+    currentLng += (random() - 0.45) * 0.02;
+    elevation += (random() - 0.5) * 60;
+    if (elevation < 0) elevation = 10;
+    distance += 0.4 + (random() * 0.6);
+  }
+  return { routePoints: points };
+};
+
 const normalizeAdventure = (item) => {
   const normalizedId = item?.id || item?.adventureId || item?._id;
   const normalizedTitle = item?.title || item?.name || 'Adventure';
 
   return {
-  id: normalizedId,
-  title: item?.title || item?.name || 'Adventure',
-  description: item?.description || item?.summary || 'No details available right now.',
-  location: item?.location || item?.destination || 'Location TBA',
-  difficulty: item?.difficulty || item?.difficultyLevel || 'Moderate',
-  minAge: item?.minAge || item?.ageRestriction?.min || 0,
-  maxAge: item?.maxAge || item?.ageRestriction?.max || null,
-  price: item?.price || item?.basePrice || 0,
-  isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
-  inclusions: toList(item?.inclusions || item?.includes),
-  itinerary: toList(item?.itinerary || item?.highlights),
-  photos: pickRandomImagesForAdventure(`${normalizedId}-${normalizedTitle}`),
-};
+    id: normalizedId,
+    title: item?.title || item?.name || 'Adventure',
+    description: item?.description || item?.summary || 'No details available right now.',
+    location: item?.location || item?.destination || 'Location TBA',
+    difficulty: item?.difficulty || item?.difficultyLevel || 'Moderate',
+    minAge: item?.minAge || item?.ageRestriction?.min || 0,
+    maxAge: item?.maxAge || item?.ageRestriction?.max || null,
+    price: item?.price || item?.basePrice || 0,
+    isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
+    inclusions: toList(item?.inclusions || item?.includes),
+    itinerary: toList(item?.itinerary || item?.highlights),
+    photos: pickRandomImagesForAdventure(`${normalizedId}-${normalizedTitle}`),
+    trailData: item?.trailData || generateDummyTrail(`${normalizedId}-${normalizedTitle}`),
+  };
 };
 
 const normalizeSlot = (slot, index) => {
@@ -172,6 +207,7 @@ const AdventureDetails = () => {
         inclusions: ['Guide support', 'Safety briefing', 'Light refreshments'],
         itinerary: ['Arrival and check-in', 'Briefing and gear setup', 'Guided experience'],
         photos: pickRandomImagesForAdventure(adventureId),
+        trailData: generateDummyTrail(adventureId),
       });
       setSlots(fallbackSlots);
       setError('Live details could not be loaded. Showing a preview format instead.');
@@ -301,6 +337,18 @@ const AdventureDetails = () => {
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
+            </div>
+
+            <div className="info-block" style={{ marginTop: '2.5rem' }}>
+              <h3>Trail Route Map</h3>
+              <p style={{ color: '#4b5563', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+                Explore the interactive trail map below. You can view the full route,
+                and hover over points to see elevation and distance markers.
+              </p>
+              <InteractiveTrailMap
+                trailData={adventure.trailData}
+                fallbackImage={adventure.photos?.[0] || defaultAdventureImage}
+              />
             </div>
           </section>
 
