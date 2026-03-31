@@ -1,11 +1,12 @@
 .interactive-trail-map-container {
   width: 100%;
   height: 400px;
+  margin-top: 2rem;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  margin-top: 2rem;
   border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .leaflet-map-element {
@@ -14,7 +15,6 @@
   z-index: 10;
 }
 
-/* Custom Markers */
 .trail-custom-marker {
   display: flex;
   align-items: center;
@@ -25,45 +25,37 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 3px solid white;
-  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
 }
 
 .start-pin {
-  background-color: #22c55e; /* Distinct Green */
+  background-color: #22c55e;
 }
 
 .end-pin {
-  background-color: #ef4444; /* Distinct Red */
+  background-color: #ef4444;
 }
 
-.invisible-marker {
-  background: transparent;
-  border: none;
-}
-
-/* Tooltip Styles */
 .trail-tooltip {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: Arial, sans-serif;
   font-size: 0.85rem;
-  color: #1f2937;
   line-height: 1.4;
+  color: #1f2937;
 }
 
 .trail-tooltip strong {
-  color: #4b5563;
-  font-weight: 600;
+  color: #374151;
 }
 
-/* Fallback Styles */
 .trail-map-fallback {
   width: 100%;
   height: 400px;
+  margin-top: 2rem;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   background-color: #f3f4f6;
-  margin-top: 2rem;
   border: 1px solid #e5e7eb;
 }
 
@@ -71,27 +63,21 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(20%);
 }
 
 .fallback-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .fallback-overlay span {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2937;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
-  color: #1f2937;
   font-weight: 500;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
