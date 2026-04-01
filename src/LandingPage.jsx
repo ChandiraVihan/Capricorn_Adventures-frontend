@@ -1,6 +1,7 @@
 import React from 'react';
 import './LandingPage.css';
 import logo from './assets/logo.png'; // Ensure you have a logo image in the specified path
+import video from './assets/custom.mp4';
 
 export default function LandingPage() {
   const images = [
@@ -16,34 +17,55 @@ export default function LandingPage() {
 
     <svg width="0" height="0" style={{ position: 'absolute' }}>
       <defs>
-        <clipPath id="notch-clip" clipPathUnits="objectBoundingBox">
-          <path d="
-  M 0,0
-  L 0,0.98
-  Q 0,1 0.02,1
-  L 0.42,1
-  L 0.42,0.88
-  Q 0.42,0.82 0.44,0.82
-  L 0.60,0.82
-  Q 0.62,0.82 0.62,0.88
-  L 0.62,1
-  L 0.98,1
-  Q 1,1 1,0.98
-  L 1,0
-  L 0.78,0
-  L 0.78,0.08
-  Q 0.78,0.12 0.74,0.12
-  L 0.26,0.12
-  Q 0.22,0.12 0.22,0.08
-  L 0.22,0
-  Z
+<clipPath id="notch-clip" clipPathUnits="objectBoundingBox">
+  <path d="
+    M 0,0.02
+    Q 0,0 0.02,0
+    L 0.105,0
+    Q 0.125,0 0.125,0.02
+    L 0.125,0.08
+    Q 0.125,0.12 0.165,0.12
+    L 0.835,0.12
+    Q 0.875,0.12 0.875,0.08
+    L 0.875,0.02
+    Q 0.875,0 0.895,0
+    L 0.98,0
+    Q 1,0 1,0.02
+    L 1,0.98
+    Q 1,1 0.98,1
+    L 0.58,1
+    Q 0.56,1 0.56,0.98
+    L 0.56,0.88
+    Q 0.56,0.82 0.54,0.82
+    L 0.46,0.82
+    Q 0.44,0.82 0.44,0.88
+    L 0.44,0.98
+    Q 0.44,1 0.42,1
+    L 0.02,1
+    Q 0,1 0,0.98
+    Z
+  "/>
+</clipPath>
 
-          "/>
-        </clipPath>
+
+
+
+
       </defs>
     </svg>
 
-    <div className="custom-div"></div>
+    <div className="custom-div">
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="bg-video"
+      >
+        <source src={video} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
     <div className="logo1">
       <img src={logo} alt="Colombo Water Front Logo" />
     </div>

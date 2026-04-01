@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
 import { adventureService } from './api/adventureService';
 import './AdventureAdmin.css';
 
 export default function AdventureAdmin() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [adventures, setAdventures] = useState([]);
   const [categories, setCategories] = useState([]);
 
@@ -10,7 +14,22 @@ export default function AdventureAdmin() {
   const [newCategory, setNewCategory] = useState({ name: '', thumbnailUrl: '' });
 
   // Field names match CreateAdventureRequestDTO exactly
-  const EMPTY_ADVENTURE = { name: '', description: '', basePrice: '', categoryId: '', primaryImageUrl: '' };
+  const EMPTY_ADVENTURE = { 
+    name: '', 
+    description: '', 
+    basePrice: '', 
+    categoryId: '', 
+    primaryImageUrl: '',
+    location: '',
+    difficultyLevel: 'Moderate',
+    minAge: '',
+    itinerary: '',
+    inclusions: '',
+    // Initial Schedule fields (not part of CreateAdventureRequestDTO, but used for immediate follow-up)
+    scheduleStartDate: '',
+    scheduleEndDate: '',
+    scheduleSlots: '10'
+  };
   const [newAdventure, setNewAdventure] = useState(EMPTY_ADVENTURE);
 
   const [selectedAdventure, setSelectedAdventure] = useState(null);
@@ -41,6 +60,15 @@ export default function AdventureAdmin() {
     fetchCategories();
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate('/home');
+  };
+
+  const handleBackToSite = () => {
+    navigate('/home');
+  };
+
   const handleCreateCategory = async (e) => {
     e.preventDefault();
     try {
@@ -56,16 +84,35 @@ export default function AdventureAdmin() {
   const handleCreateAdventure = async (e) => {
     e.preventDefault();
     try {
-      // Send categoryId as a number, basePrice as a number
-      await adventureService.createAdventure({
-        ...newAdventure,
-        categoryId: Number(newAdventure.categoryId),
+      // 1. Create the Adventure
+      const createdAdventure = await adventureService.createAdventure({
+        name: newAdventure.name,
+        description: newAdventure.description,
         basePrice: Number(newAdventure.basePrice),
+        categoryId: Number(newAdventure.categoryId),
+        primaryImageUrl: newAdventure.primaryImageUrl,
+        location: newAdventure.location,
+        difficultyLevel: newAdventure.difficultyLevel,
+        minAge: newAdventure.minAge ? Number(newAdventure.minAge) : null,
+        itinerary: newAdventure.itinerary,
+        inclusions: newAdventure.inclusions
       });
+
+      // 2. Automatically create the initial schedule so it shows up in /adventures
+      if (newAdventure.scheduleStartDate && newAdventure.scheduleEndDate) {
+        await adventureService.createSchedule(createdAdventure.id, {
+          startDate: newAdventure.scheduleStartDate,
+          endDate: newAdventure.scheduleEndDate,
+          availableSlots: Number(newAdventure.scheduleSlots),
+          status: 'AVAILABLE'
+        });
+      }
+
       setNewAdventure(EMPTY_ADVENTURE);
       fetchAdventures();
+      alert("Adventure and initial schedule created successfully!");
     } catch (err) {
-      alert("Error creating adventure: " + err.message);
+      alert("Error creating adventure/schedule: " + err.message);
     }
   };
 
@@ -102,7 +149,15 @@ export default function AdventureAdmin() {
 
   return (
     <div className="admin-container">
-      <h2>Adventure Inventory Management</h2>
+      <header className="admin-header">
+        <div className="admin-header-left">
+          <h2>Adventure Inventory Management</h2>
+        </div>
+        <div className="admin-header-right">
+          <button onClick={handleBackToSite} className="admin-btn secondary">Back to Website</button>
+          <button onClick={handleLogout} className="admin-btn logout">Log Out</button>
+        </div>
+      </header>
       <div className="admin-grid">
         <div className="admin-section">
           <h3>Create New Category</h3>
@@ -159,65 +214,131 @@ export default function AdventureAdmin() {
               value={newAdventure.primaryImageUrl}
               onChange={(e) => setNewAdventure({...newAdventure, primaryImageUrl: e.target.value})}
             />
-            <button type="submit" className="admin-btn">Create Adventure</button>
-          </form>
+            <input
+              type="text" placeholder="Location (e.g. Mirissa, Yala)"
+              value={newAdventure.location}
+              onChange={(e) => setNewAdventure({...newAdventure, location: e.target.value})}
+            />
+            <select
+              value={newAdventure.difficultyLevel}
+              onChange={(e) => setNewAdventure({...newAdventure, difficultyLevel: e.target.value})}
+            >
+              <option value="Easy">Easy</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Hard">Hard</option>
+            </select>
+            <input
+              type="number" placeholder="Minimum Age"
+              value={newAdventure.minAge}
+              onChange={(e) => setNewAdventure({...newAdventure, minAge: e.target.value})}
+            />
+            <textarea
+              placeholder="Itinerary (optional)"
+              value={newAdventure.itinerary}
+              onChange={(e) => setNewAdventure({...newAdventure, itinerary: e.target.value})}
+            />
+            <textarea
+              placeholder="Inclusions (optional)"
+              value={newAdventure.inclusions}
+              onChange={(e) => setNewAdventure({...newAdventure, inclusions: e.target.value})}
+            />
 
-          <h3>Existing Adventures</h3>
-          <table className="admin-table">
-            <thead><tr><th>Name</th><th>Category</th><th>Base Price</th><th>Actions</th></tr></thead>
-            <tbody>
-              {adventures.map(adv => (
-                <tr key={adv.id} className={selectedAdventure?.id === adv.id ? 'selected' : ''} onClick={() => handleSelectAdventure(adv)}>
-                  <td>{adv.name}</td>
-                  <td>{adv.categoryName}</td>
-                  <td>${adv.basePrice}</td>
-                  <td><button onClick={(e) => { e.stopPropagation(); handleDeleteAdventure(adv.id); }} className="delete-btn">Delete</button></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {selectedAdventure && (
-          <div className="admin-section">
-            <h3>Schedules for: {selectedAdventure.name}</h3>
-            <form onSubmit={handleCreateSchedule} className="admin-form">
-              <label>Start Date &amp; Time</label>
+            <div className="admin-sub-section">
+              <h4>Initial Available Schedule</h4>
+              <p className="helper-text">Required for the adventure to be visible on the public page.</p>
+              <label>Start Date & Time</label>
               <input
                 type="datetime-local"
-                value={newSchedule.startDate}
-                onChange={(e) => setNewSchedule({...newSchedule, startDate: e.target.value})}
+                value={newAdventure.scheduleStartDate}
+                onChange={(e) => setNewAdventure({...newAdventure, scheduleStartDate: e.target.value})}
                 required
               />
-              <label>End Date &amp; Time</label>
+              <label>End Date & Time</label>
               <input
                 type="datetime-local"
-                value={newSchedule.endDate}
-                onChange={(e) => setNewSchedule({...newSchedule, endDate: e.target.value})}
+                value={newAdventure.scheduleEndDate}
+                onChange={(e) => setNewAdventure({...newAdventure, scheduleEndDate: e.target.value})}
                 required
               />
               <input
                 type="number"
-                placeholder="Available Slots"
-                value={newSchedule.availableSlots}
-                onChange={(e) => setNewSchedule({...newSchedule, availableSlots: e.target.value})}
+                placeholder="Initial Available Slots"
+                value={newAdventure.scheduleSlots}
+                onChange={(e) => setNewAdventure({...newAdventure, scheduleSlots: e.target.value})}
                 required
               />
-              <button type="submit" className="admin-btn">Add Schedule</button>
-            </form>
+            </div>
 
-            <table className="admin-table">
-              <thead><tr><th>Start</th><th>End</th><th>Available Slots</th><th>Status</th></tr></thead>
-              <tbody>
-                {schedules.map(sch => (
-                  <tr key={sch.id}><td>{sch.startDate}</td><td>{sch.endDate}</td><td>{sch.availableSlots}</td><td>{sch.status}</td></tr>
-                ))}
-              </tbody>
-            </table>
+            <button type="submit" className="admin-btn">Create Adventure</button>
+          </form>
+        </div>
+
+        <div className="admin-section-group">
+          <div className="admin-section">
+            <h3>Existing Adventures</h3>
+            <div className="admin-table-container">
+              <table className="admin-table">
+                <thead><tr><th>Name</th><th>Category</th><th>Base Price</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {adventures.map(adv => (
+                    <tr key={adv.id} className={selectedAdventure?.id === adv.id ? 'selected' : ''} onClick={() => handleSelectAdventure(adv)}>
+                      <td>{adv.name}</td>
+                      <td>{adv.categoryName}</td>
+                      <td>${adv.basePrice}</td>
+                      <td><button onClick={(e) => { e.stopPropagation(); handleDeleteAdventure(adv.id); }} className="delete-btn">Delete</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
+
+          {selectedAdventure && (
+            <div className="admin-section" style={{ marginTop: '32px' }}>
+              <h3>Schedules for: {selectedAdventure.name}</h3>
+              <form onSubmit={handleCreateSchedule} className="admin-form">
+                <div className="form-field">
+                  <label>Start Date &amp; Time</label>
+                  <input
+                    type="datetime-local"
+                    value={newSchedule.startDate}
+                    onChange={(e) => setNewSchedule({...newSchedule, startDate: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="form-field">
+                  <label>End Date &amp; Time</label>
+                  <input
+                    type="datetime-local"
+                    value={newSchedule.endDate}
+                    onChange={(e) => setNewSchedule({...newSchedule, endDate: e.target.value})}
+                    required
+                  />
+                </div>
+                <input
+                  type="number"
+                  placeholder="Available Slots"
+                  value={newSchedule.availableSlots}
+                  onChange={(e) => setNewSchedule({...newSchedule, availableSlots: e.target.value})}
+                  required
+                />
+                <button type="submit" className="admin-btn">Add Schedule</button>
+              </form>
+
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead><tr><th>Start</th><th>End</th><th>Available Slots</th><th>Status</th></tr></thead>
+                  <tbody>
+                    {schedules.map(sch => (
+                      <tr key={sch.id}><td>{sch.startDate}</td><td>{sch.endDate}</td><td>{sch.availableSlots}</td><td>{sch.status}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
-

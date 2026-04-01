@@ -54,8 +54,12 @@ export default function Auth({ mode }) {
 
         try {
             if (isSignIn) {
-                await login(formData.email, formData.password);
-                navigate("/home");
+                const data = await login(formData.email, formData.password);
+                if (data?.user?.role === "ADMIN") {
+                    navigate("/admin/adventures");
+                } else {
+                    navigate("/home");
+                }
             } else if (isForgotPassword) {
                 await authService.forgotPassword(formData.email);
                 setSuccess("If this email is registered, a reset link has been sent.");

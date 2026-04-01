@@ -1,4 +1,4 @@
-const DEFAULT_BACKEND_BASE_URL = 'https://potential-space-parakeet-rx94wj5q9pq35w6w-8085.app.github.dev';
+const DEFAULT_BACKEND_BASE_URL = 'http://localhost:8080';
 
 // Real backend URL for OAuth and production
 export const REAL_BACKEND_BASE_URL = (import.meta.env.VITE_BACKEND_BASE_URL || DEFAULT_BACKEND_BASE_URL).replace(/\/$/, '');

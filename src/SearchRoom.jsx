@@ -87,7 +87,7 @@ const SearchRoom = () => {
                 checkOut: params.checkout instanceof Date ? formatDate(params.checkout) : params.checkout
             };
             const query = new URLSearchParams(apiParams).toString();
-            const res = await fetch(`${API_BASE_URL}/rooms/search?${query}`);
+            const res = await fetch(`${API_BASE_URL}/v1/rooms/search?${query}`);
 
             if (res.ok) {
                 const data = await res.json();
@@ -136,7 +136,7 @@ const SearchRoom = () => {
             const checkInStr = formatDate(filters.checkin);
             const checkOutStr = formatDate(filters.checkout);
             
-            const response = await fetch('http://localhost:8080/api/v1/bookings', {
+            const response = await fetch(`${API_BASE_URL}/v1/bookings`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
