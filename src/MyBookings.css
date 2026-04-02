@@ -73,6 +73,14 @@
     background: #f44336;
 }
 
+.status-indicator[data-status="REFUNDED"] {
+    background: #673ab7;
+}
+
+.status-indicator[data-status="PARTIALLY_REFUNDED"] {
+    background: #3f51b5;
+}
+
 .ref-sub {
     font-size: 0.8rem;
     color: #999;
@@ -108,6 +116,20 @@
 
 .status-text.pending {
     color: #ffc107;
+}
+
+.status-text.refunded {
+    color: #673ab7;
+}
+
+.status-text.partially_refunded {
+    color: #3f51b5;
+}
+
+.refund-amount-text {
+    font-size: 0.7rem;
+    color: #673ab7;
+    margin-bottom: 2px;
 }
 
 .booking-management-panel {

@@ -164,20 +164,32 @@ const MyBookings = () => {
     const handleCancel = async () => {
         if (!selectedBookingId) return;
 
-        const confirmed = window.confirm('Are you sure you want to cancel this adventure booking?');
-        if (!confirmed) return;
+        const reason = window.prompt('Please provide a reason for cancellation/refund:', 'Change of plans');
+        if (reason === null) return; // User cancelled prompt
 
         setActionLoading(true);
         setError('');
         setActionMessage('');
 
         try {
-            const response = await adventureService.cancelAdventureBooking(selectedBookingId);
-            setActionMessage(response?.message || 'Booking cancelled successfully.');
+            let response;
+            if (bookingType === 'ADVENTURE') {
+                response = await adventureService.requestAdventureRefund(selectedBookingId, reason);
+            } else {
+                response = await adventureService.requestRoomRefund(selectedBookingId, reason);
+            }
+            setActionMessage(response?.message || 'Cancellation and refund request processed successfully.');
             await fetchBookings();
-            await loadAdventureDetails(selectedBookingId);
+            
+            // Re-select to update details view
+            if (bookingType === 'ADVENTURE') {
+                await loadAdventureDetails(selectedBookingId);
+            } else {
+                // For hotel, we might need a separate details loader or just refresh
+                setSelectedDetails(null);
+            }
         } catch (actionError) {
-            setError(actionError.message || 'Unable to cancel booking.');
+            setError(actionError.message || 'Unable to process refund request.');
         } finally {
             setActionLoading(false);
         }
@@ -253,9 +265,9 @@ const MyBookings = () => {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: index * 0.06 }}
-                                    className={`history-card ${isSelected ? 'selected' : ''}`}
-                                    onClick={() => bookingType === 'ADVENTURE' && setSelectedBookingId(id)}
-                                    role={bookingType === 'ADVENTURE' ? 'button' : undefined}
+                                    className={`history-card ${id === selectedBookingId ? 'selected' : ''}`}
+                                    onClick={() => setSelectedBookingId(id)}
+                                    role="button"
                                     tabIndex={bookingType === 'ADVENTURE' ? 0 : undefined}
                                     onKeyDown={(event) => {
                                         if (bookingType !== 'ADVENTURE') return;
@@ -274,17 +286,21 @@ const MyBookings = () => {
                                         <div className="date-range">
                                             {getBookingDates(booking)}
                                         </div>
-                                        <div className="history-price">{formatLkr(getBookingPrice(booking))}</div>
+                                        <div className="history-price">
+                                            {booking.refundedAmount > 0 && (
+                                                <div className="refund-amount-text">Refunded: {formatLkr(booking.refundedAmount)}</div>
+                                            )}
+                                            {formatLkr(getBookingPrice(booking))}
+                                        </div>
                                         <div className={`status-text ${(booking.status || 'pending').toLowerCase()}`}>{booking.status || 'PENDING'}</div>
                                     </div>
                                 </motion.div>
                             );
                         })}
                     </div>
-
-                    {bookingType === 'ADVENTURE' && (
+                    {selectedBookingId && (
                         <aside className="booking-management-panel">
-                            <h2>Manage Adventure Booking</h2>
+                            <h2>Manage Booking</h2>
 
                             {detailsLoading ? (
                                 <p>Loading booking details...</p>
@@ -293,12 +309,22 @@ const MyBookings = () => {
                             ) : (
                                 <>
                                     <div className="management-block">
-                                        <h3>{selectedDetails.adventureName || 'Adventure booking'}</h3>
-                                        <p><strong>Date / time:</strong> {formatDateTime(selectedDetails.startDateTime)}</p>
-                                        <p><strong>Participants:</strong> {selectedDetails.participants ?? '-'}</p>
-                                        <p><strong>Provider:</strong> {selectedDetails.providerInfo || 'Capricorn Adventures'}</p>
-                                        <p><strong>Status:</strong> {toTitleCase(selectedDetails.status)}</p>
-                                        <p><strong>Meeting point:</strong> {selectedDetails.meetingPoint || '-'}</p>
+                                        <h3>{bookingType === 'ADVENTURE' ? (selectedDetails?.adventureName || 'Adventure booking') : (selectedDetails?.roomName || 'Room stay')}</h3>
+                                        {bookingType === 'ADVENTURE' ? (
+                                            <>
+                                                <p><strong>Date / time:</strong> {formatDateTime(selectedDetails?.startDateTime)}</p>
+                                                <p><strong>Participants:</strong> {selectedDetails?.participants ?? '-'}</p>
+                                                <p><strong>Provider:</strong> {selectedDetails?.providerInfo || 'Capricorn Adventures'}</p>
+                                                <p><strong>Meeting point:</strong> {selectedDetails?.meetingPoint || '-'}</p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p><strong>Check-in:</strong> {selectedDetails?.checkInDate}</p>
+                                                <p><strong>Check-out:</strong> {selectedDetails?.checkOutDate}</p>
+                                                <p><strong>Guests:</strong> {selectedDetails?.guests}</p>
+                                            </>
+                                        )}
+                                        <p><strong>Status:</strong> {toTitleCase(selectedDetails?.status || bookings.find(b => getBookingId(b) === selectedBookingId)?.status)}</p>
                                     </div>
 
                                     {restrictionMessage && (
@@ -344,14 +370,17 @@ const MyBookings = () => {
                                     </div>
 
                                     <div className="management-block">
-                                        <h4>Cancellation</h4>
+                                        <h4>Cancellation & Refund</h4>
+                                        <p className="muted-text" style={{ fontSize: '0.8rem', marginBottom: '10px' }}>
+                                            Cancellation policies apply. Refunds may be partial depending on notice period.
+                                        </p>
                                         <button
                                             type="button"
                                             onClick={handleCancel}
                                             className="action-btn cancel"
-                                            disabled={actionLoading || selectedDetails.cancelAllowed === false}
+                                            disabled={actionLoading || (selectedDetails && selectedDetails.cancelAllowed === false)}
                                         >
-                                            {actionLoading ? 'Processing...' : 'Cancel Booking'}
+                                            {actionLoading ? 'Processing...' : 'Cancel & Request Refund'}
                                         </button>
                                     </div>
                                 </>
