@@ -82,7 +82,7 @@ const pickFallbackImage = (item) => {
     return adventureImageMap[titleKey];
   }
 
-  const categoryLabel = String(item?.category || item?.type || '').toUpperCase();
+  const categoryLabel = String(item?.category || item?.categoryName || item?.type || '').toUpperCase();
   if (categoryImageMap[categoryLabel]) {
     return categoryImageMap[categoryLabel];
   }
@@ -96,7 +96,7 @@ const normalizeAdventure = (item) => ({
   title: item?.title || item?.name || 'Untitled Adventure',
   description: item?.description || item?.summary || 'No description available.',
   location: item?.location || item?.destination || 'Location TBA',
-  category: item?.category || item?.type || 'General',
+  category: item?.category || item?.categoryName || item?.type || 'General',
   durationHours: item?.durationHours || item?.duration || 0,
   price: item?.price || item?.basePrice || 0,
   difficulty: item?.difficulty || item?.difficultyLevel || 'Moderate',
@@ -196,15 +196,19 @@ const Adventures = () => {
     setError('');
 
     try {
-      const rows = await adventureService.browseAdventures({
+      const response = await adventureService.browseAdventures({
         categoryId: currentFilters.categoryId || undefined,
         category: currentFilters.category !== EMPTY_CATEGORY_LABEL ? currentFilters.category : undefined,
         minPrice: currentFilters.minPrice || undefined,
         maxPrice: currentFilters.maxPrice || undefined,
-        maxDurationHours: currentFilters.maxDurationHours || undefined,
+        maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== "") ? currentFilters.maxDurationHours : undefined,
       });
+      
+      // adventureService.browseAdventures() already unwraps the DTO and returns the adventures array
+      const rows = Array.isArray(response) ? response : (response?.adventures || []);
       setAdventures(rows.map(normalizeAdventure));
-    } catch {
+    } catch (err) {
+      console.error("Failed to fetch adventures", err);
       setError('Showing sample adventures because live data is currently unavailable.');
       const sample = fallbackAdventures.filter((item) => {
         const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;

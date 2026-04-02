@@ -18,9 +18,13 @@ export default function OAuth2RedirectHandler() {
 
                 try {
                     // Fetch user info immediately and store in localStorage
-                    await authService.getUserInfo();
-                    // Redirect to home - this will cause AuthProvider to remount and see the user in localStorage
-                    window.location.href = "/home";
+                    const user = await authService.getUserInfo();
+                    
+                    if (user && user.role === "ADMIN") {
+                        window.location.href = "/admin/adventures";
+                    } else {
+                        window.location.href = "/home";
+                    }
                 } catch (err) {
                     console.error("Failed to fetch user info after social login", err);
                     navigate("/signin?error=user_info_failed");

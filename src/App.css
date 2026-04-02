@@ -9,4 +9,14 @@
   padding-top: 100px; /* Offset for the fixed floating header */
 }
 
+.admin-hero {
+  z-index: 2;
+  width: 100vw;
+  height: auto;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
 

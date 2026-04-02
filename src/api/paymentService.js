@@ -1,4 +1,5 @@
-const API_BASE_URL = "http://localhost:8080/api";
+import { API_BASE_URL } from './config';
+
 const MERCHANT_ID = "1234776";
 
 export const paymentService = {
@@ -25,7 +26,7 @@ export const paymentService = {
       merchant_id: MERCHANT_ID,
       return_url: window.location.origin + "/payment-success",
       cancel_url: window.location.origin + "/payment-cancel",
-      notify_url: "http://localhost:8080/api/payment/notify", 
+      notify_url: `${API_BASE_URL}/payment/notify`, 
       order_id: paymentData.orderId,
       items: paymentData.items,
       amount: parseFloat(paymentData.totalAmount).toFixed(2),

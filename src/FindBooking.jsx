@@ -23,7 +23,7 @@ const FindBooking = () => {
         setBooking(null);
 
         try {
-            const res = await fetch(`${API_BASE_URL}/bookings/reference/${reference.trim()}`);
+            const res = await fetch(`${API_BASE_URL}/v1/bookings/reference/${reference.trim()}`);
             if (res.ok) {
                 const data = await res.json();
                 setBooking(data);
@@ -47,7 +47,7 @@ const FindBooking = () => {
     const handleCancelBooking = async () => {
         setCancelling(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/v1/bookings/reference/${booking.referenceId}`, {
+            const res = await fetch(`${API_BASE_URL}/v1/bookings/reference/${booking.referenceId}`, {
                 method: 'DELETE'
             });
             if (res.ok) {
