@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from './context/AuthContext';
 import './MyBookings.css';
 import { adventureService } from './api/adventureService';
+import { bookingService } from './api/bookingService';
 
 const toTitleCase = (value) => (value ? String(value).toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase()) : '-');
 
@@ -63,11 +64,8 @@ const MyBookings = () => {
                 const firstAdventureBookingId = getBookingId(rows[0]);
                 setSelectedBookingId(firstAdventureBookingId || null);
             } else {
-                setSelectedBookingId(null);
-                setSelectedDetails(null);
-                setRescheduleOptions([]);
-                setSelectedScheduleId('');
-                setRestrictionMessage('');
+                const firstHotelBookingId = getBookingId(rows[0]);
+                setSelectedBookingId(firstHotelBookingId || null);
             }
         } catch {
             setError('Server connection issues.');
@@ -76,7 +74,7 @@ const MyBookings = () => {
         }
     };
 
-    const loadAdventureDetails = async (bookingId) => {
+    const loadBookingDetails = async (bookingId) => {
         if (!bookingId) {
             setSelectedDetails(null);
             setRescheduleOptions([]);
@@ -90,16 +88,23 @@ const MyBookings = () => {
         setError('');
 
         try {
-            const [details, options] = await Promise.all([
-                adventureService.getAdventureBookingDetails(bookingId),
-                adventureService.getAdventureRescheduleOptions(bookingId),
-            ]);
+            if (bookingType === 'ADVENTURE') {
+                const [details, options] = await Promise.all([
+                    adventureService.getAdventureBookingDetails(bookingId),
+                    adventureService.getAdventureRescheduleOptions(bookingId),
+                ]);
 
-            const availableSlots = Array.isArray(options?.availableSlots) ? options.availableSlots : [];
-            setSelectedDetails(details || null);
-            setRescheduleOptions(availableSlots);
-            setRestrictionMessage(details?.restrictionMessage || options?.message || '');
-            setSelectedScheduleId(availableSlots[0]?.scheduleId ? String(availableSlots[0].scheduleId) : '');
+                const availableSlots = Array.isArray(options?.availableSlots) ? options.availableSlots : [];
+                setSelectedDetails(details || null);
+                setRescheduleOptions(availableSlots);
+                setRestrictionMessage(details?.restrictionMessage || options?.message || '');
+                setSelectedScheduleId(availableSlots[0]?.scheduleId ? String(availableSlots[0].scheduleId) : '');
+            } else {
+                const details = await bookingService.getRoomBookingDetails(bookingId);
+                setSelectedDetails(details || null);
+                setRescheduleOptions([]);
+                setRestrictionMessage(details?.restrictionMessage || '');
+            }
         } catch (detailsError) {
             setSelectedDetails(null);
             setRescheduleOptions([]);
@@ -116,8 +121,8 @@ const MyBookings = () => {
     }, [user, bookingType]);
 
     useEffect(() => {
-        if (bookingType === 'ADVENTURE' && selectedBookingId) {
-            loadAdventureDetails(selectedBookingId);
+        if (selectedBookingId) {
+            loadBookingDetails(selectedBookingId);
         }
     }, [bookingType, selectedBookingId]);
 
@@ -153,7 +158,7 @@ const MyBookings = () => {
             const response = await adventureService.rescheduleAdventureBooking(selectedBookingId, Number(selectedScheduleId));
             setActionMessage(response?.message || 'Booking rescheduled successfully.');
             await fetchBookings();
-            await loadAdventureDetails(selectedBookingId);
+            await loadBookingDetails(selectedBookingId);
         } catch (actionError) {
             setError(actionError.message || 'Unable to reschedule booking.');
         } finally {
@@ -176,18 +181,13 @@ const MyBookings = () => {
             if (bookingType === 'ADVENTURE') {
                 response = await adventureService.requestAdventureRefund(selectedBookingId, reason);
             } else {
-                response = await adventureService.requestRoomRefund(selectedBookingId, reason);
+                response = await bookingService.requestRoomRefund(selectedBookingId, reason);
             }
             setActionMessage(response?.message || 'Cancellation and refund request processed successfully.');
             await fetchBookings();
             
             // Re-select to update details view
-            if (bookingType === 'ADVENTURE') {
-                await loadAdventureDetails(selectedBookingId);
-            } else {
-                // For hotel, we might need a separate details loader or just refresh
-                setSelectedDetails(null);
-            }
+            await loadBookingDetails(selectedBookingId);
         } catch (actionError) {
             setError(actionError.message || 'Unable to process refund request.');
         } finally {
@@ -268,9 +268,8 @@ const MyBookings = () => {
                                     className={`history-card ${id === selectedBookingId ? 'selected' : ''}`}
                                     onClick={() => setSelectedBookingId(id)}
                                     role="button"
-                                    tabIndex={bookingType === 'ADVENTURE' ? 0 : undefined}
+                                    tabIndex={0}
                                     onKeyDown={(event) => {
-                                        if (bookingType !== 'ADVENTURE') return;
                                         if (event.key === 'Enter' || event.key === ' ') {
                                             event.preventDefault();
                                             setSelectedBookingId(id);
@@ -321,7 +320,7 @@ const MyBookings = () => {
                                             <>
                                                 <p><strong>Check-in:</strong> {selectedDetails?.checkInDate}</p>
                                                 <p><strong>Check-out:</strong> {selectedDetails?.checkOutDate}</p>
-                                                <p><strong>Guests:</strong> {selectedDetails?.guests}</p>
+                                                <p><strong>Reference:</strong> {selectedDetails?.referenceId}</p>
                                             </>
                                         )}
                                         <p><strong>Status:</strong> {toTitleCase(selectedDetails?.status || bookings.find(b => getBookingId(b) === selectedBookingId)?.status)}</p>
@@ -339,35 +338,37 @@ const MyBookings = () => {
                                         </div>
                                     )}
 
-                                    <div className="management-block">
-                                        <h4>Reschedule</h4>
-                                        {rescheduleOptions.length > 0 ? (
-                                            <>
-                                                <select
-                                                    value={selectedScheduleId}
-                                                    onChange={(event) => setSelectedScheduleId(event.target.value)}
-                                                    className="reschedule-select"
-                                                    disabled={actionLoading || selectedDetails.rescheduleAllowed === false}
-                                                >
-                                                    {rescheduleOptions.map((slot) => (
-                                                        <option key={slot.scheduleId} value={slot.scheduleId}>
-                                                            {formatDateTime(slot.startDateTime)} ({slot.availableSlots} slots left)
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                <button
-                                                    type="button"
-                                                    onClick={handleReschedule}
-                                                    className="action-btn"
-                                                    disabled={actionLoading || !selectedScheduleId || selectedDetails.rescheduleAllowed === false}
-                                                >
-                                                    {actionLoading ? 'Updating...' : 'Reschedule Booking'}
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <p className="muted-text">No alternative slots available.</p>
-                                        )}
-                                    </div>
+                                    {bookingType === 'ADVENTURE' && (
+                                        <div className="management-block">
+                                            <h4>Reschedule</h4>
+                                            {rescheduleOptions.length > 0 ? (
+                                                <>
+                                                    <select
+                                                        value={selectedScheduleId}
+                                                        onChange={(event) => setSelectedScheduleId(event.target.value)}
+                                                        className="reschedule-select"
+                                                        disabled={actionLoading || selectedDetails.rescheduleAllowed === false}
+                                                    >
+                                                        {rescheduleOptions.map((slot) => (
+                                                            <option key={slot.scheduleId} value={slot.scheduleId}>
+                                                                {formatDateTime(slot.startDateTime)} ({slot.availableSlots} slots left)
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleReschedule}
+                                                        className="action-btn"
+                                                        disabled={actionLoading || !selectedScheduleId || selectedDetails.rescheduleAllowed === false}
+                                                    >
+                                                        {actionLoading ? 'Updating...' : 'Reschedule Booking'}
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <p className="muted-text">No alternative slots available.</p>
+                                            )}
+                                        </div>
+                                    )}
 
                                     <div className="management-block">
                                         <h4>Cancellation & Refund</h4>

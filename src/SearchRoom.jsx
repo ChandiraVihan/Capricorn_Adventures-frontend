@@ -126,7 +126,7 @@ const SearchRoom = () => {
 
     const handleConfirmBooking = async (room) => {
         if (!user) {
-            navigate('/auth');
+            navigate('/signin');
             return;
         }
 

@@ -12,6 +12,7 @@ const FindBooking = () => {
     const [status, setStatus] = useState('idle'); // idle, loading, success, error, cancelled
     const [errorMsg, setErrorMsg] = useState('');
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+    const [cancelMessage, setCancelMessage] = useState('');
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
@@ -47,20 +48,26 @@ const FindBooking = () => {
     const handleCancelBooking = async () => {
         setCancelling(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/v1/bookings/reference/${booking.referenceId}`, {
-                method: 'DELETE'
+            const reason = 'Guest requested cancellation and refund';
+            const res = await fetch(`${API_BASE_URL}/refunds/room/${booking.id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
             });
             if (res.ok) {
+                const data = await res.json();
                 setBooking(null);
                 setReference('');
                 setStatus('cancelled');
                 setShowConfirmCancel(false);
+                setCancelMessage(data.message || 'Your booking has been cancelled and a refund has been initiated.');
             } else {
-                alert("Failed to cancel booking. Please try again or contact support.");
+                const errData = await res.json().catch(() => null);
+                alert(errData?.error || "Failed to process refund. Please try again or contact support.");
             }
         } catch (err) {
-            console.error("Cancellation error:", err);
-            alert("Connection error. Could not reach the server to cancel your booking.");
+            console.error("Refund error:", err);
+            alert("Connection error. Could not reach the server.");
         } finally {
             setCancelling(false);
         }
@@ -127,8 +134,8 @@ const FindBooking = () => {
                     >
                         <CheckCircle size={24} />
                         <div>
-                            <h3>Stay Cancelled Successfully</h3>
-                            <p>The sanctuary is now available for other seekers. We hope to host you another time.</p>
+                            <h3>Cancellation & Refund Initiated</h3>
+                            <p>{cancelMessage || 'Your booking has been cancelled and a refund has been initiated. You will receive a confirmation email shortly.'}</p>
                         </div>
                     </motion.div>
                 )}
@@ -155,14 +162,16 @@ const FindBooking = () => {
                                         <h3>{booking.room?.name || 'Exclusive Suite'}</h3>
                                         <span className="ref-number">Ref: {booking.referenceId}</span>
                                     </div>
-                                    <button 
-                                        className="cancel-stay-btn" 
-                                        onClick={() => setShowConfirmCancel(true)}
-                                        title="Cancel My Stay"
-                                    >
-                                        <Trash2 size={18} />
-                                        <span>Cancel My Stay</span>
-                                    </button>
+                                    {booking.status === 'CONFIRMED' && (
+                                        <button 
+                                            className="cancel-stay-btn" 
+                                            onClick={() => setShowConfirmCancel(true)}
+                                            title="Cancel & Request Refund"
+                                        >
+                                            <Trash2 size={18} />
+                                            <span>Cancel &amp; Request Refund</span>
+                                        </button>
+                                    )}
                                 </div>
 
                                 <div className="info-grid-premium">
@@ -221,8 +230,8 @@ const FindBooking = () => {
                             >
                                 <div className="modal-content">
                                     <AlertTriangle size={64} className="warning-icon" />
-                                    <h2>Cancel Your Sanctuary?</h2>
-                                    <p>Are you sure you want to cancel your stay? This action is permanent and other guests will be able to book these dates immediately.</p>
+                                    <h2>Cancel &amp; Request Refund?</h2>
+                                    <p>Are you sure? A refund will be calculated based on the cancellation policy. The refund will be returned to your original payment method.</p>
                                     
                                     <div className="modal-actions">
                                         <button 
@@ -237,7 +246,7 @@ const FindBooking = () => {
                                             onClick={handleCancelBooking}
                                             disabled={cancelling}
                                         >
-                                            {cancelling ? "Processing..." : "Yes, Cancel Stay"}
+                                            {cancelling ? "Processing Refund..." : "Yes, Cancel & Refund"}
                                         </button>
                                     </div>
                                 </div>
