@@ -173,6 +173,7 @@ const Adventures = () => {
   const [userLocation, setUserLocation] = useState({ lat: null, lng: null });
   const [userCity, setUserCity] = useState('');
   const [cityInput, setCityInput] = useState('');
+  const [distanceLoading, setDistanceLoading] = useState(false);
 
   // 1. Handle initial session state and location request
   useEffect(() => {
@@ -231,6 +232,7 @@ const Adventures = () => {
   const handleCitySubmit = (e) => {
     if (e) e.preventDefault();
     if (cityInput.trim() !== '') {
+        setDistanceLoading(true);
       setUserCity(cityInput.trim());
       sessionStorage.setItem('userCity', cityInput.trim());
     }
@@ -255,7 +257,7 @@ const Adventures = () => {
         category: currentFilters.category !== EMPTY_CATEGORY_LABEL ? currentFilters.category : undefined,
         minPrice: currentFilters.minPrice || undefined,
         maxPrice: currentFilters.maxPrice || undefined,
-        maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== "") ? currentFilters.maxDurationHours : undefined,
+        maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== '') ? currentFilters.maxDurationHours : undefined,
         sortBy: currentFilters.sortBy || undefined,
       };
 
@@ -264,27 +266,36 @@ const Adventures = () => {
         apiFilters.userLng = loc.lng;
       } else if (city) {
         apiFilters.userCity = city;
-        apiFilters.city = city; // Fallback to either param name
+        apiFilters.city = city;
       }
 
-      const response = await adventureService.browseAdventures(apiFilters);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000);
 
-      // adventureService.browseAdventures() already unwraps the DTO and returns the adventures array
+      const response = await adventureService.browseAdventures(apiFilters, controller.signal);
+      clearTimeout(timeoutId);
+
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
       setAdventures(rows.map(normalizeAdventure));
     } catch (err) {
-      console.error("Failed to fetch adventures", err);
-      setError('Showing sample adventures because live data is currently unavailable.');
-      const sample = fallbackAdventures.filter((item) => {
-        const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
-        const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
-        const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
-        const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
-        return matchesCategory && matchesMin && matchesMax && matchesDuration;
-      });
-      setAdventures(sample);
+      if (err.name === 'AbortError') {
+
+        setError('Distance data took too long to load. Showing adventures without travel times.');
+      } else {
+        console.error('Failed to fetch adventures', err);
+        setError('Showing sample adventures because live data is currently unavailable.');
+        const sample = fallbackAdventures.filter((item) => {
+          const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
+          const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
+          const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
+          const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
+          return matchesCategory && matchesMin && matchesMax && matchesDuration;
+        });
+        setAdventures(sample);
+      }
     } finally {
       setLoading(false);
+      setDistanceLoading(false);
     }
   };
 
@@ -306,15 +317,21 @@ const Adventures = () => {
     return [{ name: EMPTY_CATEGORY_LABEL, count: allCount }, ...Object.entries(categoryMap).map(([name, count]) => ({ name, count }))];
   }, [adventures, categories]);
 
-  const visibleAdventures = useMemo(() => {
-    return adventures.filter((item) => {
-      const matchesCategory = filters.category === EMPTY_CATEGORY_LABEL || item.category === filters.category;
-      const matchesMin = filters.minPrice ? item.price >= Number(filters.minPrice) : true;
-      const matchesMax = filters.maxPrice ? item.price <= Number(filters.maxPrice) : true;
-      const matchesDuration = filters.maxDurationHours ? item.durationHours <= Number(filters.maxDurationHours) : true;
-      return matchesCategory && matchesMin && matchesMax && matchesDuration;
-    });
-  }, [adventures, filters]);
+const visibleAdventures = useMemo(() => {
+  const filtered = adventures.filter((item) => {
+    const matchesCategory = filters.category === EMPTY_CATEGORY_LABEL || item.category === filters.category;
+    const matchesMin = filters.minPrice ? item.price >= Number(filters.minPrice) : true;
+    const matchesMax = filters.maxPrice ? item.price <= Number(filters.maxPrice) : true;
+    const matchesDuration = filters.maxDurationHours ? item.durationHours <= Number(filters.maxDurationHours) : true;
+    return matchesCategory && matchesMin && matchesMax && matchesDuration;
+  });
+
+  if (filters.sortBy === 'distance') {
+    return [...filtered].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+  }
+
+  return filtered;
+}, [adventures, filters]);
 
   const updateFilter = (name, value) => {
     if (name === 'category') {
@@ -449,7 +466,11 @@ const Adventures = () => {
                       <h3>{adventure.title}</h3>
                       <p className="adventure-meta">{adventure.location} · {adventure.durationHours}h · {adventure.category}</p>
 
-                      {(adventure.distance || adventure.travelTime) && (
+                      {distanceLoading ? (
+                        <p className="adventure-distance-meta" style={{ color: '#888', fontWeight: 400 }}>
+                          Calculating distances...
+                        </p>
+                      ) : (adventure.distance || adventure.travelTime) && (
                         <p className="adventure-distance-meta">
                           {adventure.distance ? `${adventure.distance} km ` : ''}
                           {adventure.distance && adventure.travelTime ? '· ' : ''}
