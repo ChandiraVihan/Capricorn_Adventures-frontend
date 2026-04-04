@@ -104,6 +104,8 @@ const normalizeAdventure = (item) => ({
   maxAge: item?.maxAge || item?.ageRestriction?.max || null,
   isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
   image: adventureImageMap[normalizeKey(item?.title || item?.name)] || pickFallbackImage(item) || pickRandomCatalogImage(item),
+  distance: item?.distanceKm || item?.distance || null,
+  travelTime: item?.estimatedTravelTime || item?.travelTime || null,
 });
 
 const fallbackAdventures = [
@@ -164,11 +166,53 @@ const Adventures = () => {
     minPrice: '',
     maxPrice: '',
     maxDurationHours: '',
+    sortBy: '',
   });
 
+  const [locationStatus, setLocationStatus] = useState('pending'); // 'pending', 'granted', 'denied'
+  const [userLocation, setUserLocation] = useState({ lat: null, lng: null });
+  const [userCity, setUserCity] = useState('');
+  const [cityInput, setCityInput] = useState('');
+
+  // 1. Handle initial session state and location request
   useEffect(() => {
     fetchCategories();
 
+    const storedLat = sessionStorage.getItem('userLat');
+    const storedLng = sessionStorage.getItem('userLng');
+    const storedCity = sessionStorage.getItem('userCity');
+
+    if (storedLat && storedLng) {
+      setUserLocation({ lat: Number(storedLat), lng: Number(storedLng) });
+      setLocationStatus('granted');
+    } else if (storedCity) {
+      setUserCity(storedCity);
+      setCityInput(storedCity);
+      setLocationStatus('denied');
+    } else {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ lat: latitude, lng: longitude });
+            sessionStorage.setItem('userLat', latitude);
+            sessionStorage.setItem('userLng', longitude);
+            setLocationStatus('granted');
+          },
+          (err) => {
+            console.warn("Location access denied or failed", err);
+            setLocationStatus('denied');
+          },
+          { timeout: 5000 }
+        );
+      } else {
+        setLocationStatus('denied');
+      }
+    }
+  }, []);
+
+  // 2. Load params from URL and apply filters
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const nextFilters = {
       category: params.get('category') || EMPTY_CATEGORY_LABEL,
@@ -176,11 +220,21 @@ const Adventures = () => {
       minPrice: params.get('minPrice') || '',
       maxPrice: params.get('maxPrice') || '',
       maxDurationHours: params.get('maxDurationHours') || '',
+      sortBy: params.get('sortBy') || '',
     };
 
     setFilters(nextFilters);
-    fetchAdventures(nextFilters);
-  }, [location.search]);
+    fetchAdventures(nextFilters, userLocation, userCity);
+  }, [location.search, userLocation, userCity]);
+
+  // 3. Handle explicit city manual submit (AC3)
+  const handleCitySubmit = (e) => {
+    if (e) e.preventDefault();
+    if (cityInput.trim() !== '') {
+      setUserCity(cityInput.trim());
+      sessionStorage.setItem('userCity', cityInput.trim());
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -191,19 +245,30 @@ const Adventures = () => {
     }
   };
 
-  const fetchAdventures = async (currentFilters) => {
+  const fetchAdventures = async (currentFilters, loc = userLocation, city = userCity) => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await adventureService.browseAdventures({
+      const apiFilters = {
         categoryId: currentFilters.categoryId || undefined,
         category: currentFilters.category !== EMPTY_CATEGORY_LABEL ? currentFilters.category : undefined,
         minPrice: currentFilters.minPrice || undefined,
         maxPrice: currentFilters.maxPrice || undefined,
         maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== "") ? currentFilters.maxDurationHours : undefined,
-      });
-      
+        sortBy: currentFilters.sortBy || undefined,
+      };
+
+      if (loc.lat && loc.lng) {
+        apiFilters.userLat = loc.lat;
+        apiFilters.userLng = loc.lng;
+      } else if (city) {
+        apiFilters.userCity = city;
+        apiFilters.city = city; // Fallback to either param name
+      }
+
+      const response = await adventureService.browseAdventures(apiFilters);
+
       // adventureService.browseAdventures() already unwraps the DTO and returns the adventures array
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
       setAdventures(rows.map(normalizeAdventure));
@@ -272,6 +337,7 @@ const Adventures = () => {
     if (filters.minPrice) params.set('minPrice', filters.minPrice);
     if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
     if (filters.maxDurationHours) params.set('maxDurationHours', filters.maxDurationHours);
+    if (filters.sortBy) params.set('sortBy', filters.sortBy);
     navigate(`/adventures?${params.toString()}`);
   };
 
@@ -311,9 +377,34 @@ const Adventures = () => {
         </div>
 
         <div className="filter-group">
-          <label>Max Duration (hours)</label>
-          <input type="number" min="1" value={filters.maxDurationHours} onChange={(e) => updateFilter('maxDurationHours', e.target.value)} />
+          <label>Sort By</label>
+          <select value={filters.sortBy} onChange={(e) => updateFilter('sortBy', e.target.value)}>
+            <option value="">Default Relevance</option>
+            <option value="distance">Distance (Nearest First)</option>
+          </select>
         </div>
+
+        {locationStatus === 'denied' && (
+          <div className="filter-group location-fallback">
+            <label>Your Location (City)</label>
+            <form onSubmit={handleCitySubmit} className="city-input-form">
+              <input
+                type="text"
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                placeholder="Enter your city..."
+              />
+              <button type="submit" className="city-submit-btn">Go</button>
+            </form>
+            <small>Submit to recalculate times.</small>
+          </div>
+        )}
+
+        {locationStatus === 'granted' && (
+          <div className="filter-group location-granted">
+            <p className="location-info">📍 Using your precise location for accurate travel times.</p>
+          </div>
+        )}
 
         <button type="button" className="apply-btn" onClick={applyFilters}>Apply Filters</button>
         <button type="button" className="clear-btn" onClick={clearFilters}>Reset</button>
@@ -357,6 +448,15 @@ const Adventures = () => {
                     <div className="adventure-info">
                       <h3>{adventure.title}</h3>
                       <p className="adventure-meta">{adventure.location} · {adventure.durationHours}h · {adventure.category}</p>
+
+                      {(adventure.distance || adventure.travelTime) && (
+                        <p className="adventure-distance-meta">
+                          {adventure.distance ? `${adventure.distance} km ` : ''}
+                          {adventure.distance && adventure.travelTime ? '· ' : ''}
+                          {adventure.travelTime ? `🚗 ${adventure.travelTime}` : ''}
+                        </p>
+                      )}
+
                       <p className="adventure-desc">{adventure.description.substring(0, 120)}...</p>
                       <Link to={`/adventures/${adventure.id}`} className="view-details-btn">View Adventure</Link>
                     </div>
