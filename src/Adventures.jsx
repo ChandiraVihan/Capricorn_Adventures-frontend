@@ -232,7 +232,7 @@ const Adventures = () => {
   const handleCitySubmit = (e) => {
     if (e) e.preventDefault();
     if (cityInput.trim() !== '') {
-        setDistanceLoading(true);
+      setDistanceLoading(true);
       setUserCity(cityInput.trim());
       sessionStorage.setItem('userCity', cityInput.trim());
     }
@@ -269,30 +269,21 @@ const Adventures = () => {
         apiFilters.city = city;
       }
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1000);
-
-      const response = await adventureService.browseAdventures(apiFilters, controller.signal);
-      clearTimeout(timeoutId);
+      const response = await adventureService.browseAdventures(apiFilters);
 
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
       setAdventures(rows.map(normalizeAdventure));
     } catch (err) {
-      if (err.name === 'AbortError') {
-
-        setError('Distance data took too long to load. Showing adventures without travel times.');
-      } else {
-        console.error('Failed to fetch adventures', err);
-        setError('Showing sample adventures because live data is currently unavailable.');
-        const sample = fallbackAdventures.filter((item) => {
-          const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
-          const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
-          const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
-          const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
-          return matchesCategory && matchesMin && matchesMax && matchesDuration;
-        });
-        setAdventures(sample);
-      }
+      console.error('Failed to fetch adventures', err);
+      setError('Showing sample adventures because live data is currently unavailable.');
+      const sample = fallbackAdventures.filter((item) => {
+        const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
+        const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
+        const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
+        const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
+        return matchesCategory && matchesMin && matchesMax && matchesDuration;
+      });
+      setAdventures(sample);
     } finally {
       setLoading(false);
       setDistanceLoading(false);
@@ -317,21 +308,21 @@ const Adventures = () => {
     return [{ name: EMPTY_CATEGORY_LABEL, count: allCount }, ...Object.entries(categoryMap).map(([name, count]) => ({ name, count }))];
   }, [adventures, categories]);
 
-const visibleAdventures = useMemo(() => {
-  const filtered = adventures.filter((item) => {
-    const matchesCategory = filters.category === EMPTY_CATEGORY_LABEL || item.category === filters.category;
-    const matchesMin = filters.minPrice ? item.price >= Number(filters.minPrice) : true;
-    const matchesMax = filters.maxPrice ? item.price <= Number(filters.maxPrice) : true;
-    const matchesDuration = filters.maxDurationHours ? item.durationHours <= Number(filters.maxDurationHours) : true;
-    return matchesCategory && matchesMin && matchesMax && matchesDuration;
-  });
+  const visibleAdventures = useMemo(() => {
+    const filtered = adventures.filter((item) => {
+      const matchesCategory = filters.category === EMPTY_CATEGORY_LABEL || item.category === filters.category;
+      const matchesMin = filters.minPrice ? item.price >= Number(filters.minPrice) : true;
+      const matchesMax = filters.maxPrice ? item.price <= Number(filters.maxPrice) : true;
+      const matchesDuration = filters.maxDurationHours ? item.durationHours <= Number(filters.maxDurationHours) : true;
+      return matchesCategory && matchesMin && matchesMax && matchesDuration;
+    });
 
-  if (filters.sortBy === 'distance') {
-    return [...filtered].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-  }
+    if (filters.sortBy === 'distance') {
+      return [...filtered].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+    }
 
-  return filtered;
-}, [adventures, filters]);
+    return filtered;
+  }, [adventures, filters]);
 
   const updateFilter = (name, value) => {
     if (name === 'category') {
