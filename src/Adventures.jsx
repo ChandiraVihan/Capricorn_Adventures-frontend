@@ -20,6 +20,38 @@ import { adventureService } from './api/adventureService';
 
 const EMPTY_CATEGORY_LABEL = 'All';
 
+// --- Frontend Driving Distance Fallback (US21 Viva Support) ---
+const cityCoordinates = {
+  colombo: { lat: 6.9271, lng: 79.8612 },
+  kandy: { lat: 7.2906, lng: 80.6337 },
+  galle: { lat: 6.0328, lng: 80.2149 },
+  matara: { lat: 5.9549, lng: 80.5469 },
+  negombo: { lat: 7.2008, lng: 79.8737 },
+};
+
+function getDrivingDistanceMock(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const straightDistance = R * c;
+  // Multiply by 1.4 road winding factor to approximate driving distance
+  return Math.round(straightDistance * 1.4);
+}
+
+function getTravelTimeMock(distanceKm) {
+  if (!distanceKm) return null;
+  const speedKmH = 50; // Average driving speed
+  const totalHours = distanceKm / speedKmH;
+  const hrs = Math.floor(totalHours);
+  const mins = Math.round((totalHours - hrs) * 60);
+  return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+}
+
 const lkrFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
   currency: 'LKR',
@@ -122,6 +154,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap['WHALE WATCHING'],
+    lat: 5.9483,
+    lng: 80.4716, // Mirissa
   },
   {
     id: 'sample-safari-02',
@@ -136,6 +170,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap.SAFARIS,
+    lat: 6.3683,
+    lng: 81.5161, // Yala
   },
   {
     id: 'sample-culture-03',
@@ -150,6 +186,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap['CULTURAL TOURS'],
+    lat: 6.0328,
+    lng: 80.2149, // Galle
   },
 ];
 
@@ -269,21 +307,62 @@ const Adventures = () => {
         apiFilters.city = city;
       }
 
-      const response = await adventureService.browseAdventures(apiFilters);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000);
+
+      const response = await adventureService.browseAdventures(apiFilters, controller.signal);
+      clearTimeout(timeoutId);
 
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
-      setAdventures(rows.map(normalizeAdventure));
+
+      let uLat = loc?.lat;
+      let uLng = loc?.lng;
+      if (!uLat && city) {
+        const matchedCity = cityCoordinates[city.toLowerCase().trim()];
+        if (matchedCity) { uLat = matchedCity.lat; uLng = matchedCity.lng; }
+      }
+
+      setAdventures(rows.map(item => {
+        const norm = normalizeAdventure(item);
+        if (!norm.distance && uLat && uLng && item.lat && item.lng) {
+          norm.distance = getDrivingDistanceMock(uLat, uLng, item.lat, item.lng);
+          norm.travelTime = getTravelTimeMock(norm.distance);
+        }
+        return norm;
+      }));
     } catch (err) {
-      console.error('Failed to fetch adventures', err);
-      setError('Showing sample adventures because live data is currently unavailable.');
-      const sample = fallbackAdventures.filter((item) => {
-        const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
-        const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
-        const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
-        const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
-        return matchesCategory && matchesMin && matchesMax && matchesDuration;
-      });
-      setAdventures(sample);
+      if (err.name === 'AbortError') {
+        // Enforce constraint but fail gracefully: degrade the distance display silently
+        // Avoid throwing global error strings. Instead, clear conflicting distance data.
+        setAdventures((prev) => prev.map((adv) => ({ ...adv, distance: null, travelTime: null })));
+      } else {
+        console.error('Failed to fetch adventures', err);
+        setError('Showing sample adventures because live data is currently unavailable.');
+
+        let uLat = loc?.lat;
+        let uLng = loc?.lng;
+        if (!uLat && city) {
+          const matchedCity = cityCoordinates[city.toLowerCase().trim()];
+          if (matchedCity) { uLat = matchedCity.lat; uLng = matchedCity.lng; }
+        }
+
+        const sample = fallbackAdventures.filter((item) => {
+          const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
+          const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
+          const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
+          const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
+          return matchesCategory && matchesMin && matchesMax && matchesDuration;
+        }).map(item => {
+          let dist = null;
+          let time = null;
+          if (uLat && uLng && item.lat && item.lng) {
+            dist = getDrivingDistanceMock(uLat, uLng, item.lat, item.lng);
+            time = getTravelTimeMock(dist);
+          }
+          return { ...item, distance: dist, travelTime: time };
+        });
+        setAdventures(sample);
+      }
     } finally {
       setLoading(false);
       setDistanceLoading(false);
