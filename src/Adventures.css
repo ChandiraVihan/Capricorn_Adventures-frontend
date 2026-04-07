@@ -274,6 +274,55 @@
   font-weight: 600;
 }
 
+.location-fallback input {
+  flex: 1;
+  margin: 0;
+}
+
+.city-input-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.city-submit-btn {
+  background: #1c124d;
+  color: white;
+  border: none;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.city-submit-btn:hover {
+  background: #2d2173;
+}
+
+.location-fallback small {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.location-granted .location-info {
+  font-size: 0.8rem;
+  color: #217d47;
+  background: #e9f7ea;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.adventure-distance-meta {
+  font-size: 0.84rem;
+  color: #d14900;
+  font-weight: 600;
+  margin-top: -6px;
+  margin-bottom: 12px;
+}
+
 @media (max-width: 1024px) {
   .adventures-page-container {
     flex-direction: column;

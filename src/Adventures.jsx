@@ -20,6 +20,38 @@ import { adventureService } from './api/adventureService';
 
 const EMPTY_CATEGORY_LABEL = 'All';
 
+// --- Frontend Driving Distance Fallback (US21 Viva Support) ---
+const cityCoordinates = {
+  colombo: { lat: 6.9271, lng: 79.8612 },
+  kandy: { lat: 7.2906, lng: 80.6337 },
+  galle: { lat: 6.0328, lng: 80.2149 },
+  matara: { lat: 5.9549, lng: 80.5469 },
+  negombo: { lat: 7.2008, lng: 79.8737 },
+};
+
+function getDrivingDistanceMock(lat1, lon1, lat2, lon2) {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const straightDistance = R * c;
+  // Multiply by 1.4 road winding factor to approximate driving distance
+  return Math.round(straightDistance * 1.4);
+}
+
+function getTravelTimeMock(distanceKm) {
+  if (!distanceKm) return null;
+  const speedKmH = 50; // Average driving speed
+  const totalHours = distanceKm / speedKmH;
+  const hrs = Math.floor(totalHours);
+  const mins = Math.round((totalHours - hrs) * 60);
+  return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+}
+
 const lkrFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
   currency: 'LKR',
@@ -104,6 +136,8 @@ const normalizeAdventure = (item) => ({
   maxAge: item?.maxAge || item?.ageRestriction?.max || null,
   isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
   image: adventureImageMap[normalizeKey(item?.title || item?.name)] || pickFallbackImage(item) || pickRandomCatalogImage(item),
+  distance: item?.distanceKm || item?.distance || null,
+  travelTime: item?.estimatedTravelTime || item?.travelTime || null,
 });
 
 const fallbackAdventures = [
@@ -120,6 +154,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap['WHALE WATCHING'],
+    lat: 5.9483,
+    lng: 80.4716, // Mirissa
   },
   {
     id: 'sample-safari-02',
@@ -134,6 +170,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap.SAFARIS,
+    lat: 6.3683,
+    lng: 81.5161, // Yala
   },
   {
     id: 'sample-culture-03',
@@ -148,6 +186,8 @@ const fallbackAdventures = [
     maxAge: null,
     isActive: true,
     image: categoryImageMap['CULTURAL TOURS'],
+    lat: 6.0328,
+    lng: 80.2149, // Galle
   },
 ];
 
@@ -164,11 +204,54 @@ const Adventures = () => {
     minPrice: '',
     maxPrice: '',
     maxDurationHours: '',
+    sortBy: '',
   });
 
+  const [locationStatus, setLocationStatus] = useState('pending'); // 'pending', 'granted', 'denied'
+  const [userLocation, setUserLocation] = useState({ lat: null, lng: null });
+  const [userCity, setUserCity] = useState('');
+  const [cityInput, setCityInput] = useState('');
+  const [distanceLoading, setDistanceLoading] = useState(false);
+
+  // 1. Handle initial session state and location request
   useEffect(() => {
     fetchCategories();
 
+    const storedLat = sessionStorage.getItem('userLat');
+    const storedLng = sessionStorage.getItem('userLng');
+    const storedCity = sessionStorage.getItem('userCity');
+
+    if (storedLat && storedLng) {
+      setUserLocation({ lat: Number(storedLat), lng: Number(storedLng) });
+      setLocationStatus('granted');
+    } else if (storedCity) {
+      setUserCity(storedCity);
+      setCityInput(storedCity);
+      setLocationStatus('denied');
+    } else {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setUserLocation({ lat: latitude, lng: longitude });
+            sessionStorage.setItem('userLat', latitude);
+            sessionStorage.setItem('userLng', longitude);
+            setLocationStatus('granted');
+          },
+          (err) => {
+            console.warn("Location access denied or failed", err);
+            setLocationStatus('denied');
+          },
+          { timeout: 5000 }
+        );
+      } else {
+        setLocationStatus('denied');
+      }
+    }
+  }, []);
+
+  // 2. Load params from URL and apply filters
+  useEffect(() => {
     const params = new URLSearchParams(location.search);
     const nextFilters = {
       category: params.get('category') || EMPTY_CATEGORY_LABEL,
@@ -176,11 +259,22 @@ const Adventures = () => {
       minPrice: params.get('minPrice') || '',
       maxPrice: params.get('maxPrice') || '',
       maxDurationHours: params.get('maxDurationHours') || '',
+      sortBy: params.get('sortBy') || '',
     };
 
     setFilters(nextFilters);
-    fetchAdventures(nextFilters);
-  }, [location.search]);
+    fetchAdventures(nextFilters, userLocation, userCity);
+  }, [location.search, userLocation, userCity]);
+
+  // 3. Handle explicit city manual submit (AC3)
+  const handleCitySubmit = (e) => {
+    if (e) e.preventDefault();
+    if (cityInput.trim() !== '') {
+      setDistanceLoading(true);
+      setUserCity(cityInput.trim());
+      sessionStorage.setItem('userCity', cityInput.trim());
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -191,35 +285,87 @@ const Adventures = () => {
     }
   };
 
-  const fetchAdventures = async (currentFilters) => {
+  const fetchAdventures = async (currentFilters, loc = userLocation, city = userCity) => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await adventureService.browseAdventures({
+      const apiFilters = {
         categoryId: currentFilters.categoryId || undefined,
         category: currentFilters.category !== EMPTY_CATEGORY_LABEL ? currentFilters.category : undefined,
         minPrice: currentFilters.minPrice || undefined,
         maxPrice: currentFilters.maxPrice || undefined,
-        maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== "") ? currentFilters.maxDurationHours : undefined,
-      });
-      
-      // adventureService.browseAdventures() already unwraps the DTO and returns the adventures array
+        maxDurationHours: (currentFilters.maxDurationHours && currentFilters.maxDurationHours !== '') ? currentFilters.maxDurationHours : undefined,
+        sortBy: currentFilters.sortBy || undefined,
+      };
+
+      if (loc.lat && loc.lng) {
+        apiFilters.userLat = loc.lat;
+        apiFilters.userLng = loc.lng;
+      } else if (city) {
+        apiFilters.userCity = city;
+        apiFilters.city = city;
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1000);
+
+      const response = await adventureService.browseAdventures(apiFilters, controller.signal);
+      clearTimeout(timeoutId);
+
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
-      setAdventures(rows.map(normalizeAdventure));
+
+      let uLat = loc?.lat;
+      let uLng = loc?.lng;
+      if (!uLat && city) {
+        const matchedCity = cityCoordinates[city.toLowerCase().trim()];
+        if (matchedCity) { uLat = matchedCity.lat; uLng = matchedCity.lng; }
+      }
+
+      setAdventures(rows.map(item => {
+        const norm = normalizeAdventure(item);
+        if (!norm.distance && uLat && uLng && item.lat && item.lng) {
+          norm.distance = getDrivingDistanceMock(uLat, uLng, item.lat, item.lng);
+          norm.travelTime = getTravelTimeMock(norm.distance);
+        }
+        return norm;
+      }));
     } catch (err) {
-      console.error("Failed to fetch adventures", err);
-      setError('Showing sample adventures because live data is currently unavailable.');
-      const sample = fallbackAdventures.filter((item) => {
-        const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
-        const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
-        const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
-        const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
-        return matchesCategory && matchesMin && matchesMax && matchesDuration;
-      });
-      setAdventures(sample);
+      if (err.name === 'AbortError') {
+        // Enforce constraint but fail gracefully: degrade the distance display silently
+        // Avoid throwing global error strings. Instead, clear conflicting distance data.
+        setAdventures((prev) => prev.map((adv) => ({ ...adv, distance: null, travelTime: null })));
+      } else {
+        console.error('Failed to fetch adventures', err);
+        setError('Showing sample adventures because live data is currently unavailable.');
+
+        let uLat = loc?.lat;
+        let uLng = loc?.lng;
+        if (!uLat && city) {
+          const matchedCity = cityCoordinates[city.toLowerCase().trim()];
+          if (matchedCity) { uLat = matchedCity.lat; uLng = matchedCity.lng; }
+        }
+
+        const sample = fallbackAdventures.filter((item) => {
+          const matchesCategory = currentFilters.category === EMPTY_CATEGORY_LABEL || item.category === currentFilters.category;
+          const matchesMin = currentFilters.minPrice ? item.price >= Number(currentFilters.minPrice) : true;
+          const matchesMax = currentFilters.maxPrice ? item.price <= Number(currentFilters.maxPrice) : true;
+          const matchesDuration = currentFilters.maxDurationHours ? item.durationHours <= Number(currentFilters.maxDurationHours) : true;
+          return matchesCategory && matchesMin && matchesMax && matchesDuration;
+        }).map(item => {
+          let dist = null;
+          let time = null;
+          if (uLat && uLng && item.lat && item.lng) {
+            dist = getDrivingDistanceMock(uLat, uLng, item.lat, item.lng);
+            time = getTravelTimeMock(dist);
+          }
+          return { ...item, distance: dist, travelTime: time };
+        });
+        setAdventures(sample);
+      }
     } finally {
       setLoading(false);
+      setDistanceLoading(false);
     }
   };
 
@@ -242,13 +388,19 @@ const Adventures = () => {
   }, [adventures, categories]);
 
   const visibleAdventures = useMemo(() => {
-    return adventures.filter((item) => {
+    const filtered = adventures.filter((item) => {
       const matchesCategory = filters.category === EMPTY_CATEGORY_LABEL || item.category === filters.category;
       const matchesMin = filters.minPrice ? item.price >= Number(filters.minPrice) : true;
       const matchesMax = filters.maxPrice ? item.price <= Number(filters.maxPrice) : true;
       const matchesDuration = filters.maxDurationHours ? item.durationHours <= Number(filters.maxDurationHours) : true;
       return matchesCategory && matchesMin && matchesMax && matchesDuration;
     });
+
+    if (filters.sortBy === 'distance') {
+      return [...filtered].sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+    }
+
+    return filtered;
   }, [adventures, filters]);
 
   const updateFilter = (name, value) => {
@@ -272,6 +424,7 @@ const Adventures = () => {
     if (filters.minPrice) params.set('minPrice', filters.minPrice);
     if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
     if (filters.maxDurationHours) params.set('maxDurationHours', filters.maxDurationHours);
+    if (filters.sortBy) params.set('sortBy', filters.sortBy);
     navigate(`/adventures?${params.toString()}`);
   };
 
@@ -311,9 +464,34 @@ const Adventures = () => {
         </div>
 
         <div className="filter-group">
-          <label>Max Duration (hours)</label>
-          <input type="number" min="1" value={filters.maxDurationHours} onChange={(e) => updateFilter('maxDurationHours', e.target.value)} />
+          <label>Sort By</label>
+          <select value={filters.sortBy} onChange={(e) => updateFilter('sortBy', e.target.value)}>
+            <option value="">Default Relevance</option>
+            <option value="distance">Distance (Nearest First)</option>
+          </select>
         </div>
+
+        {locationStatus === 'denied' && (
+          <div className="filter-group location-fallback">
+            <label>Your Location (City)</label>
+            <form onSubmit={handleCitySubmit} className="city-input-form">
+              <input
+                type="text"
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                placeholder="Enter your city..."
+              />
+              <button type="submit" className="city-submit-btn">Go</button>
+            </form>
+            <small>Submit to recalculate times.</small>
+          </div>
+        )}
+
+        {locationStatus === 'granted' && (
+          <div className="filter-group location-granted">
+            <p className="location-info">📍 Using your precise location for accurate travel times.</p>
+          </div>
+        )}
 
         <button type="button" className="apply-btn" onClick={applyFilters}>Apply Filters</button>
         <button type="button" className="clear-btn" onClick={clearFilters}>Reset</button>
@@ -357,6 +535,19 @@ const Adventures = () => {
                     <div className="adventure-info">
                       <h3>{adventure.title}</h3>
                       <p className="adventure-meta">{adventure.location} · {adventure.durationHours}h · {adventure.category}</p>
+
+                      {distanceLoading ? (
+                        <p className="adventure-distance-meta" style={{ color: '#888', fontWeight: 400 }}>
+                          Calculating distances...
+                        </p>
+                      ) : (adventure.distance || adventure.travelTime) && (
+                        <p className="adventure-distance-meta">
+                          {adventure.distance ? `${adventure.distance} km ` : ''}
+                          {adventure.distance && adventure.travelTime ? '· ' : ''}
+                          {adventure.travelTime ? `🚗 ${adventure.travelTime}` : ''}
+                        </p>
+                      )}
+
                       <p className="adventure-desc">{adventure.description.substring(0, 120)}...</p>
                       <Link to={`/adventures/${adventure.id}`} className="view-details-btn">View Adventure</Link>
                     </div>

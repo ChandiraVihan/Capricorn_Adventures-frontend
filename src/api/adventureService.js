@@ -62,9 +62,9 @@ export const adventureService = {
     return parseJson(response);
   },
 
-  async browseAdventures(filters = {}) {
+    async browseAdventures(filters = {}, signal) {
     const query = toQueryString(filters);
-    const response = await fetch(`${API_BASE_URL}/adventures${query ? `?${query}` : ''}`);
+    const response = await fetch(`${API_BASE_URL}/adventures${query ? `?${query}` : ''}`, { signal });
 
     if (!response.ok) {
       await throwApiError(response, 'Failed to load adventures');
