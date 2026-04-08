@@ -208,23 +208,34 @@
     z-index: 1000;
   }
 
-  .layers-panel {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
+  .interactive-trail-map-container.panel-open {
+    display: flex;
+    flex-direction: column;
+    height: 480px; /* Expand container to accommodate both map and panel */
+  }
+
+  .interactive-trail-map-container.panel-open .leaflet-map-element {
+    height: 250px; /* Shrink map to not be obscured */
+  }
+
+  .interactive-trail-map-container.panel-open .layers-panel {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
     width: 100%;
-    max-height: 45vh;
+    height: 230px;
+    max-height: none;
     overflow-y: auto;
-    border-radius: 20px 20px 0 0;
+    border-radius: 0 0 12px 12px;
     padding: 24px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
+    box-shadow: none;
+    border-top: 1px solid #e5e7eb;
     animation: slideUp 0.3s ease-out forwards;
     z-index: 1001; /* Ensure above backdrop */
     box-sizing: border-box;
+    margin-top: 0;
   }
-
   
   .layers-panel-close {
     display: block;

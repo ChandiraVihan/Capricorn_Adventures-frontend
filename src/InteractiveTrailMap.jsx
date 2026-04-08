@@ -109,7 +109,7 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   };
 
   return (
-    <div className="interactive-trail-map-container" style={{ position: 'relative' }}>
+    <div className={`interactive-trail-map-container ${isLayersPanelOpen ? 'panel-open' : ''}`}>
       
       <div className="layers-control-container">
         <button className="layers-btn" onClick={() => setIsLayersPanelOpen(!isLayersPanelOpen)}>
@@ -170,43 +170,6 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
             opacity: 0.85,
           }}
         />
-
-        {!anyLayerActive && (
-          <>
-            <Marker position={[startPoint.lat, startPoint.lng]} icon={startIcon}>
-              <Tooltip direction="top" offset={[0, -12]}>
-                <strong>Start Point</strong>
-              </Tooltip>
-            </Marker>
-
-            <Marker position={[endPoint.lat, endPoint.lng]} icon={endIcon}>
-              <Tooltip direction="top" offset={[0, -12]}>
-                <strong>End Point</strong>
-              </Tooltip>
-            </Marker>
-
-            {routePoints.map((point, index) => (
-              <CircleMarker
-                key={index}
-                center={[point.lat, point.lng]}
-                radius={6}
-                pathOptions={{
-                  color: 'transparent',
-                  fillColor: 'transparent',
-                  fillOpacity: 0,
-                }}
-              >
-                <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
-                  <div className="trail-tooltip">
-                    <strong>Elevation:</strong> {point.elevation} m
-                    <br />
-                    <strong>Distance from start:</strong> {point.distance} km
-                  </div>
-                </Tooltip>
-              </CircleMarker>
-            ))}
-          </>
-        )}
 
         {trailData.pois && trailData.pois
           .filter((poi) => activeLayers[normalizePoiType(poi.type)])
