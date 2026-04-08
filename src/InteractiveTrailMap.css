@@ -83,91 +83,61 @@
   font-weight: 500;
 }
 
-/* Layer Control */
-.layers-control-container {
+/* Layer Control Chips - Floating Google Maps Style */
+.map-floating-chips {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-}
-
-.layers-btn {
-  background: white;
-  border: 2px solid rgba(0,0,0,0.2);
-  background-clip: padding-box;
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+  top: 12px;
+  left: 60px; /* Shifted clear of the +/- zoom controls */
+  right: 12px;
   display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.layers-btn:hover {
-  background-color: #f4f4f4;
-}
-
-.layers-panel {
-  position: absolute;
-  top: 45px;
-  right: 0;
-  background: white;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  width: auto;
-  min-width: 280px;
-}
-
-.layers-panel-title {
-  margin: 0 0 12px 0;
-  font-size: 1.1rem;
-  color: #111827;
-}
-
-.chip-container {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
+  z-index: 1000;
+  overflow-x: auto;
+  pointer-events: none; /* allow clicking map through the empty space */
+  padding-bottom: 5px; /* for scrollbar spacing */
 }
 
-.hidden-checkbox {
+/* Hide scrollbar for cleaner UI */
+.map-floating-chips::-webkit-scrollbar {
   display: none;
 }
 
-.chip-toggle {
+.map-chip {
+  pointer-events: auto; /* enable clicks on the chips themselves */
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: white;
   border: 1px solid #d1d5db;
-  padding: 8px 14px;
+  padding: 6px 12px; /* Slightly reduced padding */
   border-radius: 20px;
-  font-size: 14px;
+  font-size: 13px; /* Slightly reduced font size */
   font-weight: 500;
   color: #374151;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  white-space: nowrap;
   transition: all 0.2s ease;
   user-select: none;
 }
 
-.chip-toggle:hover {
-  background: #f9fafb;
-  border-color: #9ca3af;
+.map-chip:hover {
+  background: #f3f4f6;
 }
 
-.chip-toggle.active {
+.map-chip.active {
   background: #e0e7ff;
   border-color: #6366f1;
   color: #3730a3;
   box-shadow: 0 0 0 1px #6366f1;
 }
 
+.hidden-checkbox {
+  display: none;
+}
+
 .chip-icon {
-  font-size: 15px;
+  font-size: 14px;
 }
 
 /* POI Popup */
@@ -214,80 +184,3 @@
 .poi-marker.parking { border-color: #3b82f6; }
 .poi-marker.viewpoint { border-color: #10b981; }
 .poi-marker.fuel { border-color: #ef4444; }
-
-/* Mobile bottom sheet */
-.layers-backdrop {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  .layers-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
-  }
-
-  .layers-control-container {
-    position: static;
-    order: 2; /* Forces it to sit below the map in flex layout */
-  }
-  
-  .layers-btn {
-    position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1000;
-  }
-
-  .interactive-trail-map-container.panel-open {
-    display: flex;
-    flex-direction: column;
-    height: 480px; /* Expand container to accommodate both map and panel */
-  }
-
-  .interactive-trail-map-container.panel-open .leaflet-map-element {
-    height: 250px; /* Shrink map to not be obscured */
-  }
-
-  .interactive-trail-map-container.panel-open .layers-panel {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    right: auto;
-    width: 100%;
-    height: 230px;
-    max-height: none;
-    overflow-y: auto;
-    border-radius: 0 0 12px 12px;
-    padding: 24px;
-    box-shadow: none;
-    border-top: 1px solid #e5e7eb;
-    animation: slideUp 0.3s ease-out forwards;
-    z-index: 1001; /* Ensure above backdrop */
-    box-sizing: border-box;
-    margin-top: 0;
-  }
-  
-  .layers-panel-close {
-    display: block;
-    text-align: right;
-    width: 100%;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.layers-panel-close {
-  display: none;
-}

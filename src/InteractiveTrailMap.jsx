@@ -48,7 +48,6 @@ const poiIcons = {
 
 const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   const [mapError, setMapError] = useState(false);
-  const [isLayersPanelOpen, setIsLayersPanelOpen] = useState(false);
   const [activeLayers, setActiveLayers] = useState({
     food: false,
     parking: false,
@@ -109,40 +108,25 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   };
 
   return (
-    <div className={`interactive-trail-map-container ${isLayersPanelOpen ? 'panel-open' : ''}`}>
+    <div className="interactive-trail-map-container">
       
-      <div className="layers-control-container">
-        <button className="layers-btn" onClick={() => setIsLayersPanelOpen(!isLayersPanelOpen)}>
-          🗺️ Layers
-        </button>
-
-        {isLayersPanelOpen && (
-          <>
-            <div className="layers-backdrop" onClick={() => setIsLayersPanelOpen(false)}></div>
-            <div className="layers-panel">
-              <button className="layers-panel-close" onClick={() => setIsLayersPanelOpen(false)}>×</button>
-              <h4 className="layers-panel-title">Map Layers</h4>
-              <div className="chip-container">
-                <label className={`chip-toggle ${activeLayers.food ? 'active' : ''}`}>
-                  <input type="checkbox" checked={activeLayers.food} onChange={() => handleLayerToggle('food')} className="hidden-checkbox" />
-                  <span className="chip-icon">🍴</span> Restaurants
-                </label>
-                <label className={`chip-toggle ${activeLayers.parking ? 'active' : ''}`}>
-                  <input type="checkbox" checked={activeLayers.parking} onChange={() => handleLayerToggle('parking')} className="hidden-checkbox" />
-                  <span className="chip-icon">🅿️</span> Parking
-                </label>
-                <label className={`chip-toggle ${activeLayers.viewpoint ? 'active' : ''}`}>
-                  <input type="checkbox" checked={activeLayers.viewpoint} onChange={() => handleLayerToggle('viewpoint')} className="hidden-checkbox" />
-                  <span className="chip-icon">📷</span> Viewpoints
-                </label>
-                <label className={`chip-toggle ${activeLayers.fuel ? 'active' : ''}`}>
-                  <input type="checkbox" checked={activeLayers.fuel} onChange={() => handleLayerToggle('fuel')} className="hidden-checkbox" />
-                  <span className="chip-icon">⛽</span> Fuel
-                </label>
-              </div>
-            </div>
-          </>
-        )}
+      <div className="map-floating-chips">
+        <label className={`map-chip ${activeLayers.food ? 'active' : ''}`}>
+          <input type="checkbox" checked={activeLayers.food} onChange={() => handleLayerToggle('food')} className="hidden-checkbox" />
+          <span className="chip-icon">🍴</span> Restaurants
+        </label>
+        <label className={`map-chip ${activeLayers.parking ? 'active' : ''}`}>
+          <input type="checkbox" checked={activeLayers.parking} onChange={() => handleLayerToggle('parking')} className="hidden-checkbox" />
+          <span className="chip-icon">🅿️</span> Parking
+        </label>
+        <label className={`map-chip ${activeLayers.viewpoint ? 'active' : ''}`}>
+          <input type="checkbox" checked={activeLayers.viewpoint} onChange={() => handleLayerToggle('viewpoint')} className="hidden-checkbox" />
+          <span className="chip-icon">📷</span> Viewpoints
+        </label>
+        <label className={`map-chip ${activeLayers.fuel ? 'active' : ''}`}>
+          <input type="checkbox" checked={activeLayers.fuel} onChange={() => handleLayerToggle('fuel')} className="hidden-checkbox" />
+          <span className="chip-icon">⛽</span> Fuel
+        </label>
       </div>
 
       <MapContainer
