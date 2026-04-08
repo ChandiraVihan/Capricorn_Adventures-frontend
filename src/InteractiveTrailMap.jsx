@@ -6,6 +6,7 @@ import {
   Marker,
   Tooltip,
   CircleMarker,
+  Popup
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -38,8 +39,22 @@ const endIcon = new L.DivIcon({
   iconAnchor: [12, 12],
 });
 
+const poiIcons = {
+  food: new L.DivIcon({ className: 'poi-marker food', html: '🍔', iconSize: [30, 30] }),
+  parking: new L.DivIcon({ className: 'poi-marker parking', html: '🅿️', iconSize: [30, 30] }),
+  viewpoint: new L.DivIcon({ className: 'poi-marker viewpoint', html: '📷', iconSize: [30, 30] }),
+  fuel: new L.DivIcon({ className: 'poi-marker fuel', html: '⛽', iconSize: [30, 30] })
+};
+
 const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   const [mapError, setMapError] = useState(false);
+  const [isLayersPanelOpen, setIsLayersPanelOpen] = useState(false);
+  const [activeLayers, setActiveLayers] = useState({
+    food: false,
+    parking: false,
+    viewpoint: false,
+    fuel: false
+  });
 
   if (
     mapError ||
@@ -73,8 +88,46 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   const centerLat = (startPoint.lat + endPoint.lat) / 2;
   const centerLng = (startPoint.lng + endPoint.lng) / 2;
 
+  const handleLayerToggle = (layer) => {
+    setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
+  };
+
+  const handleDirections = (lat, lng) => {
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+  };
+
   return (
-    <div className="interactive-trail-map-container">
+    <div className="interactive-trail-map-container" style={{ position: 'relative' }}>
+      
+      <div className="layers-control-container">
+        <button className="layers-btn" onClick={() => setIsLayersPanelOpen(!isLayersPanelOpen)}>
+          🗺️ Layers
+        </button>
+
+        {isLayersPanelOpen && (
+          <div className="layers-panel">
+            <button className="layers-panel-close" onClick={() => setIsLayersPanelOpen(false)}>×</button>
+            <h4 style={{margin: '0 0 10px 0'}}>Map Layers</h4>
+            <label className="layer-toggle">
+              <input type="checkbox" checked={activeLayers.food} onChange={() => handleLayerToggle('food')} />
+              <span className="layer-icon">🍔</span> Food
+            </label>
+            <label className="layer-toggle">
+              <input type="checkbox" checked={activeLayers.parking} onChange={() => handleLayerToggle('parking')} />
+              <span className="layer-icon">🅿️</span> Parking
+            </label>
+            <label className="layer-toggle">
+              <input type="checkbox" checked={activeLayers.viewpoint} onChange={() => handleLayerToggle('viewpoint')} />
+              <span className="layer-icon">📷</span> Viewpoints
+            </label>
+            <label className="layer-toggle">
+              <input type="checkbox" checked={activeLayers.fuel} onChange={() => handleLayerToggle('fuel')} />
+              <span className="layer-icon">⛽</span> Fuel
+            </label>
+          </div>
+        )}
+      </div>
+
       <MapContainer
         center={[centerLat, centerLng]}
         zoom={13}
@@ -135,6 +188,24 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
             </Tooltip>
           </CircleMarker>
         ))}
+
+        {trailData.pois && trailData.pois
+          .filter((poi) => activeLayers[poi.type])
+          .map((poi) => (
+            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={poiIcons[poi.type]}>
+              <Popup>
+                <div className="poi-popup">
+                  <h3>{poi.name}</h3>
+                  <p><strong>Type:</strong> {poi.type.charAt(0).toUpperCase() + poi.type.slice(1)}</p>
+                  <p><strong>Distance:</strong> {poi.distance} km</p>
+                  <button className="poi-directions-btn" onClick={() => handleDirections(poi.lat, poi.lng)}>
+                    Get Directions
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
       </MapContainer>
     </div>
   );
