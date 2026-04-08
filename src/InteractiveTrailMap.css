@@ -198,6 +198,7 @@
 
   .layers-control-container {
     position: static;
+    order: 2; /* Forces it to sit below the map in flex layout */
   }
   
   .layers-btn {
