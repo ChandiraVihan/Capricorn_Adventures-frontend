@@ -334,4 +334,18 @@ export const adventureService = {
 
     return parseJson(response);
   },
+
+  async requestAdventureRefund(bookingId, reason) {
+    const response = await fetch(`${API_BASE_URL}/refunds/adventure/${bookingId}`, {
+      method: 'POST',
+      headers: { ...jsonHeaders(), ...authHeaders() },
+      body: JSON.stringify({ reason }),
+    });
+
+    if (!response.ok) {
+      await throwApiError(response, 'Unable to process adventure refund');
+    }
+
+    return parseJson(response);
+  },
 };
