@@ -8,6 +8,7 @@ import RoomDetails from './RoomDetails'
 import Adventures from './Adventures'
 import AdventureDetails from './AdventureDetails'
 import AdventureCheckout from './AdventureCheckout'
+import AdventureCompare from './AdventureCompare'
 import Checkout from './Checkout'
 import FindBooking from './FindBooking'
 import MyBookings from './MyBookings'
@@ -50,6 +51,7 @@ const AppContent = () => {
           <Route path="/search" element={<SearchRoom />} />
           <Route path="/rooms/:roomId" element={<RoomDetails />} />
           <Route path="/adventures" element={<Adventures />} />
+          <Route path="/adventures/compare" element={<AdventureCompare />} />
           <Route path="/adventures/checkout" element={<AdventureCheckout />} />
           <Route path="/adventures/:adventureId" element={<AdventureDetails />} />
           <Route path="/checkout" element={<Checkout />} />
