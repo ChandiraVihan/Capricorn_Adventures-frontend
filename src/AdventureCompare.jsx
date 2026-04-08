@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './AdventureCompare.css';
+import { adventureService } from './api/adventureService';
 
 const COMPARE_TRAY_KEY = 'compareTrayV1';
 
@@ -34,6 +35,36 @@ const parseIds = (search) => {
 const normalizeNumber = (value) => {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+};
+
+const normalizeSlotForCheckout = (slot, index = 0) => {
+  // Supports both "new backend" and "legacy" shapes (mirrors AdventureDetails logic)
+  if (slot && typeof slot === 'object' && 'scheduleId' in slot && 'startDate' in slot) {
+    const start = new Date(slot.startDate);
+    const end = slot.endDate ? new Date(slot.endDate) : null;
+    const pad = (n) => n.toString().padStart(2, '0');
+    const dateStr = `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`;
+    const timeStr = `${pad(start.getHours())}:${pad(start.getMinutes())}`;
+
+    return {
+      id: slot.scheduleId || `slot-${index}`,
+      date: dateStr,
+      time: timeStr,
+      available: slot.available !== false && slot.status !== 'FULL' && (slot.availableSlots ?? 0) > 0,
+      remainingCapacity: slot.availableSlots ?? 0,
+      endDate: end,
+      status: slot.status,
+    };
+  }
+
+  return {
+    id: slot?.id || `${slot?.date || 'date'}-${slot?.time || slot?.startTime || 'time'}-${index}`,
+    date: slot?.date || slot?.day || '',
+    time: slot?.time || slot?.startTime || '',
+    capacity: slot?.capacity ?? slot?.maxCapacity ?? 0,
+    available: slot?.available ?? slot?.isAvailable ?? (slot?.remainingCapacity > 0),
+    remainingCapacity: slot?.remainingCapacity ?? slot?.capacityLeft ?? 0,
+  };
 };
 
 const winnerIndex = (rowKey, items) => {
@@ -72,6 +103,7 @@ const AdventureCompare = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [hoveredRow, setHoveredRow] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const ids = useMemo(() => parseIds(location.search), [location.search]);
   const tray = useMemo(() => readTray(), []);
@@ -87,11 +119,51 @@ const AdventureCompare = () => {
       { key: 'price', label: 'Price', format: (x) => formatLkr(x.price) },
       { key: 'distance', label: 'Distance', format: (x) => (x.distance != null ? `${x.distance} km` : '—') },
       { key: 'duration', label: 'Duration', format: (x) => `${Number(x.durationHours || 0)}h` },
+      { key: 'difficulty', label: 'Difficulty', format: (x) => x.difficulty || '—' },
       { key: 'rating', label: 'Rating', format: (x) => `${Number(x.rating || 0).toFixed(1)} (${x.reviewCount || 0})` },
       { key: 'availability', label: 'Availability', format: (x) => (x.availability ? 'Available' : 'Unavailable') },
     ],
     [],
   );
+
+  const handleBook = async (adv) => {
+    if (!adv?.id) return;
+    setBookingLoading(true);
+    try {
+      const schedules = await adventureService.getSchedules(adv.id);
+      const normalized = Array.isArray(schedules)
+        ? schedules.map((s, idx) => normalizeSlotForCheckout(s, idx))
+        : [];
+
+      const pick =
+        normalized.find((s) => s?.available && s?.id && s?.date && s?.time) ||
+        normalized.find((s) => s?.id && s?.date && s?.time) ||
+        null;
+
+      if (!pick) {
+        navigate(`/adventures/${adv.id}`);
+        return;
+      }
+
+      const ageToSend = adv?.minAge != null ? String(adv.minAge) : '0';
+
+      navigate(`/adventures/checkout?${new URLSearchParams({
+        adventureId: String(adv.id),
+        adventureTitle: adv.title || 'Adventure Experience',
+        slotId: String(pick.id),
+        date: String(pick.date),
+        time: String(pick.time),
+        participants: '1',
+        price: String(adv.price || 0),
+        age: ageToSend,
+      }).toString()}`);
+    } catch (err) {
+      // If schedule lookup fails, fall back to the details page
+      navigate(`/adventures/${adv.id}`);
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   if (selected.length === 0) {
     return (
@@ -128,7 +200,12 @@ const AdventureCompare = () => {
                 {selected.map((adv) => (
                   <th key={adv.id}>
                     <div className="compare-col-title">{adv.title}</div>
-                    <button type="button" className="compare-book" onClick={() => navigate(`/adventures/${adv.id}`)}>
+                    <button
+                      type="button"
+                      className="compare-book"
+                      onClick={() => handleBook(adv)}
+                      disabled={bookingLoading}
+                    >
                       Book
                     </button>
                   </th>
@@ -147,7 +224,10 @@ const AdventureCompare = () => {
                   >
                     <td className="sticky-col row-label">{row.label}</td>
                     {selected.map((adv, idx) => (
-                      <td key={`${row.key}-${adv.id}`} className={idx === winIdx ? 'cell-winner' : ''}>
+                      <td
+                        key={`${row.key}-${adv.id}`}
+                        className={hoveredRow === row.key && idx === winIdx ? 'cell-winner' : ''}
+                      >
                         {row.format(adv)}
                       </td>
                     ))}

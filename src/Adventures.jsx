@@ -502,9 +502,12 @@ const Adventures = () => {
       price: adventure.price,
       distance: adventure.distance ?? null,
       durationHours: adventure.durationHours,
+      difficulty: adventure.difficulty,
       rating: adventure.rating,
       reviewCount: adventure.reviewCount,
       availability: !!adventure.availability,
+      minAge: adventure.minAge,
+      maxAge: adventure.maxAge,
     };
 
     setCompareTray((prev) => [...prev, entry]);
