@@ -78,6 +78,8 @@ const winnerIndex = (rowKey, items) => {
         return normalizeNumber(it.durationHours);
       case 'rating':
         return normalizeNumber(it.rating);
+      case 'reviews':
+        return normalizeNumber(it.reviewCount);
       case 'availability':
         return it.availability ? 1 : 0;
       default:
@@ -92,7 +94,7 @@ const winnerIndex = (rowKey, items) => {
   if (candidates.length === 0) return -1;
 
   const best =
-    rowKey === 'rating' || rowKey === 'availability'
+    rowKey === 'rating' || rowKey === 'reviews' || rowKey === 'availability'
       ? candidates.reduce((acc, cur) => (cur.v > acc.v ? cur : acc))
       : candidates.reduce((acc, cur) => (cur.v < acc.v ? cur : acc));
 
@@ -121,6 +123,7 @@ const AdventureCompare = () => {
       { key: 'duration', label: 'Duration', format: (x) => `${Number(x.durationHours || 0)}h` },
       { key: 'difficulty', label: 'Difficulty', format: (x) => x.difficulty || '—' },
       { key: 'rating', label: 'Rating', format: (x) => `${Number(x.rating || 0).toFixed(1)} (${x.reviewCount || 0})` },
+      { key: 'reviews', label: 'Reviews', format: (x) => `${Number(x.reviewCount || 0)} reviews` },
       { key: 'availability', label: 'Availability', format: (x) => (x.availability ? 'Available' : 'Unavailable') },
     ],
     [],

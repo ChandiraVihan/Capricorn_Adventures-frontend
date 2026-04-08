@@ -67,6 +67,15 @@
   vertical-align: middle;
 }
 
+.compare-table tbody td {
+  color: #1c124d;
+  font-weight: 600;
+}
+
+.compare-table .cell-winner {
+  color: #0f8a3a;
+}
+
 .compare-table thead th {
   background: #f7f8ff;
   color: #1c124d;
