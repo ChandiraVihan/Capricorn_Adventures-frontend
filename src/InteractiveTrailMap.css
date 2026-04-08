@@ -183,7 +183,19 @@
 .poi-marker.fuel { border-color: #ef4444; }
 
 /* Mobile bottom sheet */
+.layers-backdrop {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .layers-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+  }
+
   .layers-control-container {
     position: static;
   }
@@ -203,13 +215,16 @@
     right: 0;
     top: auto;
     width: 100%;
+    max-height: 45vh;
+    overflow-y: auto;
     border-radius: 20px 20px 0 0;
     padding: 24px;
     box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
     animation: slideUp 0.3s ease-out forwards;
-    z-index: 1001; /* Ensure above map but within page bounds */
+    z-index: 1001; /* Ensure above backdrop */
     box-sizing: border-box;
   }
+
   
   .layers-panel-close {
     display: block;

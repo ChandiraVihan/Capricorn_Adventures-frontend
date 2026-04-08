@@ -93,7 +93,19 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   };
 
   const handleDirections = (lat, lng) => {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const anyLayerActive = activeLayers.food || activeLayers.parking || activeLayers.viewpoint || activeLayers.fuel;
+
+  const normalizePoiType = (type) => {
+    if (!type) return 'food';
+    const lower = type.toLowerCase();
+    if (lower.includes('food')) return 'food';
+    if (lower.includes('park')) return 'parking';
+    if (lower.includes('view')) return 'viewpoint';
+    if (lower.includes('fuel')) return 'fuel';
+    return lower;
   };
 
   return (
@@ -105,9 +117,11 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
         </button>
 
         {isLayersPanelOpen && (
-          <div className="layers-panel">
-            <button className="layers-panel-close" onClick={() => setIsLayersPanelOpen(false)}>×</button>
-            <h4 style={{margin: '0 0 10px 0'}}>Map Layers</h4>
+          <>
+            <div className="layers-backdrop" onClick={() => setIsLayersPanelOpen(false)}></div>
+            <div className="layers-panel">
+              <button className="layers-panel-close" onClick={() => setIsLayersPanelOpen(false)}>×</button>
+              <h4 style={{margin: '0 0 10px 0'}}>Map Layers</h4>
             <label className="layer-toggle">
               <input type="checkbox" checked={activeLayers.food} onChange={() => handleLayerToggle('food')} />
               <span className="layer-icon">🍔</span> Food
@@ -125,6 +139,7 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
               <span className="layer-icon">⛽</span> Fuel
             </label>
           </div>
+          </>
         )}
       </div>
 
@@ -156,55 +171,63 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
           }}
         />
 
-        <Marker position={[startPoint.lat, startPoint.lng]} icon={startIcon}>
-          <Tooltip direction="top" offset={[0, -12]}>
-            <strong>Start Point</strong>
-          </Tooltip>
-        </Marker>
+        {!anyLayerActive && (
+          <>
+            <Marker position={[startPoint.lat, startPoint.lng]} icon={startIcon}>
+              <Tooltip direction="top" offset={[0, -12]}>
+                <strong>Start Point</strong>
+              </Tooltip>
+            </Marker>
 
-        <Marker position={[endPoint.lat, endPoint.lng]} icon={endIcon}>
-          <Tooltip direction="top" offset={[0, -12]}>
-            <strong>End Point</strong>
-          </Tooltip>
-        </Marker>
+            <Marker position={[endPoint.lat, endPoint.lng]} icon={endIcon}>
+              <Tooltip direction="top" offset={[0, -12]}>
+                <strong>End Point</strong>
+              </Tooltip>
+            </Marker>
 
-        {routePoints.map((point, index) => (
-          <CircleMarker
-            key={index}
-            center={[point.lat, point.lng]}
-            radius={6}
-            pathOptions={{
-              color: 'transparent',
-              fillColor: 'transparent',
-              fillOpacity: 0,
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
-              <div className="trail-tooltip">
-                <strong>Elevation:</strong> {point.elevation} m
-                <br />
-                <strong>Distance from start:</strong> {point.distance} km
-              </div>
-            </Tooltip>
-          </CircleMarker>
-        ))}
+            {routePoints.map((point, index) => (
+              <CircleMarker
+                key={index}
+                center={[point.lat, point.lng]}
+                radius={6}
+                pathOptions={{
+                  color: 'transparent',
+                  fillColor: 'transparent',
+                  fillOpacity: 0,
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
+                  <div className="trail-tooltip">
+                    <strong>Elevation:</strong> {point.elevation} m
+                    <br />
+                    <strong>Distance from start:</strong> {point.distance} km
+                  </div>
+                </Tooltip>
+              </CircleMarker>
+            ))}
+          </>
+        )}
 
         {trailData.pois && trailData.pois
-          .filter((poi) => activeLayers[poi.type])
-          .map((poi) => (
-            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={poiIcons[poi.type]}>
-              <Popup>
-                <div className="poi-popup">
-                  <h3>{poi.name}</h3>
-                  <p><strong>Type:</strong> {poi.type.charAt(0).toUpperCase() + poi.type.slice(1)}</p>
-                  <p><strong>Distance:</strong> {poi.distance} km</p>
-                  <button className="poi-directions-btn" onClick={() => handleDirections(poi.lat, poi.lng)}>
-                    Get Directions
-                  </button>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+          .filter((poi) => activeLayers[normalizePoiType(poi.type)])
+          .map((poi) => {
+            const mappedType = normalizePoiType(poi.type);
+            const icon = poiIcons[mappedType] || poiIcons.food; // fallback
+            return (
+              <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={icon}>
+                <Popup>
+                  <div className="poi-popup">
+                    <h3>{poi.name}</h3>
+                    <p><strong>Type:</strong> {mappedType.charAt(0).toUpperCase() + mappedType.slice(1)}</p>
+                    <p><strong>Distance:</strong> {poi.distance} km</p>
+                    <button className="poi-directions-btn" onClick={() => handleDirections(poi.lat, poi.lng)}>
+                      Get Directions
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
 
       </MapContainer>
     </div>
