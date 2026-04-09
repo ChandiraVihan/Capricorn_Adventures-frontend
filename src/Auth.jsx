@@ -57,6 +57,8 @@ export default function Auth({ mode }) {
                 const data = await login(formData.email, formData.password);
                 if (data?.user?.role === "ADMIN") {
                     navigate("/admin/adventures");
+                } else if (data?.user?.role === "OWNER") {
+                    navigate("/owner/finance");
                 } else {
                     navigate("/home");
                 }

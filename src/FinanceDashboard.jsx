@@ -1,0 +1,153 @@
+import { useState, useEffect } from "react";
+import { useFinanceData } from "./hooks/useFinanceData";
+import KpiCard              from "./components/KpiCard";
+import RevenueChart         from "./components/RevenueChart";
+import StatusDonutChart     from "./components/StatusDonutChart";
+import InvoiceTrendChart    from "./components/InvoiceTrendChart";
+import MethodBarChart       from "./components/MethodBarChart";
+import DailySparkline       from "./components/DailySparkline";
+import TransactionsTable    from "./components/TransactionsTable";
+import "./FinanceDashboard.css";
+
+const RANGES = {
+  "7":   { label: "Last 7 days",  days: 7  },
+  "30":  { label: "Last 30 days", days: 30 },
+  "90":  { label: "Last 90 days", days: 90 },
+  "365": { label: "This year",    days: 365 },
+};
+
+function getDateRange(days) {
+  const to   = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - days);
+  return {
+    from: from.toISOString().slice(0, 19),
+    to:   to.toISOString().slice(0, 19),
+  };
+}
+
+function computeKpis(payments, invoices) {
+  const totalRevenue = payments
+    .filter((p) => p.status === "SUCCESS")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const successCount = payments.filter((p) => p.status === "SUCCESS").length;
+  const successRate  = payments.length
+    ? Math.round((successCount / payments.length) * 100)
+    : 0;
+
+  const totalRefunded = payments
+    .filter((p) => p.status === "REFUNDED")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const activeInvoices = invoices.filter((inv) => inv.status === "ISSUED").length;
+
+  return { totalRevenue, successRate, totalRefunded, activeInvoices };
+}
+
+export default function FinanceDashboard() {
+  const [range, setRange]           = useState("30");
+  const [statusFilter, setStatus]   = useState("all");
+  const { payments, invoices, loading, error, fetchData, refundPayment } =
+    useFinanceData();
+
+  useEffect(() => {
+    const { from, to } = getDateRange(RANGES[range].days);
+    fetchData(from, to);
+  }, [range, fetchData]);
+
+  const handleRefund = async (paymentId) => {
+    if (!window.confirm("Mark this payment as refunded?")) return;
+    const { from, to } = getDateRange(RANGES[range].days);
+    await refundPayment(paymentId, from, to);
+  };
+
+  const filteredPayments =
+    statusFilter === "all"
+      ? payments
+      : payments.filter((p) => p.status === statusFilter);
+
+  const { totalRevenue, successRate, totalRefunded, activeInvoices } =
+    computeKpis(payments, invoices);
+
+  return (
+    <div className="fin-dashboard">
+
+      <div className="dashboard-header">
+        <div>
+          <h1 className="dashboard-title">Finance dashboard</h1>
+          <p className="dashboard-sub">Owner access only — Capricorn Adventures</p>
+        </div>
+        <div className="filter-bar">
+          <select value={range} onChange={(e) => setRange(e.target.value)}>
+            {Object.entries(RANGES).map(([val, { label }]) => (
+              <option key={val} value={val}>{label}</option>
+            ))}
+          </select>
+          <select value={statusFilter} onChange={(e) => setStatus(e.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="SUCCESS">Success</option>
+            <option value="FAILED">Failed</option>
+            <option value="REFUNDED">Refunded</option>
+            <option value="CHARGEBACK">Chargeback</option>
+          </select>
+        </div>
+      </div>
+
+      {error && <div className="error-banner">{error}</div>}
+
+      {loading ? (
+        <div className="loading-state">Loading finance data...</div>
+      ) : (
+        <>
+          <div className="kpi-grid">
+            <KpiCard
+              label="Total revenue"
+              value={`LKR ${totalRevenue.toLocaleString()}`}
+              sub="+12.4% vs last period"
+              subType="up"
+            />
+            <KpiCard
+              label="Transactions"
+              value={payments.length}
+              sub="payments recorded"
+            />
+            <KpiCard
+              label="Success rate"
+              value={`${successRate}%`}
+              sub="of all transactions"
+            />
+            <KpiCard
+              label="Invoices issued"
+              value={activeInvoices}
+              sub="active invoices"
+            />
+            <KpiCard
+              label="Refunds"
+              value={`LKR ${totalRefunded.toLocaleString()}`}
+              sub="total refunded"
+              subType="down"
+            />
+          </div>
+
+          <div className="charts-row">
+            <RevenueChart payments={payments} />
+            <StatusDonutChart payments={payments} />
+          </div>
+
+          <div className="charts-row-equal">
+            <InvoiceTrendChart invoices={invoices} />
+            <MethodBarChart payments={payments} />
+          </div>
+
+          <DailySparkline payments={payments} />
+
+          <TransactionsTable
+            payments={filteredPayments}
+            onRefund={handleRefund}
+          />
+        </>
+      )}
+    </div>
+  );
+}

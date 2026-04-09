@@ -18,6 +18,8 @@ import Background from './Background'
 import LandingPage from './LandingPage'
 import Header from './Header'
 import AdventureAdmin from './AdventureAdmin'
+import FinanceDashboard from "./FinanceDashboard";
+
 
 const AdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -31,15 +33,31 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+const OwnerRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  console.log("[OwnerRoute] loading:", loading, "user:", user, "role:", user?.role);
+
+  if (loading) return null;
+
+  if (!user || user.role !== 'OWNER') {
+    console.log("[OwnerRoute] ACCESS DENIED — redirecting to /home");
+    return <Navigate to="/home" replace />;
+  }
+
+  return children;
+};
+
 const AppContent = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
+  const isOwnerPath = location.pathname.startsWith('/owner');
 
   return (
     <>
       <Background />
-      {!isAdminPath && <Header />}
-      <div className={isAdminPath ? "admin-hero" : "hero"}>
+      {!isAdminPath && !isOwnerPath && <Header />}
+      <div className={isAdminPath || isOwnerPath ? "admin-hero" : "hero"}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/home" element={<LandingPage />} />
@@ -65,6 +83,14 @@ const AppContent = () => {
                 <AdventureAdmin />
               </AdminRoute>
             } 
+          />
+          <Route
+            path="/owner/finance"
+            element={
+              <OwnerRoute>
+                <FinanceDashboard />
+              </OwnerRoute>
+            }
           />
         </Routes>
       </div>
