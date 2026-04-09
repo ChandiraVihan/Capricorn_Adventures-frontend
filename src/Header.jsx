@@ -39,6 +39,7 @@ export default function Header() {
             <Link to="/find-booking" className="nav-link">Track Booking</Link>
             {user && <Link to="/my-bookings" className="nav-link">My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link">Profile</Link>}
+            {user && user.role === "OWNER" && <Link to="/owner/finance" className="nav-link">Finance</Link>}
             {user ? (
               <button onClick={handleLogout} className="nav-link logout-btn">Log Out</button>
             ) : (
@@ -70,6 +71,7 @@ export default function Header() {
             <Link to="/find-booking" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Track Booking</Link>
             {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Profile</Link>}
+            {user && user.role === "OWNER" && <Link to="/owner/finance" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Finance</Link>}
             {user ? (
               <button
                 onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
