@@ -22,6 +22,8 @@ export default function OAuth2RedirectHandler() {
                     
                     if (user && user.role === "ADMIN") {
                         window.location.href = "/admin/adventures";
+                    } else if (user && user.role === "OWNER") {
+                        window.location.href = "/owner/finance";
                     } else {
                         window.location.href = "/home";
                     }

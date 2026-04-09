@@ -36,9 +36,12 @@ const AdminRoute = ({ children }) => {
 const OwnerRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
+  console.log("[OwnerRoute] loading:", loading, "user:", user, "role:", user?.role);
+
   if (loading) return null;
 
   if (!user || user.role !== 'OWNER') {
+    console.log("[OwnerRoute] ACCESS DENIED — redirecting to /home");
     return <Navigate to="/home" replace />;
   }
 
