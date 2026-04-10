@@ -87,6 +87,7 @@ export default function FinanceDashboard() {
           <select value={statusFilter} onChange={(e) => setStatus(e.target.value)}>
             <option value="all">All statuses</option>
             <option value="SUCCESS">Success</option>
+            <option value="PENDING">Pending</option>
             <option value="FAILED">Failed</option>
             <option value="REFUNDED">Refunded</option>
             <option value="CHARGEBACK">Chargeback</option>
