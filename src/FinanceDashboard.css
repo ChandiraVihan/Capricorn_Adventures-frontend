@@ -11,6 +11,39 @@
 .dashboard-title { font-size: 22px; font-weight: 500; margin: 0; color:navy; }
 .dashboard-sub { font-size: 13px; color: #888; margin: 4px 0 0; }
 
+.dashboard-title-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.sync-btn {
+  font-size: 11px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid #185FA5;
+  background: white;
+  color: #185FA5;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sync-btn:hover {
+  background: #185FA5;
+  color: white;
+  box-shadow: 0 4px 12px rgba(24, 95, 165, 0.2);
+}
+
+.sync-btn:active {
+  transform: scale(0.98);
+}
+
 .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .filter-bar select {
   font-size: 12px; padding: 6px 10px;

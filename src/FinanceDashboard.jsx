@@ -7,6 +7,7 @@ import InvoiceTrendChart    from "./components/InvoiceTrendChart";
 import MethodBarChart       from "./components/MethodBarChart";
 import DailySparkline       from "./components/DailySparkline";
 import TransactionsTable    from "./components/TransactionsTable";
+import { syncPayments }     from "./api/financeApi";
 import "./FinanceDashboard.css";
 
 const RANGES = {
@@ -20,9 +21,17 @@ function getDateRange(days) {
   const to   = new Date();
   const from = new Date();
   from.setDate(from.getDate() - days);
+
+  // Use local time formatted as YYYY-MM-DDTHH:mm:ss for backend compatibility
+  const formatLocal = (date) => {
+    const offset = date.getTimezoneOffset() * 60000;
+    const local = new Date(date.getTime() - offset);
+    return local.toISOString().slice(0, 19);
+  };
+
   return {
-    from: from.toISOString().slice(0, 19),
-    to:   to.toISOString().slice(0, 19),
+    from: formatLocal(from),
+    to:   formatLocal(to),
   };
 }
 
@@ -62,6 +71,17 @@ export default function FinanceDashboard() {
     await refundPayment(paymentId, from, to);
   };
 
+  const handleSync = async () => {
+    try {
+      const msg = await syncPayments();
+      alert(msg);
+      const { from, to } = getDateRange(RANGES[range].days);
+      fetchData(from, to);
+    } catch (err) {
+      alert("Sync failed: " + err.message);
+    }
+  };
+
   const filteredPayments =
     statusFilter === "all"
       ? payments
@@ -74,9 +94,14 @@ export default function FinanceDashboard() {
     <div className="fin-dashboard">
 
       <div className="dashboard-header">
-        <div>
-          <h1 className="dashboard-title">Finance dashboard</h1>
-          <p className="dashboard-sub">Owner access only — Capricorn Adventures</p>
+        <div className="dashboard-title-group">
+          <div>
+            <h1 className="dashboard-title">Finance dashboard</h1>
+            <p className="dashboard-sub">Owner access only — Capricorn Adventures</p>
+          </div>
+          <button className="sync-btn" onClick={handleSync} title="Recover missing payments from webhook history">
+            Sync Payments
+          </button>
         </div>
         <div className="filter-bar">
           <select value={range} onChange={(e) => setRange(e.target.value)}>

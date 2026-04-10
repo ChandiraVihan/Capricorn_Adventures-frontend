@@ -56,3 +56,12 @@ export const getInvoiceByBooking = async (referenceId) => {
   const data = await response.json();
   return { data };
 };
+
+export const syncPayments = async () => {
+    const response = await fetch(`${API_BASE_URL}/finance/sync`, {
+        method: "POST",
+        headers: { ...authHeaders() },
+    });
+    if (!response.ok) throw new Error("Sync failed");
+    return response.text();
+};
