@@ -26,7 +26,7 @@ export const paymentService = {
       merchant_id: MERCHANT_ID,
       return_url: window.location.origin + "/payment-success",
       cancel_url: window.location.origin + "/payment-cancel",
-      notify_url: `${API_BASE_URL}/payment/notify`, 
+      notify_url: `${API_BASE_URL}/webhooks/payment`, 
       order_id: paymentData.orderId,
       items: paymentData.items,
       amount: parseFloat(paymentData.totalAmount).toFixed(2),
