@@ -86,7 +86,37 @@ const generateDummyTrail = (seedStr) => {
     if (elevation < 0) elevation = 10;
     distance += 0.4 + (random() * 0.6);
   }
-  return { routePoints: points };
+
+  // Generate some dummy POIs based on the trail area
+  const poiTypes = ['food', 'parking', 'viewpoint', 'fuel'];
+  const poiNames = {
+    food: ['Trailside Cafe', 'Hiker Rest Stop', 'Local Diner', 'Mountain Snack Bar'],
+    parking: ['Main Trailhead Parking', 'Overflow Parking Lot', 'South Ridge Parking'],
+    viewpoint: ['Eagle Eye View', 'Sunset Point', 'Valley Overlook', 'Panoramic Ridge'],
+    fuel: ['Basecamp Gas', 'Highway 12 Station', 'Quick Stop Fuel']
+  };
+
+  const pois = [];
+  const numPois = 8 + Math.floor(random() * 5); // 8-12 POIs
+  
+  for (let i = 0; i < numPois; i++) {
+    const type = poiTypes[Math.floor(random() * poiTypes.length)];
+    const nameList = poiNames[type];
+    const name = nameList[Math.floor(random() * nameList.length)];
+    // Place them near a random point on the trail
+    const refPoint = points[Math.floor(random() * points.length)];
+    
+    pois.push({
+      id: `poi-${i}`,
+      type: type,
+      name: name,
+      lat: refPoint.lat + (random() - 0.5) * 0.008,
+      lng: refPoint.lng + (random() - 0.5) * 0.008,
+      distance: (Math.random() * 5).toFixed(1) // Random distance 0-5km
+    });
+  }
+
+  return { routePoints: points, pois };
 };
 
 const normalizeAdventure = (item) => {

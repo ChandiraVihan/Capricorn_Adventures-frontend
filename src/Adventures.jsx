@@ -19,6 +19,8 @@ import localCardImage5 from './assets/754841326.jpg';
 import { adventureService } from './api/adventureService';
 
 const EMPTY_CATEGORY_LABEL = 'All';
+const COMPARE_TRAY_KEY = 'compareTrayV1';
+const COMPARE_LIMIT = 3;
 
 // --- Frontend Driving Distance Fallback (US21 Viva Support) ---
 const cityCoordinates = {
@@ -102,6 +104,12 @@ const adventureImageMap = {
 
 const normalizeKey = (value) => String(value || '').trim().toUpperCase();
 
+const clampRating = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return null;
+  return Math.max(0, Math.min(5, num));
+};
+
 const pickRandomCatalogImage = (item) => {
   const seed = `${item?.id || item?.adventureId || item?._id || ''}-${item?.title || item?.name || ''}`;
   const index = hashString(seed) % catalogImagePool.length;
@@ -123,22 +131,53 @@ const pickFallbackImage = (item) => {
   return matchedKey ? categoryImageMap[matchedKey] : defaultAdventureImage;
 };
 
-const normalizeAdventure = (item) => ({
-  id: item?.id || item?.adventureId || item?._id,
-  title: item?.title || item?.name || 'Untitled Adventure',
-  description: item?.description || item?.summary || 'No description available.',
-  location: item?.location || item?.destination || 'Location TBA',
-  category: item?.category || item?.categoryName || item?.type || 'General',
-  durationHours: item?.durationHours || item?.duration || 0,
-  price: item?.price || item?.basePrice || 0,
-  difficulty: item?.difficulty || item?.difficultyLevel || 'Moderate',
-  minAge: item?.minAge || item?.ageRestriction?.min || 0,
-  maxAge: item?.maxAge || item?.ageRestriction?.max || null,
-  isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
-  image: adventureImageMap[normalizeKey(item?.title || item?.name)] || pickFallbackImage(item) || pickRandomCatalogImage(item),
-  distance: item?.distanceKm || item?.distance || null,
-  travelTime: item?.estimatedTravelTime || item?.travelTime || null,
-});
+const normalizeAdventure = (item) => {
+  const id = item?.id || item?.adventureId || item?._id;
+  const title = item?.title || item?.name || 'Untitled Adventure';
+  const seed = `${id || ''}-${title}`;
+  const seedHash = hashString(seed);
+  const derivedRating = Math.round(((seedHash % 21) / 4 + 2.5) * 10) / 10; // 2.5 .. 7.5 -> clamped to 5
+  const rating = clampRating(item?.rating ?? item?.averageRating ?? item?.stars ?? derivedRating) ?? 4.2;
+  const reviewCount = Number(item?.reviewCount ?? item?.reviewsCount ?? (seedHash % 430)) || 0;
+
+  return {
+    id,
+    title,
+    description: item?.description || item?.summary || 'No description available.',
+    location: item?.location || item?.destination || 'Location TBA',
+    category: item?.category || item?.categoryName || item?.type || 'General',
+    durationHours: item?.durationHours || item?.duration || 0,
+    price: item?.price || item?.basePrice || 0,
+    difficulty: item?.difficulty || item?.difficultyLevel || 'Moderate',
+    minAge: item?.minAge || item?.ageRestriction?.min || 0,
+    maxAge: item?.maxAge || item?.ageRestriction?.max || null,
+    isActive: item?.isActive !== false && item?.status !== 'INACTIVE',
+    image: adventureImageMap[normalizeKey(item?.title || item?.name)] || pickFallbackImage(item) || pickRandomCatalogImage(item),
+    distance: item?.distanceKm || item?.distance || null,
+    travelTime: item?.estimatedTravelTime || item?.travelTime || null,
+    rating,
+    reviewCount,
+    availability: item?.availability ?? item?.isAvailable ?? (item?.isActive !== false && item?.status !== 'INACTIVE'),
+  };
+};
+
+const readCompareTray = () => {
+  try {
+    const raw = sessionStorage.getItem(COMPARE_TRAY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((x) => x && typeof x === 'object' && x.id) : [];
+  } catch {
+    return [];
+  }
+};
+
+const writeCompareTray = (items) => {
+  try {
+    sessionStorage.setItem(COMPARE_TRAY_KEY, JSON.stringify(items));
+  } catch {
+    // ignore write errors
+  }
+};
 
 const fallbackAdventures = [
   {
@@ -213,6 +252,9 @@ const Adventures = () => {
   const [cityInput, setCityInput] = useState('');
   const [distanceLoading, setDistanceLoading] = useState(false);
 
+  const [compareTray, setCompareTray] = useState(() => readCompareTray());
+  const [compareMessage, setCompareMessage] = useState('');
+
   // 1. Handle initial session state and location request
   useEffect(() => {
     fetchCategories();
@@ -249,6 +291,10 @@ const Adventures = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    writeCompareTray(compareTray);
+  }, [compareTray]);
 
   // 2. Load params from URL and apply filters
   useEffect(() => {
@@ -433,6 +479,50 @@ const Adventures = () => {
   };
 
   const selectedCategoryIsEmpty = filters.category !== EMPTY_CATEGORY_LABEL && visibleAdventures.length === 0;
+  const compareIds = useMemo(() => new Set(compareTray.map((x) => String(x.id))), [compareTray]);
+
+  const toggleCompare = (adventure) => {
+    setCompareMessage('');
+    const id = String(adventure?.id || '');
+    if (!id) return;
+
+    if (compareIds.has(id)) {
+      setCompareTray((prev) => prev.filter((x) => String(x.id) !== id));
+      return;
+    }
+
+    if (compareTray.length >= COMPARE_LIMIT) {
+      setCompareMessage('You can compare up to 3 adventures at a time. Remove one to add another.');
+      return;
+    }
+
+    const entry = {
+      id: adventure.id,
+      title: adventure.title,
+      price: adventure.price,
+      distance: adventure.distance ?? null,
+      durationHours: adventure.durationHours,
+      difficulty: adventure.difficulty,
+      rating: adventure.rating,
+      reviewCount: adventure.reviewCount,
+      availability: !!adventure.availability,
+      minAge: adventure.minAge,
+      maxAge: adventure.maxAge,
+    };
+
+    setCompareTray((prev) => [...prev, entry]);
+  };
+
+  const removeFromCompare = (id) => {
+    setCompareMessage('');
+    setCompareTray((prev) => prev.filter((x) => String(x.id) !== String(id)));
+  };
+
+  const goToCompare = () => {
+    if (!compareTray.length) return;
+    const ids = compareTray.map((x) => encodeURIComponent(String(x.id))).join(',');
+    navigate(`/adventures/compare?ids=${ids}`);
+  };
 
   return (
     <div className="adventures-page-container">
@@ -549,7 +639,16 @@ const Adventures = () => {
                       )}
 
                       <p className="adventure-desc">{adventure.description.substring(0, 120)}...</p>
-                      <Link to={`/adventures/${adventure.id}`} className="view-details-btn">View Adventure</Link>
+                      <div className="adventure-actions-row">
+                        <Link to={`/adventures/${adventure.id}`} className="view-details-btn">View Adventure</Link>
+                        <button
+                          type="button"
+                          className={`compare-btn ${compareIds.has(String(adventure.id)) ? 'selected' : ''}`}
+                          onClick={() => toggleCompare(adventure)}
+                        >
+                          {compareIds.has(String(adventure.id)) ? 'Selected' : 'Compare'}
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -558,6 +657,42 @@ const Adventures = () => {
           </>
         )}
       </section>
+
+      {compareTray.length > 0 && (
+        <div className="compare-tray" role="region" aria-label="Adventure comparison tray">
+          <div className="compare-tray-inner">
+            <div className="compare-tray-left">
+              <strong>Compare</strong>
+              <span className="compare-tray-count">{compareTray.length}/{COMPARE_LIMIT} selected</span>
+              {compareMessage && <span className="compare-tray-message" role="status">{compareMessage}</span>}
+            </div>
+
+            <div className="compare-tray-items" aria-label="Selected adventures">
+              {compareTray.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="compare-tray-chip"
+                  onClick={() => removeFromCompare(item.id)}
+                  title="Remove from compare"
+                >
+                  <span className="chip-title">{item.title}</span>
+                  <span className="chip-x">×</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="compare-tray-right">
+              <button type="button" className="compare-tray-compare-btn" onClick={goToCompare}>
+                Compare
+              </button>
+              <button type="button" className="compare-tray-clear-btn" onClick={() => setCompareTray([])}>
+                Clear
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
