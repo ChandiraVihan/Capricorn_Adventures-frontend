@@ -21,7 +21,7 @@ jobs:
           npm ci
           npm run build
         env:
-          VITE_API_URL: https://api.ravindrastores.shop
+          VITE_BACKEND_BASE_URL: https://api.ravindrastores.shop
 
       - name: Copy dist to VPS
         uses: appleboy/scp-action@v0.1.7
