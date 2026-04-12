@@ -48,6 +48,7 @@ const poiIcons = {
 
 const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
   const [mapError, setMapError] = useState(false);
+  const [showLayersPanel, setShowLayersPanel] = useState(false);
   const [activeLayers, setActiveLayers] = useState({
     food: false,
     parking: false,
@@ -109,25 +110,128 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
 
   return (
     <div className="interactive-trail-map-container">
-      
-      <div className="map-floating-chips">
-        <label className={`map-chip ${activeLayers.food ? 'active' : ''}`}>
-          <input type="checkbox" checked={activeLayers.food} onChange={() => handleLayerToggle('food')} className="hidden-checkbox" />
-          <span className="chip-icon">🍴</span> Restaurants
-        </label>
-        <label className={`map-chip ${activeLayers.parking ? 'active' : ''}`}>
-          <input type="checkbox" checked={activeLayers.parking} onChange={() => handleLayerToggle('parking')} className="hidden-checkbox" />
-          <span className="chip-icon">🅿️</span> Parking
-        </label>
-        <label className={`map-chip ${activeLayers.viewpoint ? 'active' : ''}`}>
-          <input type="checkbox" checked={activeLayers.viewpoint} onChange={() => handleLayerToggle('viewpoint')} className="hidden-checkbox" />
-          <span className="chip-icon">📷</span> Viewpoints
-        </label>
-        <label className={`map-chip ${activeLayers.fuel ? 'active' : ''}`}>
-          <input type="checkbox" checked={activeLayers.fuel} onChange={() => handleLayerToggle('fuel')} className="hidden-checkbox" />
-          <span className="chip-icon">⛽</span> Fuel
-        </label>
-      </div>
+
+      <button
+        type="button"
+        className="layers-toggle-btn"
+        onClick={() => setShowLayersPanel(!showLayersPanel)}
+      >
+        🗺️ Layers
+      </button>
+
+      {showLayersPanel && (
+        <>
+          <div
+            className="layers-overlay"
+            onClick={() => setShowLayersPanel(false)}
+          />
+
+          <div className="layers-panel desktop-layers-panel">
+            <div className="layers-panel-header">
+              <h4>POI Layers</h4>
+            </div>
+
+            <div className="map-floating-chips">
+              <label className={`map-chip ${activeLayers.food ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.food}
+                  onChange={() => handleLayerToggle('food')}
+                  className="hidden-checkbox"
+                />
+                  <span className="chip-icon">🍴</span> Food
+              </label>
+
+              <label className={`map-chip ${activeLayers.parking ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.parking}
+                  onChange={() => handleLayerToggle('parking')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">🅿️</span> Parking
+              </label>
+
+              <label className={`map-chip ${activeLayers.viewpoint ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.viewpoint}
+                  onChange={() => handleLayerToggle('viewpoint')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">📷</span> Viewpoints
+              </label>
+
+              <label className={`map-chip ${activeLayers.fuel ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.fuel}
+                  onChange={() => handleLayerToggle('fuel')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">⛽</span> Fuel
+              </label>
+            </div>
+          </div>
+
+          <div className="layers-panel mobile-layers-sheet">
+            <div className="sheet-handle" />
+
+            <div className="layers-panel-header">
+              <h4>POI Layers</h4>
+              <button
+                type="button"
+                className="sheet-close-btn"
+                onClick={() => setShowLayersPanel(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mobile-sheet-options">
+              <label className={`map-chip ${activeLayers.food ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.food}
+                  onChange={() => handleLayerToggle('food')}
+                  className="hidden-checkbox"
+                />
+                  <span className="chip-icon">🍴</span> Food
+              </label>
+
+              <label className={`map-chip ${activeLayers.parking ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.parking}
+                  onChange={() => handleLayerToggle('parking')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">🅿️</span> Parking
+              </label>
+
+              <label className={`map-chip ${activeLayers.viewpoint ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.viewpoint}
+                  onChange={() => handleLayerToggle('viewpoint')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">📷</span> Viewpoints
+              </label>
+
+              <label className={`map-chip ${activeLayers.fuel ? 'active' : ''}`}>
+                <input
+                  type="checkbox"
+                  checked={activeLayers.fuel}
+                  onChange={() => handleLayerToggle('fuel')}
+                  className="hidden-checkbox"
+                />
+                <span className="chip-icon">⛽</span> Fuel
+              </label>
+            </div>
+          </div>
+        </>
+      )}
 
       <MapContainer
         center={[centerLat, centerLng]}
@@ -170,7 +274,7 @@ const InteractiveTrailMap = ({ trailData, fallbackImage }) => {
                     <p><strong>Type:</strong> {mappedType.charAt(0).toUpperCase() + mappedType.slice(1)}</p>
                     <p><strong>Distance:</strong> {poi.distance} km</p>
                     <button className="poi-directions-btn" onClick={() => handleDirections(poi.lat, poi.lng)}>
-                      Get Directions
+                      Directions
                     </button>
                   </div>
                 </Popup>
