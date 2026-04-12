@@ -217,36 +217,38 @@ const Adventures = () => {
   useEffect(() => {
     fetchCategories();
 
-    const storedLat = sessionStorage.getItem('userLat');
-    const storedLng = sessionStorage.getItem('userLng');
     const storedCity = sessionStorage.getItem('userCity');
 
-    if (storedLat && storedLng) {
-      setUserLocation({ lat: Number(storedLat), lng: Number(storedLng) });
-      setLocationStatus('granted');
-    } else if (storedCity) {
-      setUserCity(storedCity);
-      setCityInput(storedCity);
-      setLocationStatus('denied');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          setUserLocation({ lat: latitude, lng: longitude });
+          setUserCity('');
+          setCityInput('');
+
+          sessionStorage.setItem('userLat', latitude);
+          sessionStorage.setItem('userLng', longitude);
+          sessionStorage.removeItem('userCity');
+
+          setLocationStatus('granted');
+        },
+        () => {
+          if (storedCity) {
+            setUserCity(storedCity);
+            setCityInput(storedCity);
+          }
+          setLocationStatus('denied');
+        },
+        { timeout: 5000 }
+      );
     } else {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            setUserLocation({ lat: latitude, lng: longitude });
-            sessionStorage.setItem('userLat', latitude);
-            sessionStorage.setItem('userLng', longitude);
-            setLocationStatus('granted');
-          },
-          (err) => {
-            console.warn("Location access denied or failed", err);
-            setLocationStatus('denied');
-          },
-          { timeout: 5000 }
-        );
-      } else {
-        setLocationStatus('denied');
+      if (storedCity) {
+        setUserCity(storedCity);
+        setCityInput(storedCity);
       }
+      setLocationStatus('denied');
     }
   }, []);
 
@@ -268,12 +270,25 @@ const Adventures = () => {
 
   // 3. Handle explicit city manual submit (AC3)
   const handleCitySubmit = (e) => {
-    if (e) e.preventDefault();
-    if (cityInput.trim() !== '') {
-      setDistanceLoading(true);
-      setUserCity(cityInput.trim());
-      sessionStorage.setItem('userCity', cityInput.trim());
-    }
+    e.preventDefault();
+
+    const city = cityInput.trim();
+    if (!city) return;
+
+    sessionStorage.setItem('userCity', city);
+    sessionStorage.removeItem('userLat');
+    sessionStorage.removeItem('userLng');
+
+    setUserLocation({ lat: null, lng: null });
+    setUserCity(city);
+    setDistanceLoading(true);
+    setAdventures((prev) =>
+        prev.map((adv) => ({
+          ...adv,
+          distance: null,
+          travelTime: null,
+        }))
+      );
   };
 
   const fetchCategories = async () => {
@@ -288,6 +303,7 @@ const Adventures = () => {
   const fetchAdventures = async (currentFilters, loc = userLocation, city = userCity) => {
     setLoading(true);
     setError('');
+    const requestStartedAt = Date.now();
 
     try {
       const apiFilters = {
@@ -308,10 +324,8 @@ const Adventures = () => {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1000);
 
       const response = await adventureService.browseAdventures(apiFilters, controller.signal);
-      clearTimeout(timeoutId);
 
       const rows = Array.isArray(response) ? response : (response?.adventures || []);
 
@@ -364,8 +378,13 @@ const Adventures = () => {
         setAdventures(sample);
       }
     } finally {
-      setLoading(false);
-      setDistanceLoading(false);
+      const elapsed = Date.now() - requestStartedAt;
+      const remaining = Math.max(0, 1000 - elapsed);
+
+      setTimeout(() => {
+        setLoading(false);
+        setDistanceLoading(false);
+      }, remaining);
     }
   };
 
