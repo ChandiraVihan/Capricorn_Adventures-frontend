@@ -1,0 +1,389 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   NearbyPois.css
+   Design language: matches AdventureDetails.css
+     - Brand navy  : #1c124d
+     - Accent tint : #eef1ff / #d5dcff
+     - Cards       : white with #e3e8ff border, 12-16px radius
+     - Font        : Playfair Display headings + system-ui body
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ── section wrapper ─────────────────────────────────────────────────────────*/
+.npoi-section {
+  margin-top: 2.5rem;
+}
+
+/* ── header block ────────────────────────────────────────────────────────────*/
+.npoi-header {
+  margin-bottom: 1.4rem;
+}
+
+.npoi-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.npoi-compass {
+  font-size: 1.8rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.npoi-heading {
+  font-family: 'Playfair Display', serif;
+  color: #1c124d;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+
+.npoi-sub {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.npoi-radius-badge {
+  background: #fff8e1;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.npoi-mock-badge {
+  background: #f3f0ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ── filter pills ────────────────────────────────────────────────────────────*/
+.npoi-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.npoi-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border: 1.5px solid #d5dcff;
+  border-radius: 999px;
+  background: #fff;
+  color: #1c124d;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.12s;
+  white-space: nowrap;
+}
+
+.npoi-filter-pill:hover {
+  background: #eef1ff;
+  border-color: #b4bfff;
+  transform: translateY(-1px);
+}
+
+.npoi-filter-pill.active {
+  background: #1c124d;
+  border-color: #1c124d;
+  color: #fff;
+}
+
+.npoi-filter-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ── loading state ───────────────────────────────────────────────────────────*/
+.npoi-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2rem 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.npoi-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid #e3e8ff;
+  border-top-color: #1c124d;
+  border-radius: 50%;
+  animation: npoi-spin 0.75s linear infinite;
+}
+
+@keyframes npoi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── empty state ─────────────────────────────────────────────────────────────*/
+.npoi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.npoi-empty-icon {
+  font-size: 2.4rem;
+}
+
+.npoi-empty p {
+  font-size: 0.9rem;
+}
+
+/* ── poi grid ────────────────────────────────────────────────────────────────*/
+.npoi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ── poi card button ─────────────────────────────────────────────────────────*/
+.npoi-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.npoi-card {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid #e3e8ff;
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  animation: npoi-fade-up 0.35s ease both;
+}
+
+@keyframes npoi-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.npoi-card:hover {
+  border-color: #b4bfff;
+  box-shadow: 0 4px 18px rgba(28, 18, 77, 0.1);
+  transform: translateY(-2px);
+}
+
+.npoi-card--selected {
+  border-color: #1c124d !important;
+  background: #f5f3ff;
+  box-shadow: 0 0 0 3px rgba(28, 18, 77, 0.12);
+}
+
+/* map pin in top-right corner */
+.npoi-pin {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 1.1rem;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.npoi-card:hover .npoi-pin,
+.npoi-card--selected .npoi-pin {
+  opacity: 1;
+}
+
+.npoi-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.npoi-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.npoi-cat-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.npoi-cat-label {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.npoi-name {
+  font-size: 0.93rem;
+  font-weight: 700;
+  color: #1c124d;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.npoi-distance {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.npoi-distance-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a5b4fc;
+  flex-shrink: 0;
+}
+
+/* ── mini-card (directions popup) ───────────────────────────────────────────*/
+.npoi-mini-card {
+  background: #ffffff;
+  border: 1.5px solid #1c124d;
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  padding: 14px;
+  animation: npoi-expand 0.2s ease;
+  box-shadow: 0 8px 24px rgba(28, 18, 77, 0.13);
+}
+
+@keyframes npoi-expand {
+  from { opacity: 0; transform: scaleY(0.8); transform-origin: top; }
+  to   { opacity: 1; transform: scaleY(1); }
+}
+
+.npoi-mini-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.npoi-mini-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.npoi-mini-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1c124d;
+  margin: 0 0 2px;
+}
+
+.npoi-mini-cat {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.npoi-mini-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.npoi-mini-close:hover {
+  color: #1c124d;
+}
+
+.npoi-mini-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.npoi-mini-stat {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+.npoi-mini-stat span:first-child {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* Directions button */
+.npoi-directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+  padding: 9px 12px;
+  background: #1c124d;
+  color: #fff;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s, transform 0.12s;
+}
+
+.npoi-directions-btn:hover {
+  background: #2d1e6b;
+  transform: translateY(-1px);
+}
+
+/* ── responsive ──────────────────────────────────────────────────────────────*/
+@media (max-width: 640px) {
+  .npoi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .npoi-heading {
+    font-size: 1.25rem;
+  }
+
+  .npoi-filter-pill {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .npoi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -11,6 +11,7 @@ import localImage6 from './assets/whale-watching-sri-lanka.webp';
 import { useNavigate } from 'react-router-dom';
 import { adventureService } from './api/adventureService';
 import InteractiveTrailMap from './InteractiveTrailMap';
+import NearbyPois from './NearbyPois';
 
 const lkrFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
@@ -98,14 +99,14 @@ const generateDummyTrail = (seedStr) => {
 
   const pois = [];
   const numPois = 8 + Math.floor(random() * 5); // 8-12 POIs
-  
+
   for (let i = 0; i < numPois; i++) {
     const type = poiTypes[Math.floor(random() * poiTypes.length)];
     const nameList = poiNames[type];
     const name = nameList[Math.floor(random() * nameList.length)];
     // Place them near a random point on the trail
     const refPoint = points[Math.floor(random() * points.length)];
-    
+
     pois.push({
       id: `poi-${i}`,
       type: type,
@@ -379,6 +380,10 @@ const AdventureDetails = () => {
                 trailData={adventure.trailData}
                 fallbackImage={adventure.photos?.[0] || defaultAdventureImage}
               />
+            </div>
+
+            <div className="info-block" style={{ marginTop: '2.5rem' }}>
+              <NearbyPois adventureId={adventureId} />
             </div>
           </section>
 
