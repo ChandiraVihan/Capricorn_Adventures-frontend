@@ -1,0 +1,116 @@
+.cr-section {
+  margin-top: 2.5rem;
+}
+
+.cr-title-row {
+  display: flex;
+  gap: 10px;
+}
+
+.cr-icon {
+  font-size: 1.8rem;
+}
+
+.cr-heading {
+  font-family: 'Playfair Display', serif;
+  color: #1c124d;
+  font-weight: 700;
+}
+
+.cr-sub {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.cr-form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 1rem 0;
+}
+
+.cr-input, .cr-select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #e3e8ff;
+}
+
+.cr-btn {
+  background: #1c124d;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.cr-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.cr-card {
+  border: 1.5px solid #e3e8ff;
+  padding: 14px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cr-card:hover {
+  transform: translateY(-2px);
+}
+
+.cr-card--selected {
+  border-color: #1c124d;
+  background: #f5f3ff;
+}
+
+.cr-name {
+  font-weight: 700;
+}
+
+.cr-price {
+  color: #1c124d;
+  color: #1c124d;
+  font-size: 0.95rem;
+}
+
+.cr-add-btn {
+  background: #16a34a;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.cr-selected-box {
+  margin-top: 1rem;
+  padding: 12px;
+  background: #eef1ff;
+  border-radius: 10px;
+}
+
+.cr-confirm-btn {
+  margin-top: 8px;
+  background: #1c124d;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.cr-error {
+  color: red;
+  margin-top: 10px;
+}
+
+.cr-loading {
+  margin-top: 10px;
+  color: #6b7280;
+}
+
+.cr-cat {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
