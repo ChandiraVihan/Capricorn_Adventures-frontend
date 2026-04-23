@@ -2,6 +2,7 @@ import React from 'react';
 import './LandingPage.css';
 import logo from './assets/logo.png'; // Ensure you have a logo image in the specified path
 import video from './assets/custom.mp4';
+import AdventuresNearYou from './AdventuresNearYou';
 
 export default function LandingPage() {
   const images = [
@@ -72,7 +73,7 @@ export default function LandingPage() {
     <div className="landing-page-container">
       <div className="hero-section">
         <div className="hero-content">
-      
+      <AdventuresNearYou />
 
           <h1 className="title">Discover Your Dream Luxury Home</h1>
 
