@@ -11,6 +11,9 @@ import localImage6 from './assets/whale-watching-sri-lanka.webp';
 import { useNavigate } from 'react-router-dom';
 import { adventureService } from './api/adventureService';
 import InteractiveTrailMap from './InteractiveTrailMap';
+import NearbyPois from './NearbyPois';
+import MoreInThisArea from './MoreInThisArea';
+import CarRental from './CarRental';
 
 const lkrFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
@@ -98,14 +101,14 @@ const generateDummyTrail = (seedStr) => {
 
   const pois = [];
   const numPois = 8 + Math.floor(random() * 5); // 8-12 POIs
-  
+
   for (let i = 0; i < numPois; i++) {
     const type = poiTypes[Math.floor(random() * poiTypes.length)];
     const nameList = poiNames[type];
     const name = nameList[Math.floor(random() * nameList.length)];
     // Place them near a random point on the trail
     const refPoint = points[Math.floor(random() * points.length)];
-    
+
     pois.push({
       id: `poi-${i}`,
       type: type,
@@ -205,6 +208,14 @@ const AdventureDetails = () => {
   const [age, setAge] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    navigator.geolocation?.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setUserLocation({ lat: 6.9271, lng: 79.8612 }) // fallback to Colombo
+    );
+  }, []);
 
   useEffect(() => {
     fetchAdventureDetails();
@@ -380,6 +391,15 @@ const AdventureDetails = () => {
                 fallbackImage={adventure.photos?.[0] || defaultAdventureImage}
               />
             </div>
+
+            <div className="info-block" style={{ marginTop: '2.5rem' }}>
+              <NearbyPois adventureId={adventureId} />
+            </div>
+
+            <div className="info-block" style={{ marginTop: '2.5rem' }}>
+              <CarRental adventureLocation={adventure.location} />
+            </div>
+
           </section>
 
           <aside className="booking-sidebar">
@@ -414,6 +434,11 @@ const AdventureDetails = () => {
                 {age && <p className={`age-message ${ageValid ? 'valid' : 'invalid'}`}>{ageMessage}</p>}
               </div>
 
+            <MoreInThisArea
+                adventureId={adventureId}
+                userLat={userLocation?.lat}
+                userLng={userLocation?.lng}
+            />
               <button type="button" className="select-room-btn" disabled={!canBook} onClick={handleBook}>
                 Continue to Booking
               </button>

@@ -1,0 +1,31 @@
+.near-you-section { max-width: 1400px; margin: 0 auto 4rem; padding: 0 40px; }
+.near-you-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+.near-you-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: #1c124d; margin: 0 0 4px; }
+.near-you-subtitle { font-size: 0.9rem; color: #888; margin: 0; }
+.near-you-see-all { background: none; border: 1px solid #1c124d; color: #1c124d; border-radius: 999px; padding: 8px 18px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+.near-you-see-all:hover { background: #1c124d; color: #fff; }
+.near-you-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 1100px) { .near-you-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .near-you-section { padding: 0 16px; } .near-you-grid { grid-template-columns: 1fr; } .near-you-title { font-size: 1.5rem; } }
+.near-you-card { background: #fff; border: 1px solid #e3e8ff; border-radius: 18px; overflow: hidden; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 16px rgba(28,18,77,0.06); display: flex; flex-direction: column; }
+.near-you-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(28,18,77,0.14); }
+.near-you-card-img-wrap { position: relative; height: 200px; overflow: hidden; }
+.near-you-card-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.near-you-card:hover .near-you-card-img { transform: scale(1.04); }
+.near-you-distance-badge { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.92); backdrop-filter: blur(6px); color: #1c124d; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(28,18,77,0.12); }
+.near-you-card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; flex: 1; }
+.near-you-category { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #7c6fcd; margin: 0 0 6px; }
+.near-you-card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: #1c124d; margin: 0 0 6px; line-height: 1.3; }
+.near-you-card-location { font-size: 0.83rem; color: #666; margin: 0 0 4px; }
+.near-you-travel-time { font-size: 0.82rem; color: #d14900; font-weight: 600; margin: 0 0 14px; }
+.near-you-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 12px; border-top: 1px solid #eef0ff; }
+.near-you-price { font-size: 1rem; font-weight: 700; color: #1c124d; }
+.near-you-per { font-size: 0.8rem; font-weight: 400; color: #888; }
+.near-you-book-btn { background: #1c124d; color: #fff; border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.near-you-book-btn:hover { background: #2d2173; }
+.near-you-skeleton-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.near-you-skeleton-card { border-radius: 18px; overflow: hidden; border: 1px solid #e3e8ff; padding-bottom: 18px; }
+.skeleton-img { height: 200px; background: linear-gradient(90deg, #eef0ff 25%, #e3e8ff 50%, #eef0ff 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+.skeleton-line { height: 14px; border-radius: 8px; margin: 14px 18px 8px; background: linear-gradient(90deg, #eef0ff 25%, #e3e8ff 50%, #eef0ff 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+.skeleton-line.wide { width: 70%; } .skeleton-line.narrow { width: 45%; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
