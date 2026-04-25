@@ -4,7 +4,7 @@ import { authService } from "../api/authService";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(authService.getCurrentUser());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -42,8 +42,13 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const hasAnyRole = (...roles) => {
+        if (!user?.role) return false;
+        return roles.map((role) => String(role).toUpperCase()).includes(user.role);
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, loading, hasAnyRole }}>
             {!loading && children}
         </AuthContext.Provider>
     );
