@@ -7,10 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:room-service-state": "node scripts/roomServiceState.test.mjs"
   },
   "dependencies": {
     "chart.js": "^4.5.1",
+    "event-source-polyfill": "^1.0.31",
     "framer-motion": "^12.34.5",
     "gsap": "^3.14.2",
     "lucide-react": "^0.577.0",
@@ -18,7 +20,8 @@
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.13.1"
+    "react-router-dom": "^7.13.1",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

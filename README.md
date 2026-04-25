@@ -1,17 +1,50 @@
-# React + Vite
+# Capricorn Adventures Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Production React frontend for Capricorn Adventures customer and admin workflows.
 
-Currently, two official plugins are available:
+## Run Locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Install dependencies:
 
-## React Compiler
+```bash
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. Configure environment:
 
-## Expanding the ESLint configuration
+```bash
+echo "VITE_BACKEND_BASE_URL=https://potential-space-parakeet-rx94wj5q9pq35w6w-8080.app.github.dev" > .env.local
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# Capricorn_Adventures-frontend
+3. Start development server:
+
+```bash
+npm run dev
+```
+
+4. Build for production:
+
+```bash
+npm run build
+```
+
+## Admin Dashboard Routes
+
+- `/manager/operations` (MANAGER)
+- `/owner/finance` (OWNER)
+- `/manager/room-service` (MANAGER, ADMIN, STAFF)
+
+## Role Testing Instructions
+
+1. Sign in with a user account in each role (OWNER, MANAGER, ADMIN, STAFF).
+2. Confirm route guard behavior:
+- OWNER can access `/owner/finance`.
+- MANAGER can access `/manager/operations` and `/manager/room-service`.
+- ADMIN can access `/manager/room-service`.
+- STAFF can access `/manager/room-service` and update order status.
+3. Validate API-backed behavior:
+- Manager Operations auto-refresh, issue priority badges, guide assignment-required row highlighting.
+- Owner Finance month picker refetch, variance colors, export XLSX.
+- Room Service SSE live updates, 60s polling fallback, stale order highlighting, assignment/status actions.
+4. Shift overview owner warning handling:
+- If shift-overview returns 401 for OWNER, UI shows access warning without crashing.

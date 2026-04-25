@@ -40,6 +40,10 @@ export default function Header() {
             {user && <Link to="/my-bookings" className="nav-link">My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link">Profile</Link>}
             {user && user.role === "OWNER" && <Link to="/owner/finance" className="nav-link">Finance</Link>}
+            {user && user.role === "MANAGER" && <Link to="/manager/operations" className="nav-link">Operations</Link>}
+            {user && (user.role === "MANAGER" || user.role === "ADMIN" || user.role === "STAFF") && (
+              <Link to="/manager/room-service" className="nav-link">Room Service</Link>
+            )}
             {user ? (
               <button onClick={handleLogout} className="nav-link logout-btn">Log Out</button>
             ) : (
@@ -72,6 +76,10 @@ export default function Header() {
             {user && <Link to="/my-bookings" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>My Adventures</Link>}
             {user && <Link to="/profile" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Profile</Link>}
             {user && user.role === "OWNER" && <Link to="/owner/finance" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Finance</Link>}
+            {user && user.role === "MANAGER" && <Link to="/manager/operations" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Operations</Link>}
+            {user && (user.role === "MANAGER" || user.role === "ADMIN" || user.role === "STAFF") && (
+              <Link to="/manager/room-service" className="nav-link" onClick={() => setIsMobileMenuOpen(false)}>Room Service</Link>
+            )}
             {user ? (
               <button
                 onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
