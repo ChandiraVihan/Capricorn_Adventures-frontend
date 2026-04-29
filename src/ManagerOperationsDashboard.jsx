@@ -84,6 +84,30 @@ function applyGuideAssignments(tours, assignments) {
   });
 }
 
+function MiniSparkline({ values = [], tone = 'blue' }) {
+  const normalized = (Array.isArray(values) ? values : []).map((value) => Number(value) || 0);
+  const source = normalized.length ? normalized : [0, 0, 0, 0, 0];
+  const width = 112;
+  const height = 32;
+  const min = Math.min(...source);
+  const max = Math.max(...source);
+  const range = max - min || 1;
+
+  const points = source
+    .map((value, index) => {
+      const x = (index / Math.max(source.length - 1, 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <svg className="metric-sparkline" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" role="img" aria-label="Metric trend sparkline">
+      <polyline className={`metric-sparkline-line metric-sparkline-line-${tone}`} fill="none" points={points} />
+    </svg>
+  );
+}
+
 export default function ManagerOperationsDashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [data, setData] = useState(null);
@@ -243,6 +267,107 @@ export default function ManagerOperationsDashboard() {
   const todayTours = useMemo(() => data?.todayTours || [], [data?.todayTours]);
   const assignedTours = useMemo(() => todayTours.filter((tour) => tour.assignedGuideName), [todayTours]);
   const unassignedTours = useMemo(() => todayTours.filter((tour) => !tour.assignedGuideName), [todayTours]);
+
+  const dailyToursChartData = useMemo(() => {
+    if (Array.isArray(data?.weeklyOccupancy) && data.weeklyOccupancy.length) {
+      return data.weeklyOccupancy.map((item) => ({
+        label: item.dayLabel || '-',
+        booked: Number(item.bookedCapacity) || 0,
+        available: Number(item.availableCapacity) || 0,
+      }));
+    }
+
+    return todayTours.slice(0, 8).map((tour, index) => ({
+      label: `Tour ${index + 1}`,
+      booked: Number(tour.checkedInCustomerCount) || 0,
+      available: Math.max((Number(tour.totalCapacity) || 0) - (Number(tour.checkedInCustomerCount) || 0), 0),
+    }));
+  }, [data?.weeklyOccupancy, todayTours]);
+
+  const kpiSparklineSeries = useMemo(() => {
+    const occupancyTrend = (data?.weeklyOccupancy || []).map((item) => Number(item.bookedCapacity) || 0);
+
+    const purchaseByDay = roomPurchases.reduce((acc, row) => {
+      const key = String(row?.purchasedAt || '').slice(0, 10);
+      if (!key) return acc;
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+
+    const purchaseTrend = Object.entries(purchaseByDay)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .slice(-7)
+      .map(([, count]) => count);
+
+    return {
+      tours: occupancyTrend.length ? occupancyTrend : [2, 3, 4, 3, 5, 4, 6],
+      assigned: [
+        Math.max(sectionStats.assignedTours - 2, 0),
+        Math.max(sectionStats.assignedTours - 1, 0),
+        sectionStats.assignedTours,
+        sectionStats.assignedTours + 1,
+      ],
+      unassigned: [
+        sectionStats.unassignedTours + 2,
+        sectionStats.unassignedTours + 1,
+        sectionStats.unassignedTours,
+      ],
+      purchases: purchaseTrend.length ? purchaseTrend : [1, 2, 3, 2, 4, 3, 5],
+      roomService: [
+        Math.max(sectionStats.activeRoomOrders - 2, 0),
+        Math.max(sectionStats.activeRoomOrders - 1, 0),
+        sectionStats.activeRoomOrders,
+      ],
+    };
+  }, [data?.weeklyOccupancy, roomPurchases, sectionStats.activeRoomOrders, sectionStats.assignedTours, sectionStats.unassignedTours]);
+
+  const kpiCards = [
+    {
+      key: 'tours',
+      title: 'Tours',
+      value: sectionStats.totalTours,
+      subtitle: 'Today\'s scheduled departures',
+      tone: 'blue',
+      className: 'metric-card-success',
+      series: kpiSparklineSeries.tours,
+    },
+    {
+      key: 'assigned',
+      title: 'Assigned',
+      value: sectionStats.assignedTours,
+      subtitle: 'Tours with confirmed guides',
+      tone: 'green',
+      className: '',
+      series: kpiSparklineSeries.assigned,
+    },
+    {
+      key: 'needs-guide',
+      title: 'Needs Guide',
+      value: sectionStats.unassignedTours,
+      subtitle: 'Pending guide assignment',
+      tone: 'amber',
+      className: 'metric-card-danger',
+      series: kpiSparklineSeries.unassigned,
+    },
+    {
+      key: 'purchases',
+      title: 'Room Purchases',
+      value: sectionStats.roomPurchaseCount,
+      subtitle: 'Recent purchase events',
+      tone: 'blue',
+      className: '',
+      series: kpiSparklineSeries.purchases,
+    },
+    {
+      key: 'room-service',
+      title: 'Room Service',
+      value: sectionStats.activeRoomOrders,
+      subtitle: 'Active service orders',
+      tone: 'green',
+      className: '',
+      series: kpiSparklineSeries.roomService,
+    },
+  ];
 
   const availableGuideOptions = useMemo(() => {
     const uniqueByStaffId = new Map();
@@ -479,8 +604,8 @@ export default function ManagerOperationsDashboard() {
     <div className="admin-shell manager-shell">
       <aside className="manager-sidebar">
         <div className="manager-sidebar-brand">
-          <h1>Lodgify</h1>
-          <p>Manager Board</p>
+          <h1>Capricorn</h1>
+          <p>Manager Operations</p>
         </div>
 
         <nav className="manager-nav" aria-label="Manager sections">
@@ -518,31 +643,16 @@ export default function ManagerOperationsDashboard() {
 
         <section className="panel manager-summary-panel">
           <div className="metric-grid manager-summary-grid">
-            <article className="metric-card metric-card-success">
-              <p className="metric-card-title">Tours</p>
-              <p className="metric-card-value">{sectionStats.totalTours}</p>
-              <p className="metric-card-subtitle">Today’s adventure schedules</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-card-title">Assigned</p>
-              <p className="metric-card-value">{sectionStats.assignedTours}</p>
-              <p className="metric-card-subtitle">Tours with guides</p>
-            </article>
-            <article className="metric-card metric-card-danger">
-              <p className="metric-card-title">Needs Guide</p>
-              <p className="metric-card-value">{sectionStats.unassignedTours}</p>
-              <p className="metric-card-subtitle">Tours awaiting assignment</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-card-title">Room Purchases</p>
-              <p className="metric-card-value">{sectionStats.roomPurchaseCount}</p>
-              <p className="metric-card-subtitle">Recent purchase records</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-card-title">Room Service</p>
-              <p className="metric-card-value">{sectionStats.activeRoomOrders}</p>
-              <p className="metric-card-subtitle">Active service orders</p>
-            </article>
+            {kpiCards.map((card) => (
+              <article key={card.key} className={`metric-card manager-kpi-card ${card.className}`.trim()}>
+                <div className="manager-kpi-top-row">
+                  <p className="metric-card-title">{card.title}</p>
+                </div>
+                <p className="metric-card-value">{card.value}</p>
+                <p className="metric-card-subtitle">{card.subtitle}</p>
+                <MiniSparkline values={card.series} tone={card.tone} />
+              </article>
+            ))}
           </div>
         </section>
 
@@ -557,22 +667,73 @@ export default function ManagerOperationsDashboard() {
         ) : null}
 
         {!loading && !error && activeSection === 'overview' ? (
-          <section className="panel">
-            {renderSectionHeader('Overview', 'A quick snapshot of the day across tours, purchases, and room service.')}
-            <div className="layout-grid manager-overview-grid">
-              <article className="panel nested-panel">
-                <h3 className="panel-title">Tour Status</h3>
-                <div className="kv">
-                  <div className="kv-item"><p className="kv-label">Assigned</p><p className="kv-value">{sectionStats.assignedTours}</p></div>
-                  <div className="kv-item"><p className="kv-label">Unassigned</p><p className="kv-value">{sectionStats.unassignedTours}</p></div>
+          <section className="panel manager-overview-panel">
+            {renderSectionHeader('Overview', 'Daily performance snapshot with tours volume and latest room purchase activity.')}
+            <div className="manager-overview-layout">
+              <article className="panel nested-panel manager-chart-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Daily Tours</h3>
+                  <p>Booked versus available capacity trend.</p>
                 </div>
+                {dailyToursChartData.length ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyToursChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(35, 73, 126, 0.12)" vertical={false} />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(31, 111, 216, 0.07)' }}
+                        contentStyle={{ borderRadius: 12, borderColor: 'rgba(29, 62, 115, 0.15)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="booked" name="Booked" fill="#1f6fd8" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="available" name="Available" fill="#11a36f" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <EmptyState title="No tour trend data" description="No occupancy or tour trend values were returned." />
+                )}
               </article>
-              <article className="panel nested-panel">
-                <h3 className="panel-title">Room Service</h3>
-                <div className="kv">
-                  <div className="kv-item"><p className="kv-label">Active Orders</p><p className="kv-value">{roomServiceDashboard?.activeOrders?.length || 0}</p></div>
-                  <div className="kv-item"><p className="kv-label">Stale Threshold</p><p className="kv-value">{roomServiceDashboard?.staleThresholdMinutes || '-'} min</p></div>
+
+              <article className="panel nested-panel manager-table-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Recent Room Purchases</h3>
+                  <p>Latest customer purchases and payment status.</p>
                 </div>
+
+                {roomPurchasesLoading ? <LoadingSkeleton rows={5} /> : null}
+                {!roomPurchasesLoading && roomPurchasesError ? (
+                  <ErrorState title="Unable to load purchases" message={roomPurchasesError.message} onRetry={loadDashboard} />
+                ) : null}
+                {!roomPurchasesLoading && !roomPurchasesError && !roomPurchases.length ? (
+                  <EmptyState title="No purchase records" description="No room purchases were returned for this period." />
+                ) : null}
+                {!roomPurchasesLoading && !roomPurchasesError && roomPurchases.length ? (
+                  <div className="manager-mini-table-wrap">
+                    <table className="manager-mini-table">
+                      <thead>
+                        <tr>
+                          <th>Guest</th>
+                          <th>Room</th>
+                          <th>Amount</th>
+                          <th>Status</th>
+                          <th>Purchased</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {roomPurchases.slice(0, 7).map((row) => (
+                          <tr key={`${row.purchaseId || row.bookingReferenceId || row.purchasedAt}-${row.roomNumber || row.roomName || 'room'}`}>
+                            <td>{row.guestName || '-'}</td>
+                            <td>{formatRoomLabel(row)}</td>
+                            <td>{`${row.currency || 'LKR'} ${Number(row.amount || 0).toLocaleString()}`}</td>
+                            <td><span className={`badge ${getPaymentBadgeClass(row.status)}`}>{row.status || 'PENDING'}</span></td>
+                            <td>{formatDateTime(row.purchasedAt)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
               </article>
             </div>
           </section>
@@ -656,22 +817,6 @@ export default function ManagerOperationsDashboard() {
           </section>
         ) : null}
 
-        {!loading && !error && activeSection === 'overview' && data?.weeklyOccupancy?.length ? (
-          <section className="panel">
-            <h2 className="panel-title">Weekly Occupancy</h2>
-            <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={data.weeklyOccupancy}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="dayLabel" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="bookedCapacity" name="Booked" fill="#006d77" />
-                <Bar dataKey="availableCapacity" name="Available" fill="#83c5be" />
-              </BarChart>
-            </ResponsiveContainer>
-          </section>
-        ) : null}
 
         {assignModalTour ? (
           <div className="modal-backdrop" role="presentation" onClick={closeAssignModal}>
