@@ -108,14 +108,14 @@
 
 .metric-card-value {
   margin-top: 6px;
-  font-size: 1.34rem;
+  font-size: 1.64rem;
   line-height: 1.2;
   font-weight: 800;
 }
 
 .metric-card-subtitle {
   margin-top: 5px;
-  font-size: 0.76rem;
+  font-size: 0.88rem;
   color: var(--ink-700);
 }
 
@@ -142,7 +142,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-weight: 700;
   border: 1px solid transparent;
 }
@@ -182,14 +182,14 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 100%;
 }
 
 .data-table th,
 .data-table td {
   border-bottom: 1px solid var(--border);
   text-align: left;
-  padding: 10px 8px;
+  padding: 10px 6px;
   vertical-align: top;
 }
 
@@ -198,7 +198,7 @@
   top: 0;
   background: #f7fbfe;
   z-index: 1;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   color: var(--ink-500);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -206,6 +206,7 @@
 
 .data-table tbody tr {
   transition: background-color 140ms ease;
+  font-size: 0.9rem;
 }
 
 .data-table tbody tr:hover {
@@ -380,7 +381,7 @@
 .manager-sidebar-brand p,
 .manager-sidebar-note {
   color: var(--ink-500);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
 }
 
 .manager-nav {
@@ -397,7 +398,7 @@
   text-align: left;
   padding: 10px 11px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.92rem;
   font-weight: 700;
   transition: all 160ms ease;
 }
@@ -511,7 +512,7 @@
 
 .manager-chart-header p {
   color: var(--ink-500);
-  font-size: 0.78rem;
+  font-size: 0.92rem;
 }
 
 .manager-mini-table-wrap {
@@ -524,15 +525,15 @@
 .manager-mini-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 520px;
+  min-width: 100%;
 }
 
 .manager-mini-table th,
 .manager-mini-table td {
   border-bottom: 1px solid var(--border);
   text-align: left;
-  padding: 9px 8px;
-  font-size: 0.76rem;
+  padding: 9px 6px;
+  font-size: 0.88rem;
 }
 
 .manager-mini-table th {
@@ -965,7 +966,7 @@
 
 .room-service-controls {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .room-service-inline-error {
@@ -974,7 +975,7 @@
 
 .room-service-create-panel {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .room-service-create-form {
@@ -1001,19 +1002,56 @@
 
 .room-service-order-card {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e0e6ed;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(29, 62, 115, 0.06);
+  transition: all 0.25s ease;
+}
+
+.room-service-order-card:hover {
+  border-color: #1f6fd8;
+  box-shadow: 0 4px 16px rgba(31, 111, 216, 0.1);
 }
 
 .room-service-order-stale {
   border-color: #f0b6b1;
-  box-shadow: 0 0 0 1px rgba(176, 35, 24, 0.08), 0 12px 24px rgba(176, 35, 24, 0.08);
+  box-shadow: 0 0 0 1px rgba(176, 35, 24, 0.08), 0 4px 12px rgba(176, 35, 24, 0.08);
+  background: #fffaf9;
 }
 
 .room-service-order-header,
 .room-service-order-actions,
 .room-service-order-meta,
 .room-service-summary-kv {
-  gap: 8px;
+  gap: 10px;
+}
+
+.room-service-order-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+}
+
+.room-service-order-header p {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-500);
+}
+
+.room-service-items {
+  display: grid;
+  gap: 6px;
+}
+
+.room-service-items strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-800);
 }
 
 .room-service-order-badges {
@@ -1025,30 +1063,84 @@
 
 .room-service-order-meta {
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  padding: 10px;
+  background: #f8fafb;
+  border-radius: 8px;
+}
+
+.room-service-order-meta p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-700);
+}
+
+.room-service-order-meta strong {
+  font-weight: 600;
+  color: var(--ink-800);
 }
 
 .room-service-items ul {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   padding-left: 18px;
+  list-style: none;
+}
+
+.room-service-items li {
+  padding: 4px 0;
+  color: var(--ink-700);
+  font-size: 0.9rem;
+}
+
+.room-service-items li::before {
+  content: "• ";
+  color: #1f6fd8;
+  font-weight: bold;
+  margin-right: 6px;
 }
 
 .room-service-order-actions {
   display: grid;
   gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e6ed;
 }
 
 .room-service-assign-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.room-service-assign-row input {
+  padding: 9px 12px;
+  border: 1.5px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  color: var(--ink-800);
+  transition: all 0.2s ease;
+}
+
+.room-service-assign-row input:focus {
+  outline: none;
+  border-color: #1f6fd8;
+  box-shadow: 0 0 0 3px rgba(31, 111, 216, 0.08);
 }
 
 .room-service-status-actions {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.room-service-status-actions .action-btn,
+.room-service-status-actions .secondary-btn {
+  padding: 9px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .manager-shell .page-header h1,
@@ -1079,7 +1171,29 @@
 
 .room-service-summary-panel {
   display: grid;
-  gap: 14px;
+  gap: 16px;
+}
+
+.room-service-summary-panel .page-header {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.room-service-summary-panel input[type="date"] {
+  padding: 9px 12px;
+  border: 1.5px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--ink-800);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.room-service-summary-panel input[type="date"]:focus {
+  outline: none;
+  border-color: #1f6fd8;
+  box-shadow: 0 0 0 3px rgba(31, 111, 216, 0.08);
 }
 
 .room-service-summary-kv {
@@ -1088,12 +1202,22 @@
 
 .room-service-unresolved {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .room-service-unresolved-card {
   width: 100%;
+  padding: 12px;
   text-align: left;
+  border: 1px solid #e0e6ed;
+  border-radius: 8px;
+  background: #f8fafb;
+  transition: all 0.2s ease;
+}
+
+.room-service-unresolved-card:hover {
+  border-color: #1f6fd8;
+  background: #fff;
 }
 
 .room-service-unresolved-card p {
@@ -1104,6 +1228,122 @@
 .room-service-field input,
 .room-service-field select {
   width: 100%;
+}
+
+/* Modern Room Service Form Styling */
+.room-service-filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.room-service-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.room-service-filter-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-600);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.room-service-input {
+  padding: 10px 12px;
+  border: 1.5px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--ink-800);
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.room-service-input:focus {
+  outline: none;
+  border-color: #1f6fd8;
+  box-shadow: 0 0 0 3px rgba(31, 111, 216, 0.08);
+  background: #fff;
+}
+
+.room-service-input::placeholder {
+  color: #a0aec0;
+}
+
+.room-service-apply-btn {
+  width: 100%;
+  padding: 11px 20px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.room-service-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.room-service-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.room-service-form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-600);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.room-service-form-full {
+  grid-column: 1 / -1;
+}
+
+.room-service-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.room-service-form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.room-service-form-actions .action-btn {
+  min-width: 140px;
+  padding: 11px 20px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.room-service-form-error {
+  padding: 12px 14px;
+  background: #fff1f1;
+  border: 1px solid #f0b6b1;
+  border-radius: 8px;
+  color: #b42318;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.room-service-form-success {
+  padding: 12px 14px;
+  background: #f4fff9;
+  border: 1px solid #b7efd3;
+  border-radius: 8px;
+  color: #1f9d74;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 @media (max-width: 800px) {

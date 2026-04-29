@@ -268,43 +268,58 @@ export default function RoomServiceDashboard() {
           <section className="panel room-service-controls">
             <div className="page-header">
               <div>
-                <h2 className="panel-title">Filters</h2>
-                <p>Apply floor and room range filters before loading the active orders view.</p>
+                <h2 className="panel-title">Filter Orders</h2>
+                <p>Narrow down results by floor and room number range.</p>
               </div>
             </div>
-            <div className="inline-controls">
-              <input
-                type="number"
-                placeholder="Floor"
-                value={filters.floor}
-                onChange={(event) => {
-                  clearFilterError();
-                  setFilters((current) => ({ ...current, floor: event.target.value }));
-                }}
-              />
-              <input
-                type="number"
-                placeholder="Min room"
-                value={filters.minRoom}
-                onChange={(event) => {
-                  clearFilterError();
-                  setFilters((current) => ({ ...current, minRoom: event.target.value }));
-                }}
-              />
-              <input
-                type="number"
-                placeholder="Max room"
-                value={filters.maxRoom}
-                onChange={(event) => {
-                  clearFilterError();
-                  setFilters((current) => ({ ...current, maxRoom: event.target.value }));
-                }}
-              />
-              <button className="action-btn" type="button" onClick={() => applyFilters(buildFilterPayload(filters))}>
-                Apply Filters
-              </button>
+            <div className="room-service-filters-grid">
+              <div className="room-service-filter-group">
+                <label htmlFor="filter-floor">Floor</label>
+                <input
+                  id="filter-floor"
+                  type="number"
+                  placeholder="e.g., 2"
+                  value={filters.floor}
+                  onChange={(event) => {
+                    clearFilterError();
+                    setFilters((current) => ({ ...current, floor: event.target.value }));
+                  }}
+                  className="room-service-input"
+                />
+              </div>
+              <div className="room-service-filter-group">
+                <label htmlFor="filter-min-room">Min Room</label>
+                <input
+                  id="filter-min-room"
+                  type="number"
+                  placeholder="e.g., 100"
+                  value={filters.minRoom}
+                  onChange={(event) => {
+                    clearFilterError();
+                    setFilters((current) => ({ ...current, minRoom: event.target.value }));
+                  }}
+                  className="room-service-input"
+                />
+              </div>
+              <div className="room-service-filter-group">
+                <label htmlFor="filter-max-room">Max Room</label>
+                <input
+                  id="filter-max-room"
+                  type="number"
+                  placeholder="e.g., 210"
+                  value={filters.maxRoom}
+                  onChange={(event) => {
+                    clearFilterError();
+                    setFilters((current) => ({ ...current, maxRoom: event.target.value }));
+                  }}
+                  className="room-service-input"
+                />
+              </div>
             </div>
-            {filterError ? <p className="field-error room-service-inline-error">{filterError}</p> : null}
+            <button className="action-btn room-service-apply-btn" type="button" onClick={() => applyFilters(buildFilterPayload(filters))}>
+              Apply Filters
+            </button>
+            {filterError ? <p className="field-error">{filterError}</p> : null}
           </section>
         ) : null}
 
@@ -312,46 +327,54 @@ export default function RoomServiceDashboard() {
           <section className="panel room-service-create-panel">
             <div className="page-header">
               <div>
-                <h2 className="panel-title">Create Room Service Order</h2>
-                <p>Use this form to create a new order without leaving the dashboard.</p>
+                <h2 className="panel-title">New Order</h2>
+                <p>Create a room service order without leaving the dashboard.</p>
               </div>
             </div>
 
             <form className="room-service-create-form" onSubmit={handleCreateSubmit}>
-              <label className="add-shift-field room-service-field">
-                <span>Room Number</span>
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="204"
-                  value={createForm.roomNumber}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, roomNumber: event.target.value }))}
-                  required
-                />
-              </label>
+              <div className="room-service-form-row">
+                <div className="room-service-form-group">
+                  <label htmlFor="create-room-number">Room Number</label>
+                  <input
+                    id="create-room-number"
+                    type="number"
+                    min="1"
+                    placeholder="204"
+                    value={createForm.roomNumber}
+                    onChange={(event) => setCreateForm((current) => ({ ...current, roomNumber: event.target.value }))}
+                    className="room-service-input"
+                    required
+                  />
+                </div>
 
-              <label className="add-shift-field room-service-field">
-                <span>Floor Number</span>
-                <input
-                  type="number"
-                  min="1"
-                  placeholder="2"
-                  value={createForm.floorNumber}
-                  onChange={(event) => setCreateForm((current) => ({ ...current, floorNumber: event.target.value }))}
-                  required
-                />
-              </label>
+                <div className="room-service-form-group">
+                  <label htmlFor="create-floor-number">Floor Number</label>
+                  <input
+                    id="create-floor-number"
+                    type="number"
+                    min="1"
+                    placeholder="2"
+                    value={createForm.floorNumber}
+                    onChange={(event) => setCreateForm((current) => ({ ...current, floorNumber: event.target.value }))}
+                    className="room-service-input"
+                    required
+                  />
+                </div>
+              </div>
 
-              <label className="add-shift-field room-service-field room-service-field-wide">
-                <span>Items Ordered</span>
+              <div className="room-service-form-group room-service-form-full">
+                <label htmlFor="create-items">Items Ordered</label>
                 <input
+                  id="create-items"
                   type="text"
-                  placeholder="Club Sandwich, Orange Juice"
+                  placeholder="e.g., Club Sandwich, Orange Juice, Ice Cream"
                   value={createForm.itemsRaw}
                   onChange={(event) => setCreateForm((current) => ({ ...current, itemsRaw: event.target.value }))}
+                  className="room-service-input"
                   required
                 />
-              </label>
+              </div>
 
               <div className="room-service-form-actions">
                 <button className="action-btn" type="submit" disabled={operationState.create}>
@@ -360,8 +383,8 @@ export default function RoomServiceDashboard() {
               </div>
             </form>
 
-            {createFormError ? <p className="inline-error">{createFormError}</p> : null}
-            {createFormSuccess ? <p className="inline-success">{createFormSuccess}</p> : null}
+            {createFormError ? <div className="room-service-form-error">{createFormError}</div> : null}
+            {createFormSuccess ? <div className="room-service-form-success">{createFormSuccess}</div> : null}
           </section>
         ) : null}
 

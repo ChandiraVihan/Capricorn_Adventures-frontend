@@ -697,6 +697,20 @@ export default function ManagerOperationsDashboard() {
 
               <article className="panel nested-panel manager-table-panel">
                 <div className="manager-chart-header">
+                  <h3 className="panel-title">Guide Assignment</h3>
+                  <p>Current guide assignments for today.</p>
+                </div>
+                {!assignedTours.length && !unassignedTours.length ? (
+                  <EmptyState title="No tours available" description="There are no tours to assign right now." />
+                ) : (
+                  <DataTable columns={guideAssignmentColumns} rows={todayTours.slice(0, 5)} rowClassName={(row) => (row.guideAssignmentRequired ? 'row-alert' : '')} />
+                )}
+              </article>
+            </div>
+
+            <div style={{ marginTop: '12px' }}>
+              <article className="panel nested-panel">
+                <div className="manager-chart-header">
                   <h3 className="panel-title">Recent Room Purchases</h3>
                   <p>Latest customer purchases and payment status.</p>
                 </div>
@@ -740,80 +754,183 @@ export default function ManagerOperationsDashboard() {
         ) : null}
 
         {!loading && !error && activeSection === 'tours' ? (
-          <section className="panel">
-            {renderSectionHeader('Tours', 'Today’s adventure schedules in one table.')}
-            {!todayTours.length ? (
-              <EmptyState title="No tours for today" description="No tour schedules were returned for today." />
-            ) : (
-              <DataTable columns={columns} rows={todayTours} rowClassName={(row) => (row.guideAssignmentRequired ? 'row-alert' : '')} />
-            )}
+          <section className="panel manager-overview-panel">
+            {renderSectionHeader('Today\'s Tours', 'Complete list of today\'s adventure schedules and assignments.')}
+            <div className="manager-overview-layout" style={{ gridTemplateColumns: '1fr' }}>
+              <article className="panel nested-panel">
+                {!todayTours.length ? (
+                  <EmptyState title="No tours for today" description="No tour schedules were returned for today." />
+                ) : (
+                  <DataTable columns={columns} rows={todayTours} rowClassName={(row) => (row.guideAssignmentRequired ? 'row-alert' : '')} />
+                )}
+              </article>
+            </div>
           </section>
         ) : null}
 
         {!loading && !error && activeSection === 'guide-assignment' ? (
-          <section className="panel">
-            {renderSectionHeader('Guide Assignment', 'Assign or change guides without leaving the manager board.')}
-            {!assignedTours.length && !unassignedTours.length ? (
-              <EmptyState title="No tours available" description="There are no tours to assign right now." />
-            ) : (
-              <DataTable columns={guideAssignmentColumns} rows={todayTours} rowClassName={(row) => (row.guideAssignmentRequired ? 'row-alert' : '')} />
-            )}
+          <section className="panel manager-overview-panel">
+            {renderSectionHeader('Guide Assignment', 'Manage and assign guides to tours from one central location.')}
+            <div className="manager-overview-layout">
+              <article className="panel nested-panel manager-chart-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Daily Tours</h3>
+                  <p>Booked versus available capacity trend.</p>
+                </div>
+                {dailyToursChartData.length ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyToursChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(35, 73, 126, 0.12)" vertical={false} />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(31, 111, 216, 0.07)' }}
+                        contentStyle={{ borderRadius: 12, borderColor: 'rgba(29, 62, 115, 0.15)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="booked" name="Booked" fill="#1f6fd8" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="available" name="Available" fill="#11a36f" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <EmptyState title="No tour trend data" description="No occupancy or tour trend values were returned." />
+                )}
+              </article>
+
+              <article className="panel nested-panel manager-table-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Guide Assignments</h3>
+                  <p>Today's tours and guide assignments.</p>
+                </div>
+                {!assignedTours.length && !unassignedTours.length ? (
+                  <EmptyState title="No tours available" description="There are no tours to assign right now." />
+                ) : (
+                  <DataTable columns={guideAssignmentColumns} rows={todayTours} rowClassName={(row) => (row.guideAssignmentRequired ? 'row-alert' : '')} />
+                )}
+              </article>
+            </div>
           </section>
         ) : null}
 
         {!loading && !error && activeSection === 'room-purchases' ? (
-          <section className="panel">
-            {renderSectionHeader('Room Purchases', 'Recent customer room purchase records and payment status.')}
-            {roomPurchasesLoading ? <LoadingSkeleton rows={5} /> : null}
-            {!roomPurchasesLoading && roomPurchasesError ? (
-              <ErrorState title="Unable to load room purchases" message={roomPurchasesError.message} onRetry={loadDashboard} />
-            ) : null}
-            {!roomPurchasesLoading && !roomPurchasesError && !roomPurchases.length ? (
-              <EmptyState title="No room purchases found" description="No room purchase records were returned for the selected period." />
-            ) : null}
-            {!roomPurchasesLoading && !roomPurchasesError && roomPurchases.length ? (
-              <DataTable columns={roomPurchaseColumns} rows={roomPurchases} />
-            ) : null}
+          <section className="panel manager-overview-panel">
+            {renderSectionHeader('Room Purchases', 'Track all customer room purchases and payment transaction history.')}
+            <div className="manager-overview-layout">
+              <article className="panel nested-panel manager-chart-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Daily Tours</h3>
+                  <p>Booked versus available capacity trend.</p>
+                </div>
+                {dailyToursChartData.length ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyToursChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(35, 73, 126, 0.12)" vertical={false} />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(31, 111, 216, 0.07)' }}
+                        contentStyle={{ borderRadius: 12, borderColor: 'rgba(29, 62, 115, 0.15)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="booked" name="Booked" fill="#1f6fd8" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="available" name="Available" fill="#11a36f" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <EmptyState title="No tour trend data" description="No occupancy or tour trend values were returned." />
+                )}
+              </article>
+
+              <article className="panel nested-panel manager-table-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Room Purchases</h3>
+                  <p>Latest customer purchases and payment status.</p>
+                </div>
+                {roomPurchasesLoading ? <LoadingSkeleton rows={5} /> : null}
+                {!roomPurchasesLoading && roomPurchasesError ? (
+                  <ErrorState title="Unable to load room purchases" message={roomPurchasesError.message} onRetry={loadDashboard} />
+                ) : null}
+                {!roomPurchasesLoading && !roomPurchasesError && !roomPurchases.length ? (
+                  <EmptyState title="No room purchases found" description="No room purchase records were returned for the selected period." />
+                ) : null}
+                {!roomPurchasesLoading && !roomPurchasesError && roomPurchases.length ? (
+                  <DataTable columns={roomPurchaseColumns} rows={roomPurchases} />
+                ) : null}
+              </article>
+            </div>
           </section>
         ) : null}
 
         {!loading && !error && activeSection === 'room-service' ? (
-          <section className="panel">
-            {renderSectionHeader('Room Service', 'A compact view of active service orders with a shortcut to the full console.')}
-            {roomServiceLoading ? <LoadingSkeleton rows={4} /> : null}
-            {!roomServiceLoading && roomServiceError ? (
-              <ErrorState title="Unable to load room service" message={roomServiceError.message} onRetry={loadDashboard} />
-            ) : null}
-            {!roomServiceLoading && !roomServiceError ? (
-              <div className="stack">
-                <div className="metric-grid manager-summary-grid">
-                  <article className="metric-card">
-                    <p className="metric-card-title">Active Orders</p>
-                    <p className="metric-card-value">{roomServiceDashboard?.activeOrders?.length || 0}</p>
-                  </article>
-                  <article className="metric-card">
-                    <p className="metric-card-title">Unresolved</p>
-                    <p className="metric-card-value">{roomServiceSummary?.unresolvedOrdersCount || 0}</p>
-                  </article>
-                  <article className="metric-card">
-                    <p className="metric-card-title">Avg. Delivery</p>
-                    <p className="metric-card-value">{roomServiceSummary?.averageDeliveryMinutes ?? '-'} min</p>
-                  </article>
+          <section className="panel manager-overview-panel">
+            {renderSectionHeader('Room Service Orders', 'Monitor live room service operations and order status.')}
+            <div className="manager-overview-layout">
+              <article className="panel nested-panel manager-chart-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Daily Tours</h3>
+                  <p>Booked versus available capacity trend.</p>
                 </div>
-
-                {roomServiceDashboard?.activeOrders?.length ? (
-                  <DataTable columns={roomServiceColumns} rows={roomServiceDashboard.activeOrders.slice(0, 6)} />
+                {dailyToursChartData.length ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={dailyToursChartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(35, 73, 126, 0.12)" vertical={false} />
+                      <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#5f7290', fontSize: 12 }} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(31, 111, 216, 0.07)' }}
+                        contentStyle={{ borderRadius: 12, borderColor: 'rgba(29, 62, 115, 0.15)' }}
+                      />
+                      <Legend />
+                      <Bar dataKey="booked" name="Booked" fill="#1f6fd8" radius={[8, 8, 0, 0]} />
+                      <Bar dataKey="available" name="Available" fill="#11a36f" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 ) : (
-                  <EmptyState title="No active room service orders" description="No live room service orders were returned for the current business date." />
+                  <EmptyState title="No tour trend data" description="No occupancy or tour trend values were returned." />
                 )}
+              </article>
 
-                <div className="inline-controls">
-                  <Link className="action-btn" to="/manager/room-service">
-                    Open Full Room Service Console
-                  </Link>
+              <article className="panel nested-panel manager-table-panel">
+                <div className="manager-chart-header">
+                  <h3 className="panel-title">Room Service Orders</h3>
+                  <p>Active service orders and status.</p>
                 </div>
-              </div>
-            ) : null}
+                {roomServiceLoading ? <LoadingSkeleton rows={4} /> : null}
+                {!roomServiceLoading && roomServiceError ? (
+                  <ErrorState title="Unable to load room service" message={roomServiceError.message} onRetry={loadDashboard} />
+                ) : null}
+                {!roomServiceLoading && !roomServiceError ? (
+                  <div className="stack">
+                    <div className="metric-grid manager-summary-grid">
+                      <article className="metric-card">
+                        <p className="metric-card-title">Active Orders</p>
+                        <p className="metric-card-value">{roomServiceDashboard?.activeOrders?.length || 0}</p>
+                      </article>
+                      <article className="metric-card">
+                        <p className="metric-card-title">Unresolved</p>
+                        <p className="metric-card-value">{roomServiceSummary?.unresolvedOrdersCount || 0}</p>
+                      </article>
+                      <article className="metric-card">
+                        <p className="metric-card-title">Avg. Delivery</p>
+                        <p className="metric-card-value">{roomServiceSummary?.averageDeliveryMinutes ?? '-'} min</p>
+                      </article>
+                    </div>
+
+                    {roomServiceDashboard?.activeOrders?.length ? (
+                      <DataTable columns={roomServiceColumns} rows={roomServiceDashboard.activeOrders.slice(0, 6)} />
+                    ) : (
+                      <EmptyState title="No active room service orders" description="No live room service orders were returned for the current business date." />
+                    )}
+
+                    <div className="inline-controls">
+                      <Link className="action-btn" to="/manager/room-service">
+                        Open Full Room Service Console
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+              </article>
+            </div>
           </section>
         ) : null}
 
