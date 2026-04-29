@@ -31,9 +31,9 @@ const FinancePLDashboard = () => {
   if (!data) return <div>Error loading dashboard.</div>;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Profit & Loss</h1>
+    <div className="p-4 max-w-7xl mx-auto">
+      <div className="flex justify-between items-center mb-3">
+        <h1 className="text-5xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Profit & Loss</h1>
         
         <div className="flex gap-4">
           {/* AC4: Month selection filter */}
@@ -53,13 +53,13 @@ const FinancePLDashboard = () => {
         </div>
       </div>
 
-      <p className="text-gray-500 mb-6">
+      <p className="text-gray-500 mb-4">
         {data.monthToDate ? "Month-to-Date" : `Displaying data for ${data.month}`} 
         (Generated: {new Date(data.generatedAt).toLocaleString()})
       </p>
 
       {/* AC1: Summary Cards Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <SummaryCard data={data.revenue} />
         <SummaryCard data={data.costOfSales} />
         <SummaryCard data={data.grossMargin} />
@@ -67,9 +67,9 @@ const FinancePLDashboard = () => {
       </div>
 
       {/* AC2: Product Breakdown */}
-      <div className="bg-white p-6 border rounded-lg shadow-sm mb-8">
-        <h2 className="text-xl font-bold mb-4">Revenue Breakdown</h2>
-        <div className="grid grid-cols-3 gap-4">
+      <div className="bg-white p-4 border rounded-lg shadow-sm mb-5">
+        <h2 className="text-3xl font-bold mb-3" style={{ fontFamily: "'Playfair Display', serif" }}>Revenue Breakdown</h2>
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <p className="text-gray-500">Hotel Revenue</p>
             <p className="text-lg font-semibold">LKR {data.productBreakdown.hotelRevenue.toLocaleString()}</p>
@@ -88,8 +88,8 @@ const FinancePLDashboard = () => {
       </div>
 
       {/* AC6: Tax Summary */}
-      <div className="bg-gray-50 p-6 border rounded-lg">
-        <h2 className="text-lg font-bold mb-2">Tax Calculation ({data.taxSummary.taxRatePercent}%)</h2>
+      <div className="bg-gray-50 p-4 border rounded-lg">
+        <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>Tax Calculation ({data.taxSummary.taxRatePercent}%)</h2>
         <div className="flex justify-between max-w-md">
           <span>Pre-Tax Profit: LKR {data.taxSummary.netProfitPreTax.toLocaleString()}</span>
           <span className="text-red-600">- LKR {data.taxSummary.taxAmount.toLocaleString()}</span>

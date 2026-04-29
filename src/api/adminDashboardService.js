@@ -1,4 +1,11 @@
 import { apiRequest, createQuery } from './httpClient';
+import {
+  MOCK_MANAGER_OPERATIONS_DASHBOARD,
+  MOCK_MANAGER_ROOM_PURCHASES,
+  MOCK_ROOM_SERVICE_DASHBOARD,
+  MOCK_ROOM_SERVICE_DAILY_SUMMARY,
+  MOCK_SHIFT_OVERVIEW,
+} from './adminDashboardMockData';
 
 /** @typedef {'Upcoming'|'In Progress'|'Completed'|'Cancelled'} TourStatus */
 /** @typedef {'HIGH'|'MEDIUM'|'LOW'|string} Priority */
@@ -230,9 +237,43 @@ function normalizeManagerRoomPurchase(payment, index = 0) {
   };
 }
 
+function isManagerPreviewDataForced() {
+  if (import.meta.env.VITE_MANAGER_PREVIEW_DATA === 'true') return true;
+  if (typeof window === 'undefined') return false;
+
+  try {
+    return window.localStorage.getItem('capricorn.managerOperations.previewData') === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function shouldUseMockManagerData() {
+  return import.meta.env.DEV || isManagerPreviewDataForced();
+}
+
+function filterMockRoomPurchases(options = {}) {
+  const limit = Number.isFinite(Number(options.limit)) ? Number(options.limit) : 20;
+  const statuses = Array.isArray(options.statuses) && options.statuses.length
+    ? options.statuses.map((status) => String(status).toUpperCase())
+    : [];
+
+  return MOCK_MANAGER_ROOM_PURCHASES
+    .filter((purchase) => {
+      if (!statuses.length) return true;
+      return statuses.includes(String(purchase.status || '').toUpperCase());
+    })
+    .slice(0, Math.max(limit, 1));
+}
+
 /** @returns {Promise<ManagerOperationsDashboardResponse>} */
-export function getManagerOperationsDashboard() {
-  return apiRequest('/manager/operations/dashboard');
+export async function getManagerOperationsDashboard() {
+  try {
+    return await apiRequest('/manager/operations/dashboard');
+  } catch (error) {
+    if (!shouldUseMockManagerData()) throw error;
+    return MOCK_MANAGER_OPERATIONS_DASHBOARD;
+  }
 }
 
 /** @param {string=} month @returns {Promise<FinancePnlResponse>} */
@@ -284,18 +325,27 @@ export function deleteRoomServiceOrder(orderId) {
  */
 export function getRoomServiceDashboard(filters = {}) {
   const query = createQuery(filters);
-  return apiRequest(`/room-service/orders/dashboard${query}`);
+  return apiRequest(`/room-service/orders/dashboard${query}`).catch((error) => {
+    if (!shouldUseMockManagerData()) throw error;
+    return MOCK_ROOM_SERVICE_DASHBOARD;
+  });
 }
 
 /** @param {string} date @returns {Promise<RoomServiceDailySummaryResponse>} */
 export function getRoomServiceDailySummary(date) {
   const query = createQuery({ date });
-  return apiRequest(`/room-service/orders/daily-summary${query}`);
+  return apiRequest(`/room-service/orders/daily-summary${query}`).catch((error) => {
+    if (!shouldUseMockManagerData()) throw error;
+    return MOCK_ROOM_SERVICE_DAILY_SUMMARY;
+  });
 }
 
 /** @returns {Promise<ShiftOverviewResponse>} */
 export function getShiftOverview() {
-  return apiRequest('/manager/operations/shift-overview');
+  return apiRequest('/manager/operations/shift-overview').catch((error) => {
+    if (!shouldUseMockManagerData()) throw error;
+    return MOCK_SHIFT_OVERVIEW;
+  });
 }
 
 /**
@@ -354,37 +404,62 @@ export async function getManagerRoomPurchases(options = {}) {
     ? options.statuses.map((status) => String(status).toUpperCase())
     : [];
 
-  let response;
   try {
     const query = createQuery({ from, to });
-    response = await apiRequest(`/finance/payments${query}`);
+    const response = await apiRequest(`/finance/payments${query}`);
+
+    const payments = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.payments)
+          ? response.payments
+          : [];
+
+    const normalized = payments
+      .map((payment, index) => normalizeManagerRoomPurchase(payment, index))
+      .filter((purchase) => {
+        if (!statuses.length) return true;
+        return statuses.includes(String(purchase.status || '').toUpperCase());
+      })
+      .sort((left, right) => {
+        const leftTime = Date.parse(left.purchasedAt || '');
+        const rightTime = Date.parse(right.purchasedAt || '');
+        return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
+      });
+
+    return normalized.slice(0, Math.max(limit, 1));
   } catch (error) {
-    // Some backend variants reject date-filter params for this endpoint; retry without query.
-    if (Number(error?.status) !== 400) {
-      throw error;
+    if (!shouldUseMockManagerData()) {
+      // Some backend variants reject date-filter params for this endpoint; retry without query.
+      if (Number(error?.status) !== 400) {
+        throw error;
+      }
+
+      const response = await apiRequest('/finance/payments');
+      const payments = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.payments)
+            ? response.payments
+            : [];
+
+      const normalized = payments
+        .map((payment, index) => normalizeManagerRoomPurchase(payment, index))
+        .filter((purchase) => {
+          if (!statuses.length) return true;
+          return statuses.includes(String(purchase.status || '').toUpperCase());
+        })
+        .sort((left, right) => {
+          const leftTime = Date.parse(left.purchasedAt || '');
+          const rightTime = Date.parse(right.purchasedAt || '');
+          return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
+        });
+
+      return normalized.slice(0, Math.max(limit, 1));
     }
-    response = await apiRequest('/finance/payments');
+
+    return filterMockRoomPurchases({ limit, statuses });
   }
-
-  const payments = Array.isArray(response)
-    ? response
-    : Array.isArray(response?.data)
-      ? response.data
-      : Array.isArray(response?.payments)
-        ? response.payments
-        : [];
-
-  const normalized = payments
-    .map((payment, index) => normalizeManagerRoomPurchase(payment, index))
-    .filter((purchase) => {
-      if (!statuses.length) return true;
-      return statuses.includes(String(purchase.status || '').toUpperCase());
-    })
-    .sort((left, right) => {
-      const leftTime = Date.parse(left.purchasedAt || '');
-      const rightTime = Date.parse(right.purchasedAt || '');
-      return (Number.isFinite(rightTime) ? rightTime : 0) - (Number.isFinite(leftTime) ? leftTime : 0);
-    });
-
-  return normalized.slice(0, Math.max(limit, 1));
 }
