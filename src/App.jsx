@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './App.css'
 import Auth from './Auth'
 import ResetPassword from './ResetPassword'
@@ -21,11 +21,14 @@ import AdventureAdmin from './AdventureAdmin'
 import OwnerFinanceDashboard from './OwnerFinanceDashboard'
 import ManagerOperationsDashboard from './ManagerOperationsDashboard'
 import RoomServiceDashboard from './RoomServiceDashboard'
+import { useAuth } from './context/AuthContext'
 
 const RoleRoute = ({ children, allow }) => {
-  // Temporary bypass: keep dashboard routes accessible during integration checks.
-  // Re-enable role checks before production hardening.
-  const _ = allow;
+  const { user, hasAnyRole } = useAuth();
+
+  if (!user || !hasAnyRole(...allow)) {
+    return <Navigate to="/home" replace />;
+  }
 
   return children;
 }

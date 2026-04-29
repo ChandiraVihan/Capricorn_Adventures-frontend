@@ -150,6 +150,37 @@ export default function OwnerFinanceDashboard() {
 
   const tooltipFormatter = (value) => [formatCurrency(value), 'Amount'];
 
+  // Render pie slice labels using the category name (sales name) instead of numeric values
+  const renderPieLabel = (props) => {
+    const { cx, cy, midAngle, outerRadius, index } = props;
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 16;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const entry = breakdownData[index] || {};
+    return (
+      <text x={x} y={y} fill="#3b4a6b" fontSize={12} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+        {entry.name}
+      </text>
+    );
+  };
+
+  // Custom tooltip to show category name (sales name) and percentage instead of currency value
+  const PieTooltip = ({ active, payload }) => {
+    if (!active || !payload || !payload.length) return null;
+    const data = payload[0];
+    const name = data?.payload?.name || '';
+    const percent = (data?.payload && data.payload.value && breakdownData.reduce((s, d) => s + d.value, 0))
+      ? `${Math.round((data.payload.value / breakdownData.reduce((s, d) => s + d.value, 0)) * 100)}%`
+      : '';
+    return (
+      <div className="recharts-tooltip-wrapper" style={{ background: '#fff', padding: 8, border: '1px solid #e6eefb', borderRadius: 6 }}>
+        <div style={{ fontWeight: 700, color: '#1f3350' }}>{name}</div>
+        {percent ? <div style={{ color: '#5f6f86' }}>{percent}</div> : null}
+      </div>
+    );
+  };
+
   return (
     <div className="admin-shell owner-finance-shell">
       <main className="admin-page">
@@ -241,12 +272,12 @@ export default function OwnerFinanceDashboard() {
                 <h2 className="panel-title">Product Breakdown</h2>
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
-                    <Pie data={breakdownData} dataKey="value" nameKey="name" outerRadius={100} label>
+                    <Pie data={breakdownData} dataKey="value" nameKey="name" outerRadius={100} label={renderPieLabel}>
                       {breakdownData.map((entry) => (
                         <Cell key={entry.name} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={tooltipFormatter} />
+                    <Tooltip content={<PieTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
               </article>
