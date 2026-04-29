@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Bar,
@@ -24,6 +24,7 @@ import LoadingSkeleton from './components/admin/LoadingSkeleton';
 import PriorityBadge from './components/admin/PriorityBadge';
 import StatusBadge from './components/admin/StatusBadge';
 import ShiftOverviewWidget from './components/admin/ShiftOverviewWidget';
+import { useAuth } from './context/AuthContext';
 import './components/admin/AdminDashboardShared.css';
 
 function formatDateTime(value) {
@@ -109,6 +110,12 @@ function MiniSparkline({ values = [], tone = 'blue' }) {
 }
 
 export default function ManagerOperationsDashboard() {
+  const { user, hasAnyRole } = useAuth();
+
+  // Protect this component: only allow users with the MANAGER role
+  if (!user || !hasAnyRole('MANAGER')) {
+    return <Navigate to="/home" replace />;
+  }
   const [activeSection, setActiveSection] = useState('overview');
   const [data, setData] = useState(null);
   const [roomPurchases, setRoomPurchases] = useState([]);
