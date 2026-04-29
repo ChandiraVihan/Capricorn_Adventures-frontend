@@ -13,9 +13,9 @@ import yalaImage from './assets/700644293.jpg';
 import galleFortImage from './assets/700644344.jpg';
 import localCardImage1 from './assets/images (3).jpg';
 import localCardImage2 from './assets/754838806.jpg';
-import localCardImage3 from './assets/754839073.jpg';
-import localCardImage4 from './assets/754840632.jpg';
-import localCardImage5 from './assets/754841326.jpg';
+import localCardImage3 from './assets/bed.jpg';
+import localCardImage4 from './assets/mat.jpg';
+import localCardImage5 from './assets/roll.jpg';
 import { adventureService } from './api/adventureService';
 
 const EMPTY_CATEGORY_LABEL = 'All';

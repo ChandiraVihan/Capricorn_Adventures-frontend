@@ -21,6 +21,7 @@ import AdventureAdmin from './AdventureAdmin'
 import OwnerFinanceDashboard from './OwnerFinanceDashboard'
 import ManagerOperationsDashboard from './ManagerOperationsDashboard'
 import RoomServiceDashboard from './RoomServiceDashboard'
+import BrutalHeader from './BrutalHeader'
 
 const RoleRoute = ({ children, allow }) => {
   // Temporary bypass: keep dashboard routes accessible during integration checks.
@@ -38,8 +39,7 @@ const AppContent = () => {
 
   return (
     <>
-      <Background />
-      {!isAdminPath && !isOwnerPath && !isManagerPath && <Header />}
+      {!isAdminPath && !isOwnerPath && !isManagerPath && <BrutalHeader />}
       <div className={isAdminPath || isOwnerPath || isManagerPath ? 'admin-hero' : 'hero'}>
         <Routes>
           <Route path="/" element={<LandingPage />} />

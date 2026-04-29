@@ -1,410 +1,480 @@
-/* Base Layout & Typography */
-/* .hero-section {
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+:root {
+  --black: #050505;
+  --white: #f4f4f4;
+  --border: 3px solid var(--black);
+  --font-main: 'Inter', sans-serif;
+  
+  /* Retro Film Look instead of Black and White */
+  --retro-look: sepia(40%) contrast(120%) saturate(80%) hue-rotate(-10deg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.landing-page-wrapper {
+  margin: 0;
+  background-color: var(--white);
+  color: var(--black);
+  font-family: var(--font-main);
+  overflow-x: hidden;
+  text-transform: uppercase;
+  position: relative;
+  width: 100%;
+}
+
+/* FIXED NOISE OVERLAY */
+.manga-noise {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  width: 100vw; 
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* TYPOGRAPHY HELPERS */
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  border-left: var(--border);
+  padding: 1.5rem 0.5rem;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 4rem 2rem;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: transparent;
-  overflow: hidden;
-} */
+}
 
-/* .hero-section {
-  position: relative; /* CRITICAL: This keeps the red div inside this section */
-  /* display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* Changed from center to allow better spacing */
-  /* min-height: 100vh;               /* Force it to be exactly screen height */
-  /*width: 100%;
-  padding: 4rem 2rem;
-  overflow: hidden;  
-  z-index: 1;          Prevents the collage from making the page scroll */
-/*} */
-
-/*.custom-div {
-    position: fixed;
-    /* This creates even margins on all 4 sides */
-    /*top: clamp(10px, 2vw, 40px);
-    bottom: clamp(10px, 2vw, 40px); 
-    left: clamp(10px, 2vw, 40px);
-    right: clamp(10px, 2vw, 40px);
-    
-    background-color: red;
-    border-radius: 24px; /* Optional: matches your gallery card style */
-  /*  z-index: -1; /* Moves the red background BEHIND your text and images */
-/*} */
-
-.hero-section {
-  position: relative;
+/* NAV */
+.nav-bar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  width: 100%;
-  padding: 4rem 2rem;
-  overflow: hidden;
-  z-index: 1;
-  color: aliceblue;
-}
-
-.custom-div {
-  position: absolute;
-  top: clamp(4px, 2vw, 20px);
-  left: clamp(4px, 2vw, 20px);
-  right: calc(clamp(4px, 2vw, 20px) + var(--scrollbar-width, 0px));
-  height: calc(100dvh - clamp(4px, 2vw, 20px) * 2);
-  background-size: cover;
-  background-position: center;
-  border-radius: 24px;
-  z-index: -1;
- clip-path: url(#notch-clip);
- 
-
-}
-
-.bg-video {
-  position: absolute;
+  padding: 0;
+  border-bottom: var(--border);
+  background: var(--white);
+  position: sticky;
   top: 0;
-  left: 0;
-  width: 100%;
+  z-index: 100;
+  height: 80px;
+}
+
+.nav-logo-box { 
+  font-weight: 900; 
+  font-size: 1.5rem; 
+  padding: 0 2rem;
   height: 100%;
-  object-fit: cover; /* This works exactly like background-size: cover */
-  z-index: 1; /* Keeps it in the background */
-}
-
-.logo1 {
   display: flex;
-  position: absolute;
-  height: 160px;
-  width: 100px;
-  z-index: 10;
-
-  /* Center horizontally within the hero parent */
-  left: 49%;
-  transform: translateX(-50%);
-
-  /* Align to where the bottom notch sits */
-  /* The red div is 100dvh tall, notch is at 82% height */
-  top: calc(100dvh * 0.82 - 20px); /* vertically centers logo on the notch line */
-
-  filter: brightness(0); /* make it black */
-}
-
-.hero-content {
-  position: absolute;
-  text-align: center;
-  max-width: 800px;
-  margin-bottom: 14rem;
-  color: aliceblue;
-}
-
-/* Badge styling */
-.badge {
-  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #555;
-  margin-bottom: 1rem;
+  border-right: var(--border);
 }
 
-.badge .icon {
-  font-size: 1.1rem;
+.nav-logo-box img {
+  height: 40px;
+  filter: invert(1);
 }
 
-/* Typography */
-.title {
-  font-size: 3.5rem;
-  font-weight: 500;
-  color: aliceblue;
-  margin: 0 0 1rem 0;
-  line-height: 1.2;
+.nav-links-box { 
+  display: flex; 
+  height: 100%;
+  align-items: center;
 }
 
-.description {
-  font-size: 1.1rem;
-  color: #666;
-  line-height: 1.6;
-  margin: 0 auto 2rem auto;
-  max-width: 700px;
+.nav-links-box a { 
+  text-decoration: none; 
+  color: var(--black); 
+  font-weight: 900; 
+  font-size: 0.8rem; 
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  border-left: var(--border);
+  transition: all 0.2s;
 }
 
-/* Buttons */
-.button-group {
+.nav-links-box a:hover {
+  background: var(--black);
+  color: var(--white);
+}
+
+.nav-brutal-btn { 
+  background: #bef264; 
+  color: var(--white); 
+  border: none; 
+  height: 100%;
+  padding: 0 2.5rem; 
+  font-weight: 900; 
+  cursor: pointer; 
+  transition: all 0.2s;
+  border-left: var(--border);
+  display: flex;
+  align-items: center;
+}
+
+.nav-brutal-btn:hover { 
+  background: var(--white); 
+  color: var(--black); 
+  box-shadow: inset 0 0 0 5px var(--black); 
+}
+
+/* HERO SECTION - MANGA PANEL GRID */
+.hero-manga-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr 1.2fr;
+  min-height: calc(100vh - 80px);
+  border-bottom: var(--border);
+}
+
+.hero-text-panel {
+  padding: 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: var(--border);
+  background: var(--white);
+  position: relative;
+}
+
+.hero-main-title {
+  font-size: clamp(3.5rem, 7vw, 8rem);
+  font-weight: 900;
+  line-height: 0.85;
+  margin: 0 0 2.5rem 0;
+  letter-spacing: -0.05em;
+}
+
+.hero-main-desc {
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  max-width: 90%; 
+  line-height: 1.4;
+  margin-top: 1rem;
+}
+
+.hero-btns {
   display: flex;
   gap: 1rem;
-  justify-content: center;
+  margin-top: 3rem;
 }
 
-.btn {
-  padding: 0.8rem 1.8rem;
-  border-radius: 50px;
-  font-size: 1rem;
-  font-weight: 500;
+.brutal-btn-primary {
+  background: var(--black);
+  color: var(--white);
+  border: var(--border);
+  padding: 1rem 2.5rem;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: 0.3s;
 }
 
-.btn-primary {
-  background-color: #111;
-  color: #fff;
-  border: 2px solid #111;
+.brutal-btn-primary:hover {
+  background: var(--white);
+  color: var(--black);
 }
 
-.btn-primary:hover {
-  background-color: #333;
-}
-
-.btn-secondary {
-  background-color: transparent;
-  color: #111;
-  border: 2px solid #ddd;
-}
-
-.btn-secondary:hover {
-  border-color: #111;
-}
-
-/* Interactive Gallery Layout */
-/* .gallery-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 350px;
-  margin-top: 30%;
-  padding-top: 2rem;
-} */
-
-.gallery-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 350px;
-  margin-top: 44rem; /* Reduced from 30% to fit within 100vh */
-  padding-top: 2rem;
-  position: relative;
-    z-index: 3; /* Above custom-div */
-
-}
-
-.gallery-card {
-  width: 240px;
-  height: 320px;
-  background: white;
-  border: 5px solid white;
-  border-radius: 24px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-  position: relative;
-  /* Negative margin creates the overlap effect */
-  margin-left: -60px;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+.brutal-btn-secondary {
+  background: var(--white);
+  color: var(--black);
+  border: var(--border);
+  padding: 1rem 2.5rem;
+  font-weight: 900;
   cursor: pointer;
-  z-index: 3;
+  transition: 0.3s;
 }
 
-/* Remove negative margin from the first item so it doesn't get pushed off-center */
-.gallery-card:first-child {
-  margin-left: 0;
+.brutal-btn-secondary:hover {
+  background: var(--black);
+  color: var(--white);
 }
 
-.gallery-card img {
+.hero-video-panel {
+  background: var(--black);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-video-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hero-video-container video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 14px;
-  /* Slightly smaller than outer border-radius to look natural */
+  filter: grayscale(100%) contrast(120%);
 }
 
-/* Specific initial rotations for the "fanned" out look */
-.gallery-card:nth-child(1) {
-  transform: rotate(-10deg) translateY(10px);
-}
-
-.gallery-card:nth-child(2) {
-  transform: rotate(5deg) translateY(-5px);
-}
-
-.gallery-card:nth-child(3) {
-  transform: rotate(-2deg) translateY(5px);
-}
-
-.gallery-card:nth-child(4) {
-  transform: rotate(8deg) translateY(-10px);
-}
-
-.gallery-card:nth-child(5) {
-  transform: rotate(-5deg) translateY(15px);
-}
-
-/* The Hover Effect */
-.gallery-card:hover {
-  /* Scale up, straighten out, and move up */
-  transform: scale(1.15) translateY(-40px) rotate(0deg) !important;
-  /* Immediately jump to the front */
-  z-index: 10;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-}
-
-/* About Section */
-.landing-page-container {
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-}
-
-.about-section {
-  position: relative;
-  max-width: 1500px;
-  width: 90%;
-  margin: 22rem auto 8rem auto;
-  min-height: 500px;
-  border-radius: 24px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  /* Architectural background image */
-  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200&h=600');
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
-}
-
-.about-bg-overlay {
+.hero-video-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.3);
-  /* Slight white tint */
-  backdrop-filter: blur(16px) grayscale(60%);
-  -webkit-backdrop-filter: blur(16px) grayscale(60%);
-  z-index: 1;
+  top: 0; left: 0; width: 100%; height: 100%;
+  border: 15px solid var(--white);
+  pointer-events: none;
 }
 
-.about-content {
+.hero-caption {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  background: var(--white);
+  border: var(--border);
+  padding: 1rem 2rem;
+  font-weight: 900;
+  box-shadow: 12px 12px 0 var(--black);
+}
+
+/* MARQUEE */
+.manga-marquee {
+  background: var(--black); 
+  color: var(--white); 
+  padding: 1rem 0;
+  overflow: hidden; 
+  white-space: nowrap; 
+  border-bottom: var(--border);
+}
+
+.manga-marquee-content {
+  display: inline-block; 
+  animation: marqueeScroll 25s linear infinite;
+  font-weight: 900; 
+  font-size: 1.8rem;
+}
+
+@keyframes marqueeScroll { 100% { transform: translateX(-50%); } }
+
+/* ADVENTURES SECTION */
+.adventures-manga-section {
+  border-bottom: var(--border);
+  background: var(--white);
+}
+
+.adventures-header {
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  border-bottom: var(--border);
+}
+
+.adventures-title {
+  font-size: clamp(3rem, 8vw, 7rem); 
+  font-weight: 900; 
+  padding: 4rem; 
+  margin: 0;
+}
+
+/* GALLERY - RETRO MANGA STYLE */
+.gallery-section { 
+  background: #e0e0e0; 
+  border-bottom: var(--border);
+}
+
+.section-title {
+  font-size: clamp(3rem, 10vw, 7.5rem); /* REDUCED BY ~30% */
+  font-weight: 900; 
+  letter-spacing: -0.05em;
+  padding: 4rem 4rem 1.5rem 4rem; 
+  margin: 0; 
+  border-bottom: var(--border);
+  color: var(--white); /* WHITE TEXT */
+  line-height: 0.8;
+  background: #d1d1d1; /* HEADER GREY BACKGROUND */
+  width: 100%;
+}
+
+.gallery-grid {
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem; 
+  padding: 4rem; 
+}
+
+.gallery-item {
+  border: var(--border); 
+  background: var(--black);
+  height: 400px; 
+  overflow: hidden; 
   position: relative;
-  z-index: 2;
-  text-align: center;
-  max-width: 750px;
+  will-change: transform, opacity;
+}
+
+.gallery-item.large { 
+  grid-column: span 2; 
+  height: 600px; 
+}
+
+/* RETRO IMAGE HOVER LOGIC */
+.retro-filter {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: var(--retro-look);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.5s ease;
+}
+
+/* On hover, it snaps to full true color */
+.gallery-item:hover .retro-filter {
+  filter: sepia(0%) contrast(100%) saturate(100%) hue-rotate(0deg);
+  transform: scale(1.05);
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* ABOUT SECTION */
+.about-manga-section {
+  padding: 8rem 5rem;
+  border-bottom: var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+}
+
+.about-manga-text h2 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  margin-bottom: 2rem;
+  line-height: 1;
+}
+
+.about-manga-text p {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.about-manga-image {
+  border: var(--border);
+  background: var(--black);
+  height: 500px;
+  box-shadow: 15px 15px 0 var(--black);
+  overflow: hidden;
+}
+
+.about-manga-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+/* TESTIMONIALS - COMIC PANEL STYLE */
+.testimonials-manga-section {
+  padding: 10rem 5rem; 
+  background: var(--white); 
+  border-bottom: var(--border);
+  display: flex;
+  justify-content: center;
+}
+
+.testimonial-panel {
+  border: var(--border); 
+  padding: 5rem; 
+  background: var(--white);
+  position: relative;
+  box-shadow: 20px 20px 0 var(--black);
+  max-width: 1000px;
+  width: 100%;
+  min-height: 450px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  justify-content: center;
 }
 
-.about-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 500;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 0.5rem 1.2rem;
-  border-radius: 50px;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  color: #333;
+.testimonial-label { 
+  position: absolute;
+  top: -1.5rem;
+  left: 3rem;
+  background: var(--black);
+  color: var(--white);
+  padding: 0.5rem 2rem;
+  font-weight: 900;
+  font-size: 0.9rem;
 }
 
-.about-badge .icon {
-  font-size: 1rem;
+.testimonial-text { 
+  font-size: clamp(2rem, 5vw, 3.8rem); 
+  font-weight: 900; 
+  line-height: 1.1; 
+  margin: 0;
 }
 
-.about-title {
-  font-size: 3.5rem;
-  font-weight: 400;
-  margin: 0 0 1.2rem 0;
-  color: #000;
-  line-height: 1.1;
-  letter-spacing: -0.5px;
+.testimonial-author { 
+  margin-top: 3rem;
+  font-weight: 900; 
+  font-size: 1.4rem;
+  border-top: var(--border);
+  padding-top: 1.5rem;
+  display: inline-block;
 }
 
-.about-description {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin: 0 auto 2.5rem auto;
-  color: #111;
-  font-weight: 400;
+/* FOOTER */
+.manga-footer {
+  background: var(--white);
 }
 
-.about-btn {
-  padding: 1rem 2.5rem !important;
-  font-size: 1rem !important;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-  font-weight: 600 !important;
+.footer-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: var(--border);
 }
 
-/* Responsive Mobile UI */
-@media (max-width: 768px) {
-  .hero-content {
-    padding: 0 20px;
-    margin-bottom: 8rem;
-    position: relative;
-    top: 60px;
-  }
-
-  .title {
-    font-size: 2.2rem;
-  }
-
-  .description {
-    font-size: 1rem;
-  }
-
-  .gallery-container {
-    margin-top: 10rem;
-    height: 250px;
-    transform: scale(0.8); /* Scale down the whole gallery for mobile */
-  }
-
-  .gallery-card {
-    width: 160px;
-    height: 220px;
-    margin-left: -80px;
-  }
-
-  .about-section {
-    margin-top: 5rem;
-    padding: 3rem 1rem;
-    width: 95%;
-  }
-
-  .about-title {
-    font-size: 2rem;
-  }
-  
-  .custom-div {
-    top: 10px;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    border-radius: 16px;
-  }
+.footer-col {
+  padding: 4rem;
+  border-right: var(--border);
 }
 
-@media (max-width: 480px) {
-  .button-group {
-    flex-direction: column;
-    width: 100%;
-    padding: 0 20px;
-  }
-  
-  .btn {
-    width: 100%;
-  }
-  
-  .gallery-container {
-    margin-top: 12rem;
-    transform: scale(0.65);
-  }
+.footer-col:last-child {
+  border-right: none;
+}
+
+.footer-col h2 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.footer-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.footer-links-list a {
+  color: var(--black);
+  text-decoration: none;
+  font-weight: 900;
+  font-size: 1.5rem;
+  transition: 0.3s;
+}
+
+.footer-links-list a:hover {
+  text-decoration: underline;
+  padding-left: 1rem;
+}
+
+.footer-bottom-bar {
+  padding: 3rem;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 900;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .hero-manga-grid { grid-template-columns: 1fr; }
+  .vertical-text { display: none; }
+  .hero-text-panel { padding: 3rem 2rem; border-right: none; border-bottom: var(--border); }
+  .gallery-manga-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-manga-section { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 2rem; }
+  .footer-main { grid-template-columns: 1fr; }
+  .footer-col { border-right: none; border-bottom: var(--border); }
 }
