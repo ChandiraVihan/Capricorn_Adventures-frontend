@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useFinanceData } from "./hooks/useFinanceData";
 import KpiCard              from "./components/KpiCard";
 import RevenueChart         from "./components/RevenueChart";
@@ -90,90 +90,139 @@ export default function FinanceDashboard() {
   const { totalRevenue, successRate, totalRefunded, activeInvoices } =
     computeKpis(payments, invoices);
 
+  const pulseMetrics = useMemo(() => {
+    const pending = payments.filter((p) => p.status === "PENDING").length;
+    const failed = payments.filter((p) => p.status === "FAILED").length;
+    const completed = payments.filter((p) => p.status === "SUCCESS").length;
+
+    return { pending, failed, completed };
+  }, [payments]);
+
   return (
-    <div className="fin-dashboard">
-
-      <div className="dashboard-header">
-        <div className="dashboard-title-group">
+    <div className="fin-shell">
+      <aside className="fin-sidebar">
+        <div className="sidebar-brand">
+          <span className="brand-mark">CA</span>
           <div>
-            <h1 className="dashboard-title">Finance dashboard</h1>
-            <p className="dashboard-sub">Owner access only — Capricorn Adventures</p>
+            <p className="brand-title">Capricorn</p>
+            <p className="brand-sub">Owner Console</p>
           </div>
-          <button className="sync-btn" onClick={handleSync} title="Recover missing payments from webhook history">
-            Sync Payments
-          </button>
         </div>
-        <div className="filter-bar">
-          <select value={range} onChange={(e) => setRange(e.target.value)}>
-            {Object.entries(RANGES).map(([val, { label }]) => (
-              <option key={val} value={val}>{label}</option>
-            ))}
-          </select>
-          <select value={statusFilter} onChange={(e) => setStatus(e.target.value)}>
-            <option value="all">All statuses</option>
-            <option value="SUCCESS">Success</option>
-            <option value="PENDING">Pending</option>
-            <option value="FAILED">Failed</option>
-            <option value="REFUNDED">Refunded</option>
-            <option value="CHARGEBACK">Chargeback</option>
-          </select>
+
+        <nav className="sidebar-nav" aria-label="Finance navigation">
+          <button className="sidebar-link is-active" type="button">Overview</button>
+          <button className="sidebar-link" type="button">Revenue</button>
+          <button className="sidebar-link" type="button">Invoices</button>
+          <button className="sidebar-link" type="button">Transactions</button>
+        </nav>
+
+        <div className="sidebar-pulse">
+          <p className="sidebar-card-title">Today snapshot</p>
+          <div className="pulse-row">
+            <span>Completed</span>
+            <strong>{pulseMetrics.completed}</strong>
+          </div>
+          <div className="pulse-row">
+            <span>Pending</span>
+            <strong>{pulseMetrics.pending}</strong>
+          </div>
+          <div className="pulse-row">
+            <span>Failed</span>
+            <strong>{pulseMetrics.failed}</strong>
+          </div>
         </div>
-      </div>
 
-      {error && <div className="error-banner">{error}</div>}
+        <p className="sidebar-foot">Professional finance operations, tuned for speed.</p>
+      </aside>
 
-      {loading ? (
-        <div className="loading-state">Loading finance data...</div>
-      ) : (
-        <>
-          <div className="kpi-grid">
-            <KpiCard
-              label="Total revenue"
-              value={`LKR ${totalRevenue.toLocaleString()}`}
-              sub="+12.4% vs last period"
-              subType="up"
-            />
-            <KpiCard
-              label="Transactions"
-              value={payments.length}
-              sub="payments recorded"
-            />
-            <KpiCard
-              label="Success rate"
-              value={`${successRate}%`}
-              sub="of all transactions"
-            />
-            <KpiCard
-              label="Invoices issued"
-              value={activeInvoices}
-              sub="active invoices"
-            />
-            <KpiCard
-              label="Refunds"
-              value={`LKR ${totalRefunded.toLocaleString()}`}
-              sub="total refunded"
-              subType="down"
-            />
+      <section className="fin-dashboard">
+        <div className="dashboard-header">
+          <div className="dashboard-title-group">
+            <div>
+              <h1 className="dashboard-title">Finance Dashboard</h1>
+              <p className="dashboard-sub">Track revenue, invoices, and payment health in one place</p>
+            </div>
+            <button className="sync-btn" onClick={handleSync} title="Recover missing payments from webhook history">
+              Sync Payments
+            </button>
           </div>
-
-          <div className="charts-row">
-            <RevenueChart payments={payments} />
-            <StatusDonutChart payments={payments} />
+          <div className="dashboard-actions">
+            <label className="search-shell" htmlFor="finance-search">
+              <input id="finance-search" type="text" placeholder="Search transactions, methods, refs" readOnly />
+            </label>
+            <div className="filter-bar">
+              <select value={range} onChange={(e) => setRange(e.target.value)}>
+                {Object.entries(RANGES).map(([val, { label }]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
+              <select value={statusFilter} onChange={(e) => setStatus(e.target.value)}>
+                <option value="all">All statuses</option>
+                <option value="SUCCESS">Success</option>
+                <option value="PENDING">Pending</option>
+                <option value="FAILED">Failed</option>
+                <option value="REFUNDED">Refunded</option>
+                <option value="CHARGEBACK">Chargeback</option>
+              </select>
+            </div>
           </div>
+        </div>
 
-          <div className="charts-row-equal">
-            <InvoiceTrendChart invoices={invoices} />
-            <MethodBarChart payments={payments} />
-          </div>
+        {error && <div className="error-banner">{error}</div>}
 
-          <DailySparkline payments={payments} />
+        {loading ? (
+          <div className="loading-state">Loading finance data...</div>
+        ) : (
+          <>
+            <div className="kpi-grid">
+              <KpiCard
+                label="Total revenue"
+                value={`LKR ${totalRevenue.toLocaleString()}`}
+                sub="+12.4% vs last period"
+                subType="up"
+              />
+              <KpiCard
+                label="Transactions"
+                value={payments.length}
+                sub="payments recorded"
+              />
+              <KpiCard
+                label="Success rate"
+                value={`${successRate}%`}
+                sub="of all transactions"
+              />
+              <KpiCard
+                label="Invoices issued"
+                value={activeInvoices}
+                sub="active invoices"
+              />
+              <KpiCard
+                label="Refunds"
+                value={`LKR ${totalRefunded.toLocaleString()}`}
+                sub="total refunded"
+                subType="down"
+              />
+            </div>
 
-          <TransactionsTable
-            payments={filteredPayments}
-            onRefund={handleRefund}
-          />
-        </>
-      )}
+            <div className="charts-row">
+              <RevenueChart payments={payments} />
+              <StatusDonutChart payments={payments} />
+            </div>
+
+            <div className="charts-row-equal">
+              <InvoiceTrendChart invoices={invoices} />
+              <MethodBarChart payments={payments} />
+            </div>
+
+            <DailySparkline payments={payments} />
+
+            <TransactionsTable
+              payments={filteredPayments}
+              onRefund={handleRefund}
+            />
+          </>
+        )}
+      </section>
     </div>
   );
 }
