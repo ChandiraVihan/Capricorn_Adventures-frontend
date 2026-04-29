@@ -354,7 +354,7 @@ const Adventures = () => {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await adventureService.browseAdventures(apiFilters, controller.signal);
       clearTimeout(timeoutId);
@@ -377,12 +377,17 @@ const Adventures = () => {
         return norm;
       }));
     } catch (err) {
+      console.error('Adventure fetch error details:', {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        filters: apiFilters
+      });
+
       if (err.name === 'AbortError') {
-        // Enforce constraint but fail gracefully: degrade the distance display silently
-        // Avoid throwing global error strings. Instead, clear conflicting distance data.
+        setError('The request timed out. The backend might be slow or unreachable.');
         setAdventures((prev) => prev.map((adv) => ({ ...adv, distance: null, travelTime: null })));
       } else {
-        console.error('Failed to fetch adventures', err);
         setError('Showing sample adventures because live data is currently unavailable.');
 
         let uLat = loc?.lat;

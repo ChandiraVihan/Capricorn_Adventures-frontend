@@ -12,17 +12,12 @@ import roll from './assets/roll.jpg';
 import mat from './assets/mat.jpg';
 import bed from './assets/bed.jpg';
 
-gsap.registerPlugin(ScrollTrigger);
+import GoogleReviews from './GoogleReviews';
 
-const testimonialsData = [
-  { text: "AN ABSOLUTE MASTERCLASS IN LUXURY REAL ESTATE. THE SEAMLESS INTEGRATION OF MODERN DESIGN AND NATURE IS BREATHTAKING.", author: "ARCHITECTURAL DIGEST" },
-  { text: "REDEFINING MODERN LIVING WITH A BOLD BRUTALIST EDGE. COLOMBO WATER FRONT IS THE NEW STANDARD OF LUXURY.", author: "DESIGN MILK" },
-  { text: "THE MOST EXCLUSIVE PROPERTIES IN THE HEART OF COLOMBO. UNMATCHED ATTENTION TO DETAIL AND CRAFTSMANSHIP.", author: "VOGUE LIVING" },
-];
+gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
   const containerRef = useRef(null);
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -38,14 +33,6 @@ export default function LandingPage() {
     "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=600&h=800",
     "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&q=80&w=600&h=800"
   ];
-
-  // Testimonial Carousel Logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % testimonialsData.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
@@ -104,16 +91,10 @@ export default function LandingPage() {
         }
       });
 
-      // 3. TESTIMONIAL ANIMATION
-      gsap.fromTo(".testimonial-text, .testimonial-author", 
-        { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 1, ease: "power2.out" }
-      );
-
     }, containerRef);
 
     return () => ctx.revert();
-  }, [currentTestimonial]);
+  }, []);
 
   return (
     <div ref={containerRef} className="landing-page-wrapper">
@@ -205,13 +186,7 @@ export default function LandingPage() {
 
       {/* TESTIMONIALS SECTION */}
       <section className="testimonials-manga-section">
-        <div className="testimonial-panel">
-          <div className="testimonial-label">WHAT THEY SAY</div>
-          <h2 className="testimonial-text">
-            "{testimonialsData[currentTestimonial].text}"
-          </h2>
-          <div className="testimonial-author">— {testimonialsData[currentTestimonial].author}</div>
-        </div>
+        <GoogleReviews />
       </section>
 
       {/* FOOTER */}
