@@ -354,7 +354,7 @@ const Adventures = () => {
       }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 1000);
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await adventureService.browseAdventures(apiFilters, controller.signal);
       clearTimeout(timeoutId);
